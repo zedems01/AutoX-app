@@ -22,15 +22,16 @@ The workflow incorporates an optional **Human-in-the-Loop (HITL)** system, allow
 
 
 ### 🤖 Agents
-- 🕸️**Web Scraping Agent**: Extracts trending topics on X based on a specified location (city, country, or worldwide).
-- 🌐**Web Search Agent**: Performs real-time web searches to gather contextual news and information related to the trending topics identified.
-- 📈**Trends Analyst Agent**: Evaluates the trending topics and recommends the one most likely to generate high engagement if tweeted.
-- ✍️**Writer Agent**: Crafts the final tweet using insights from the Trends Analyst Agent and a curated set of user tweets related to the topic.
+- 🕸️ **Web Scraping Agent**: Extracts trending topics on X based on a specified location (city, country, or worldwide).
+- 🌐 **Web Search Agent**: Performs real-time web searches to gather contextual news and information related to the trending topics identified.
+- 📈 **Trends Analyst Agent**: Evaluates the trending topics and recommends the one most likely to generate high engagement if tweeted.
+- ✍️ **Writer Agent**: Crafts the final tweet using insights from the Trends Analyst Agent and a curated set of user tweets related to the topic.
 - ....
 
 ### Other nodes
-- 🙋**Human Feddbackt**
-- 📤**Tweets Publication**
+- **Human Feedback**
+- **Tweets Publication**
+- **Interactions**
 
 
 ### 📁 Project Structure
