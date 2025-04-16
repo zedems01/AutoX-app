@@ -1,0 +1,19 @@
+[project]
+name = "X_langgraph_agents"
+version = "0.1.0"
+description = "A team of AI agents designed with LangGraph to manage a X (formerly Twitter) account"
+authors = [
+    {name = "zedems01", email = "nguessie.achille@gmail.com"},
+]
+dependencies = ["jupyter>=1.1.1", "ipykernel>=6.29.5", "ipywidgets>=8.1.6"]
+requires-python = ">=3.12"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+distribution = true
