@@ -34,4 +34,4 @@ The workflow incorporates an optional **Human-in-the-Loop (HITL)** system, allow
 - **Interactions**
 
 
-### 📁 Project Structur
+### 📁 Project Structure
