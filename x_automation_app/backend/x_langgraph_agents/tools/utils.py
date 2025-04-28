@@ -15,9 +15,11 @@ class WorkflowState(MessagesState):
     trends_schema: TrendsResponse
     news_schema: WebResponse
     analysis_schema: TrendsAnalysisResponse
-    writer_schema: WriterResponse
     topic_choice_feedback: str
-    final_tweet_feedback: str
+    chosen_topic: str
+    writer_schema: WriterResponse
+    tweet_feedback: str
+    final_tweet: str
 
 # --- Base system prompt for all the agents ---
 def make_system_prompt(suffix: str) -> str:
@@ -26,6 +28,16 @@ def make_system_prompt(suffix: str) -> str:
         " Use the provided tools to progress towards completing the task you were asked."
         f"\n{suffix}"
     )
+
+
+def print_stream(stream):
+    """A utility to pretty print the stream."""
+    for s in stream:
+        message = s["messages"][-1]
+        if isinstance(message, tuple):
+            print(message)
+        else:
+            message.pretty_print()
 
 OPENAI_LLM = ChatOpenAI(model="gpt-4o")
 ANTHROPIC_LLM = ChatAnthropic(model="claude-3-5-sonnet-latest")

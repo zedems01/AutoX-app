@@ -50,6 +50,7 @@ def trends_analyst_agent(state: WorkflowState):
 
     agent = create_react_agent(
         model=llm,
+        tools=[],
         prompt=make_system_prompt(system_role),
         response_format=TrendsAnalysisResponse
     )
