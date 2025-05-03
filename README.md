@@ -17,7 +17,7 @@ The workflow incorporates an optional **Human-in-the-Loop (HITL)** system, allow
 ## Architecture
 
 <p style="text-align: center;">
-  <img src="./x_automation_app/agents_workflow.png" alt="workflow images" width="500" />
+  <img src="./x_automation_app/agents_workflow_x3.png" alt="workflow images" width="500" />
 </p>
 
 
