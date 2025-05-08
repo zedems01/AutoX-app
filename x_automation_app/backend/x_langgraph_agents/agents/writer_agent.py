@@ -2,13 +2,14 @@ import logging
 
 from langgraph.prebuilt import create_react_agent
 
-from ..tools.utils import WorkflowState, OPENAI_LLM, ANTHROPIC_LLM, make_system_prompt
-from ..tools.writer_tool import WriterResponse, get_tweets_tool
+from ..tools.utils import WorkflowState, OPENAI_LLM, ANTHROPIC_LLM, make_system_prompt, get_state_items_as_list
+from ..tools.writer_schema import WriterResponse
+from ..tools.get_tweets_tool import get_tweets_tool
 
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
+import time
 
 
 llm = OPENAI_LLM
@@ -17,6 +18,13 @@ def writer_agent(state: WorkflowState):
     """Agent for crafting the final tweet using insights from the Trends Analyst Agent and a curated set of user tweets related to the topic.
 - ....
     """
+
+    print("---------- Activating Writer Agent ----------")
+    time.sleep(10)
+
+    writer_responses_list = get_state_items_as_list(state.get('news_schema'))
+
+
     system_role = f"""
         You are a Twitter copywriting expert specialized in virality.
         You will be provided with information about different trending topics and the final choice of the user.
@@ -33,11 +41,16 @@ def writer_agent(state: WorkflowState):
         response_format=WriterResponse
     )
 
+    user_msg = f"""
+
+    """
+
     print(f"--- Writing the tweet... ---")
-    response = agent.invoke(state)
+    response = agent.invoke({"messages": [("user", user_msg)]})
 
     return {
             "messages": response["messages"],
-            "writter_schema": response["structured_response"],
+            "writer_schema": response["structured_response"],
+
         }
     pass

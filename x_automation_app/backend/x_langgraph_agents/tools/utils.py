@@ -1,6 +1,13 @@
+import collections.abc
+
 from typing import (
+    TypeVar,
     Annotated,
-    Optional
+    Optional,
+    Literal,
+    List,
+    Union,
+    Sequence
 )
 
 from langchain_anthropic import ChatAnthropic
@@ -10,69 +17,114 @@ from langgraph.graph import MessagesState
 from .get_trends_tool import TrendsResponse
 from .get_web_news_tool import WebResponse
 from .analyst_schema import TrendsAnalysisResponse
-from .writer_tool import WriterResponse
+from .writer_schema import WriterResponse
 
 
-def aggregation(left, right):
-    if left is None: left = []
-    if right is None: right = []
-    return left + right
+# Generic type variable
+T = TypeVar('T')
+
+def aggregate_list(
+    left: Optional[Union[T, List[T]]],
+    right: Optional[Union[T, List[T]]]
+) -> List[T]:
+    """
+    Aggregates items or lists of items into a single list.
+
+    Handles LangGraph's behavior where 'left' might be the first single item
+    assigned directly to the state channel before aggregation starts.
+    """
+    # 1. Initialize or standardize 'left' into a list
+    if left is None:
+        left_list = []
+    elif not isinstance(left, list):
+        # If left is a single item (LangGraph's first assignment), wrap it in a list.
+        left_list = [left]
+    else:
+        # left is already a list being built upon.
+        left_list = left
+
+    # 2. Add 'right' to the 'left_list'
+    if right is None:
+        # Nothing to add from right.
+        return left_list
+
+    # Check if 'right' is a sequence (list, tuple, etc.) but not a string/bytes
+    if isinstance(right, collections.abc.Sequence) and not isinstance(right, (str, bytes)):
+        # If right is a list/sequence, extend left_list with its elements.
+        # Convert right to list just to be safe for '+' concatenation.
+        return left_list + list(right)
+    else:
+        # If right is a single item, append it as a new element.
+        return left_list + [right]
+
+# --- Specific aggregation functions using the robust aggregate_list ---
 
 def aggregate_feedbacks(
-    left: List[str],
-    right: List[str]
+    left: Optional[Union[str, List[str]]],
+    right: Optional[Union[str, List[str]]]
 ) -> List[str]:
-    return aggregation(left, right)
+    return aggregate_list(left, right)
 
 def aggregate_trendsresponses(
-    left: Optional[List[TrendsResponse]],
-    right: Optional[List[TrendsResponse]]
+    left: Optional[Union[TrendsResponse, List[TrendsResponse]]],
+    right: Optional[Union[TrendsResponse, List[TrendsResponse]]]
 ) -> List[TrendsResponse]:
-    return aggregation(left, right)
+    return aggregate_list(left, right)
 
 def aggregate_webresponses(
-    left: Optional[List[WebResponse]],
-    right: Optional[List[WebResponse]]
+    left: Optional[Union[WebResponse, List[WebResponse]]],
+    right: Optional[Union[WebResponse, List[WebResponse]]]
 ) -> List[WebResponse]:
-    return aggregation(left, right)
-    
+    return aggregate_list(left, right)
+
 def aggregate_analysisresponses(
-    left: Optional[List[TrendsAnalysisResponse]],
-    right: Optional[List[TrendsAnalysisResponse]]
+    left: Optional[Union[TrendsAnalysisResponse, List[TrendsAnalysisResponse]]],
+    right: Optional[Union[TrendsAnalysisResponse, List[TrendsAnalysisResponse]]]
 ) -> List[TrendsAnalysisResponse]:
-    return aggregation(left, right)
-    
+    return aggregate_list(left, right)
 
 def aggregate_writerresponses(
-    left: Optional[List[WriterResponse]],
-    right: Optional[List[WriterResponse]]
+    left: Optional[Union[WriterResponse, List[WriterResponse]]],
+    right: Optional[Union[WriterResponse, List[WriterResponse]]]
 ) -> List[WriterResponse]:
-    return aggregation(left, right)
+    return aggregate_list(left, right)
 
 
 
-# --- State shared by all agents ---
-# class WorkflowState(MessagesState):
-#     trends_schema: TrendsResponse
-#     news_schema: WebResponse
-#     analysis_schema: TrendsAnalysisResponse
-#     trend_choice_feedback: str
-#     chosen_trend: str
-#     writer_schema: WriterResponse
-#     tweet_feedback: str
-#     final_tweet: str
+# --- Workflow State Definition ---
 
-auto = True
+
 class WorkflowState(MessagesState):
-    complete_automation: bool=auto
+    complete_automation: bool
+    next_scraping_prompt: Optional[str]
+    chosen_trend: Optional[str]
+    final_tweet: Optional[str]
+
+
     trends_schema: Annotated[Optional[List[TrendsResponse]], aggregate_trendsresponses]
     news_schema: Annotated[Optional[List[WebResponse]], aggregate_webresponses]
     analysis_schema: Annotated[Optional[List[TrendsAnalysisResponse]], aggregate_analysisresponses]
     trend_choice_feedback: Annotated[Optional[List[str]], aggregate_feedbacks]
-    chosen_trend: Optional[str]
     writer_schema: Annotated[Optional[List[WriterResponse]], aggregate_writerresponses]
     tweet_validation_feedback: Annotated[Optional[List[str]], aggregate_feedbacks]
-    final_tweet: Optional[str]
+
+
+def get_state_items_as_list(
+    state_value: Optional[Union[T, List[T]]]
+) -> List[T]:
+    """
+    Safely returns the state value as a list.
+    Returns an empty list if the value is None.
+    Wraps a single item in a list if it's not already a list.
+    Returns the list directly if it's already a list.
+    """
+    if state_value is None:
+        return []
+    if isinstance(state_value, list):
+        return state_value
+    else:
+        # It's a single item T
+        return [state_value]
 
 # --- Base system prompt for all the agents ---
 def make_system_prompt(suffix: str) -> str:
@@ -81,6 +133,20 @@ def make_system_prompt(suffix: str) -> str:
         " Use the provided tools to progress towards completing the task you were asked."
         f"\n{suffix}"
     )
+
+
+def router_trend_choice(state: WorkflowState) -> Literal["writer", "trend_feedback_node"]:
+    if state.get('complete_automation')==True:
+        return "writer"
+    else:
+        return "trend_feedback_node"
+    
+def router_tweet_validation(state: WorkflowState) -> Literal["publication_node", "tweet_feedback_node"]:
+    if state.get('complete_automation')==True:
+        return "publication_node"
+    else:
+        return "tweet_feedback_node"
+
 
 
 def print_stream(stream):

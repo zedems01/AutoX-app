@@ -2,13 +2,13 @@ import logging
 
 from langgraph.prebuilt import create_react_agent
 
-from ..tools.utils import WorkflowState, OPENAI_LLM, ANTHROPIC_LLM, make_system_prompt
+from ..tools.utils import WorkflowState, OPENAI_LLM, ANTHROPIC_LLM, make_system_prompt, get_state_items_as_list
 from ..tools.analyst_schema import TrendsAnalysisResponse
 
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
+import time
 
 
 llm = OPENAI_LLM
@@ -16,6 +16,11 @@ llm = OPENAI_LLM
 def trends_analyst_agent(state: WorkflowState):
     """Agent that evaluates the trending topics and recommends the one most likely to generate high engagement if tweeted.
     """
+    print("\n\n---------- Activating Trends Analyst Agent ----------\n\n")
+    time.sleep(10)
+
+    news_responses_list = get_state_items_as_list(state.get('news_schema'))
+
     system_role = f"""
         You are a social media and trend analysis expert, specialized in maximizing engagement on Twitter. I will provide you with a list of current trending topics on Twitter, along with information about related news for each topic. Your task is to recommend **the topic most likely to generate maximum interactions** (likes, retweets, comments) if I tweet about it, and explain why this choice is optimal.
 
@@ -41,7 +46,7 @@ def trends_analyst_agent(state: WorkflowState):
     """
 
     info = ""
-    for news in state.get('news_schema').news:
+    for news in news_responses_list[-1].news:
         info += f"- Topic: {news.subject}\n{news.content}\n\n"
     user_msg = f"""
         **Provided Data:**
@@ -57,7 +62,9 @@ def trends_analyst_agent(state: WorkflowState):
     logger.info("--- Checking which trend is likely to go viral... ---")
     response = agent.invoke({"messages": [("user", user_msg)]})
 
+    chosen = response.get("structured_response").trend_choice if response.get("structured_response") else None
     return {
             "messages": response["messages"],
             "analysis_schema": response["structured_response"],
+            "chosen_trend": chosen,
         }

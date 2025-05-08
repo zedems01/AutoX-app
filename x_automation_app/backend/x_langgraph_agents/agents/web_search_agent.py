@@ -1,13 +1,13 @@
 import logging
 from langgraph.prebuilt import create_react_agent
 
-from ..tools.utils import WorkflowState, OPENAI_LLM, ANTHROPIC_LLM, make_system_prompt
+from ..tools.utils import WorkflowState, OPENAI_LLM, ANTHROPIC_LLM, make_system_prompt, get_state_items_as_list
 from ..tools.get_web_news_tool import WebResponse, TAVILY_TOOL
 
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
+import time
 
 
 llm = OPENAI_LLM
@@ -16,6 +16,11 @@ tavily_tool = TAVILY_TOOL
 def web_search_agent(state: WorkflowState):
     """Agent that performs real-time web searches to gather contextual news and information related to the trending topics identified.
     """
+    print("\n\n---------- Activating Web Agent ----------\n\n")
+    time.sleep(10)
+    
+    trends_responses_list = get_state_items_as_list(state.get('trends_schema'))
+    
     system_role=f"""
         You can search the web for latest news using provided tools.
     """
@@ -30,7 +35,7 @@ def web_search_agent(state: WorkflowState):
     logger.info("--- Searching on the web... ---")
     user_msg = f"""
         Search on the web for latest news about these specific trending subjects:
-        {'\n'.join(['- '+t.trend_subject for t in state.get('trends_schema').trends])}
+        {'\n'.join(['- '+t.trend_subject for t in trends_responses_list[-1].trends])}
         """
     response = agent.invoke({"messages": [("user", user_msg)]})
 
