@@ -1,7 +1,8 @@
 # Drafts
 drafts/
 *.ipynb
-twitterapi_docs/
+documentation/
+scoping_docs/
 
 
 
