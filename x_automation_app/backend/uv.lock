@@ -220,6 +220,7 @@ dependencies = [
     { name = "composio-langchain" },
     { name = "composio-langgraph" },
     { name = "composio-openai" },
+    { name = "dotenv" },
     { name = "fastapi" },
     { name = "jupyter" },
     { name = "langchain" },
@@ -227,6 +228,7 @@ dependencies = [
     { name = "langchain-openai" },
     { name = "langgraph" },
     { name = "langmem" },
+    { name = "load-dotenv" },
     { name = "python-dotenv" },
     { name = "requests" },
     { name = "uvicorn" },
@@ -238,6 +240,7 @@ requires-dist = [
     { name = "composio-langchain", specifier = ">=0.7.16" },
     { name = "composio-langgraph", specifier = ">=0.7.4" },
     { name = "composio-openai", specifier = ">=0.7.16" },
+    { name = "dotenv", specifier = ">=0.9.9" },
     { name = "fastapi", specifier = ">=0.115.12" },
     { name = "jupyter", specifier = ">=1.1.1" },
     { name = "langchain", specifier = ">=0.3.25" },
@@ -245,6 +248,7 @@ requires-dist = [
     { name = "langchain-openai", specifier = ">=0.3.22" },
     { name = "langgraph", specifier = ">=0.4.8" },
     { name = "langmem", specifier = ">=0.0.27" },
+    { name = "load-dotenv", specifier = ">=0.1.0" },
     { name = "python-dotenv", specifier = ">=1.1.0" },
     { name = "requests", specifier = ">=2.32.4" },
     { name = "uvicorn", specifier = ">=0.34.3" },
@@ -597,6 +601,17 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/fc/f8/98eea607f65de6527f8a2e8885fc8015d3e6f5775df186e443e0964a11c3/distro-1.9.0.tar.gz", hash = "sha256:2fa77c6fd8940f116ee1d6b94a2f90b13b5ea8d019b98bc8bafdcabcdd9bdbed", size = 60722, upload-time = "2023-12-24T09:54:32.31Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/12/b3/231ffd4ab1fc9d679809f356cebee130ac7daa00d6d6f3206dd4fd137e9e/distro-1.9.0-py3-none-any.whl", hash = "sha256:7bffd925d65168f85027d8da9af6bddab658135b840670a223589bc0c8ef02b2", size = 20277, upload-time = "2023-12-24T09:54:30.421Z" },
+]
+
+[[package]]
+name = "dotenv"
+version = "0.9.9"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "python-dotenv" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b2/b7/545d2c10c1fc15e48653c91efde329a790f2eecfbbf2bd16003b5db2bab0/dotenv-0.9.9-py2.py3-none-any.whl", hash = "sha256:29cf74a087b31dafdb5a446b6d7e11cbce8ed2741540e2339c69fbef92c94ce9", size = 1892, upload-time = "2025-02-19T22:15:01.647Z" },
 ]
 
 [[package]]
@@ -1557,6 +1572,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/be/86/b941012013260f95af2e90a3d9415af4a76a003a28412033fc4b09f35731/langsmith-0.3.45.tar.gz", hash = "sha256:1df3c6820c73ed210b2c7bc5cdb7bfa19ddc9126cd03fdf0da54e2e171e6094d", size = 348201, upload-time = "2025-06-05T05:10:28.948Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/6a/f4/c206c0888f8a506404cb4f16ad89593bdc2f70cf00de26a1a0a7a76ad7a3/langsmith-0.3.45-py3-none-any.whl", hash = "sha256:5b55f0518601fa65f3bb6b1a3100379a96aa7b3ed5e9380581615ba9c65ed8ed", size = 363002, upload-time = "2025-06-05T05:10:27.228Z" },
+]
+
+[[package]]
+name = "load-dotenv"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "python-dotenv" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d7/95/055d123dde74bd54b99b27a3c2d8c6e218f544e0bd437480f61ccf85a07f/load-dotenv-0.1.0.tar.gz", hash = "sha256:bbe5f40072d4a61eadca66de6c222df5a2d935d6d41b703be1ff75396f635145", size = 6404, upload-time = "2022-09-02T19:55:01.349Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/14/2e/268a528dfa1f76999435634b0453fdd917ea878a818a6d5981632f7acffb/load_dotenv-0.1.0-py3-none-any.whl", hash = "sha256:614803f720153fb8a5f97124a72aaa3930a67aa5547cbe8603d01ea7f9ac1adf", size = 7175, upload-time = "2022-09-02T19:54:59.85Z" },
 ]
 
 [[package]]
