@@ -5,9 +5,15 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "composio-core>=0.7.16",
+    "composio-langchain>=0.7.16",
+    "composio-langgraph>=0.7.4",
+    "composio-openai>=0.7.16",
     "fastapi>=0.115.12",
+    "jupyter>=1.1.1",
     "langchain>=0.3.25",
     "langchain-google-genai>=2.1.5",
+    "langchain-openai>=0.3.22",
     "langgraph>=0.4.8",
     "langmem>=0.0.27",
     "python-dotenv>=1.1.0",
