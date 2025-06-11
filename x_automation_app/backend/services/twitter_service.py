@@ -70,4 +70,91 @@ class TwitterService:
         except requests.exceptions.RequestException as e:
             raise Exception(f"Network error during Login Step 2: {e}")
 
+    def get_trends(self, woeid: int = 1):
+        """
+        Fetches trending topics for a given Where On Earth ID (WOEID).
+        Defaults to 1 for Worldwide trends.
+        """
+        url = f"{self.base_url}/trends"
+        params = {"woeid": woeid}
+        headers = {"X-API-Key": self.api_key}
+        try:
+            response = requests.get(url, params=params, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+            if data.get("status") == "success":
+                return data.get("trends", [])
+            else:
+                raise Exception(f"Failed to get trends: {data.get('msg', 'Unknown error')}")
+        except requests.exceptions.RequestException as e:
+            raise Exception(f"Network error while fetching trends: {e}")
+
+    def _upload_media(self, media_url: str):
+        """
+        Uploads media from a URL to Twitter and returns the media_id.
+        This is a helper method for post_tweet.
+        """
+        # Download the media from the provided URL
+        try:
+            media_response = requests.get(media_url)
+            media_response.raise_for_status()
+            media_data = media_response.content
+            content_type = media_response.headers.get('Content-Type', 'application/octet-stream')
+        except requests.exceptions.RequestException as e:
+            raise Exception(f"Failed to download media from URL: {e}")
+        
+        # Upload to Twitter
+        url = f"{self.base_url}/upload_tweet_image"
+        files = {'media': ('image', media_data, content_type)}
+        headers = {"X-API-Key": self.api_key}
+        payload = {"proxy": self.proxy}
+
+        try:
+            response = requests.post(url, files=files, data=payload, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+            if data.get("status") == "success" and "media_id" in data:
+                return data["media_id"]
+            else:
+                raise Exception(f"Failed to upload media: {data.get('msg', 'Unknown error')}")
+        except requests.exceptions.RequestException as e:
+            raise Exception(f"Network error during media upload: {e}")
+
+    def post_tweet(self, tweet_text: str, media_url: str = None):
+        """
+        Posts a tweet with optional media.
+        Requires a valid session from a successful login.
+        """
+        if not self.session_token:
+            raise Exception("Cannot post tweet: User is not logged in. Call login methods first.")
+
+        media_id = None
+        if media_url:
+            media_id = self._upload_media(media_url)
+
+        url = f"{self.base_url}/create_tweet"
+        payload = {
+            "auth_session": self.session_token,
+            "tweet_text": tweet_text,
+            "proxy": self.proxy
+        }
+        if media_id:
+            payload["media_id"] = media_id
+            
+        headers = {
+            "X-API-Key": self.api_key,
+            "Content-Type": "application/json"
+        }
+
+        try:
+            response = requests.post(url, json=payload, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+            if data.get("status") == "success" and "data" in data:
+                return data["data"]
+            else:
+                raise Exception(f"Failed to post tweet: {data.get('msg', 'Unknown error')}")
+        except requests.exceptions.RequestException as e:
+            raise Exception(f"Network error during tweet posting: {e}")
+
 twitter_service = TwitterService() 
