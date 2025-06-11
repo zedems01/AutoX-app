@@ -16,7 +16,7 @@ pids
 *.seed
 *.log
 *.log.*
-*.lock
+# *.lock
 *.out
 *.tsbuildinfo
 
@@ -80,6 +80,7 @@ __pycache__/
 env/
 venv/
 ENV/
+.cursor/
 env.bak/
 venv.bak/
 

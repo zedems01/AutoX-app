@@ -83,6 +83,7 @@ docs/_build/
 .pybuilder/
 target/
 plan.md
+*_plan.md
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -116,7 +117,7 @@ ipython_config.py
 #   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
 #   in version control.
 #   https://pdm-project.org/#use-with-ide
-.pdm.toml
+# .pdm.toml
 .pdm-python
 .pdm-build/
 
