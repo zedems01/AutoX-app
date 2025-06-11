@@ -19,8 +19,10 @@ def web_search_agent(state: WorkflowState):
     print("\n\n---------- Activating Web Agent ----------\n\n")
     time.sleep(10)
     
+    # List of all the trends already scrapped
+    # We will always just search news for the last ones
     trends_responses_list = get_state_items_as_list(state.get('trends_schema'))
-    
+
     system_role=f"""
         You can search the web for latest news using provided tools.
     """

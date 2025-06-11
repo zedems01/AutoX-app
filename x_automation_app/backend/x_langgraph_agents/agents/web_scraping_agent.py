@@ -32,15 +32,15 @@ def web_scraping_agent(state: WorkflowState):
     print("\n---------- Activating Scraping Agent ----------\n\n")
     time.sleep(10)
 
-    input_prompt = state.get('next_scraping_prompt') # Check for specific prompt first
+    input_prompt = state.get('next_scraping_prompt') # Check for specific prompt first (will be used if it is not the first loop)
     if input_prompt:
         logger.info("--- Fetching others trending topics for the user... ---")
         # Optionally clear the prompt after use if it's meant for one specific re-run
     else:
-        logger.info("--- Using last message for scraping... ---")
-        # Fallback to the last message in the state (assuming it's the human input)
+        logger.info("--- Initializing the first scraping job... ---")
+        # Fallback to the last message in the state (then it is the first scraping job)
         if state.get('messages'):
-            input_prompt = state.get('messages')[-1].content # Adjust if message format is different
+            input_prompt = state.get('messages')[-1].content
         else:
             # Handle case with no initial messages if necessary
             logger.error("Web scraping agent called with no initial message and no next_scraping_prompt.")

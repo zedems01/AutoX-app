@@ -19,6 +19,7 @@ def trends_analyst_agent(state: WorkflowState):
     print("\n\n---------- Activating Trends Analyst Agent ----------\n\n")
     time.sleep(10)
 
+    # Same here, we just analyze the last inputs, not the previous ones
     news_responses_list = get_state_items_as_list(state.get('news_schema'))
 
     system_role = f"""

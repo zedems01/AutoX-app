@@ -22,6 +22,8 @@ def writer_agent(state: WorkflowState):
     print("---------- Activating Writer Agent ----------")
     time.sleep(10)
 
+    # Here we need to give to the writer agent all the informations
+    # Need to adapt the prompt
     writer_responses_list = get_state_items_as_list(state.get('news_schema'))
 
 
