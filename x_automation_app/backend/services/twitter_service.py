@@ -70,13 +70,16 @@ class TwitterService:
         except requests.exceptions.RequestException as e:
             raise Exception(f"Network error during Login Step 2: {e}")
 
-    def get_trends(self, woeid: int = 1):
+    def get_trends(self):
         """
-        Fetches trending topics for a given Where On Earth ID (WOEID).
-        Defaults to 1 for Worldwide trends.
+        Fetches trending topics for a given Where On Earth ID (WOEID) and count,
+        based on settings in the config.
         """
         url = f"{self.base_url}/trends"
-        params = {"woeid": woeid}
+        params = {
+            "woeid": settings.TRENDS_WOEID,
+            "count": settings.TRENDS_COUNT
+        }
         headers = {"X-API-Key": self.api_key}
         try:
             response = requests.get(url, params=params, headers=headers)
