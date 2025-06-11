@@ -1,19 +1,7 @@
 [project]
-name = "X_langgraph_agents"
+name = "backend"
 version = "0.1.0"
-description = "A team of AI agents designed with LangGraph to manage a X (formerly Twitter) account"
-authors = [
-    {name = "zedems01", email = "nguessie.achille@gmail.com"},
-]
-dependencies = ["jupyter>=1.1.1", "ipykernel>=6.29.5", "ipywidgets>=8.1.6", "langgraph>=0.4.1", "dotenv>=0.9.9", "pydantic>=2.11.4", "langchain>=0.3.25", "firecrawl>=2.5.3", "langchain-anthropic>=0.3.12", "langchain-openai>=0.3.16", "langchain-community>=0.3.23"]
-requires-python = ">=3.12"
+description = "Add your description here"
 readme = "README.md"
-license = {text = "MIT"}
-
-[build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
-
-
-[tool.pdm]
-distribution = true
+requires-python = ">=3.12"
+dependencies = []

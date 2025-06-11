@@ -1,6 +1,7 @@
 # Drafts
 drafts/
 *.ipynb
+twitterapi_docs/
 
 
 
@@ -80,6 +81,7 @@ docs/_build/
 # PyBuilder
 .pybuilder/
 target/
+plan.md
 
 # Jupyter Notebook
 .ipynb_checkpoints
