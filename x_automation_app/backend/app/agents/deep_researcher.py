@@ -4,22 +4,22 @@ from langchain_core.runnables import RunnableConfig
 from google.genai import Client
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-from .state import (
+from agents.state import (
     OverallState,
     QueryGenerationState,
     ReflectionState,
     WebSearchState,
 )
-from .tools_and_schemas import SearchQueryList, Reflection
-from .configuration import Configuration
-from .prompts import (
+from agents.tools_and_schemas import SearchQueryList, Reflection
+from agents.configuration import Configuration
+from agents.prompts import (
     get_current_date,
     query_writer_instructions,
     web_searcher_instructions,
     reflection_instructions,
     answer_instructions,
 )
-from .utils import (
+from agents.utils import (
     get_citations,
     get_research_topic,
     insert_citation_markers,
@@ -27,7 +27,11 @@ from .utils import (
 )
 
 # This client is used for the Google Search API tool
-genai_client = Client(api_key=os.getenv("GEMINI_API_KEY"))
+# Ensure the API key is loaded from the environment
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    raise ValueError("GEMINI_API_KEY environment variable not set.")
+genai_client = Client(api_key=api_key)
 
 # --- Research Loop Nodes ---
 
@@ -44,7 +48,7 @@ def generate_query(state: OverallState, config: RunnableConfig) -> QueryGenerati
         model=configurable.query_generator_model,
         temperature=1.0,
         max_retries=2,
-        api_key=os.getenv("GEMINI_API_KEY"),
+        api_key=api_key,
     )
     structured_llm = llm.with_structured_output(SearchQueryList)
 
@@ -118,7 +122,7 @@ def reflection(state: OverallState, config: RunnableConfig) -> ReflectionState:
         model=reasoning_model,
         temperature=1.0,
         max_retries=2,
-        api_key=os.getenv("GEMINI_API_KEY"),
+        api_key=api_key,
     )
     result = llm.with_structured_output(Reflection).invoke(formatted_prompt)
 
@@ -173,7 +177,7 @@ def finalize_answer(state: OverallState, config: RunnableConfig):
         model=reasoning_model,
         temperature=0,
         max_retries=2,
-        api_key=os.getenv("GEMINI_API_KEY"),
+        api_key=api_key,
     )
     response = llm.invoke(formatted_prompt).content
     return {"current_context": response} 

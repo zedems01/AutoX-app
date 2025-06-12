@@ -1,6 +1,9 @@
 from typing import Dict, Any, List
-from ...app.core.state import OverallState, Trend
-from ...services.twitter_service import twitter_service
+from agents.state import (
+    OverallState,
+    Trend
+)
+from ..services.twitter_service import twitter_service
 
 def trend_harvester_node(state: OverallState) -> Dict[str, Any]:
     """
