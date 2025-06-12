@@ -28,6 +28,12 @@ class Settings:
     # Composio (for Notifications)
     COMPOSIO_API_KEY = os.getenv("COMPOSIO_API_KEY")
 
+    # AWS S3 Settings for Image Storage
+    AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+    AWS_DEFAULT_REGION = os.getenv("AWS_DEFAULT_REGION")
+    BUCKET_NAME = os.getenv("BUCKET_NAME")
+
     # Trend fetching settings
     TRENDS_WOEID = int(os.getenv("TRENDS_WOEID", "1"))  # Default to 1 (Worldwide)
     TRENDS_COUNT = int(os.getenv("TRENDS_COUNT", "30")) # Default to 30
