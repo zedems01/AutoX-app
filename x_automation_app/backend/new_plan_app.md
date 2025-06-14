@@ -66,6 +66,7 @@ This phase establishes the new backend directory, sets up foundational component
 *   [x] **Step 0.1: New Backend Directory Setup**
     *   [x] Create the initial `main.py` for the FastAPI application within `new_app`.
     *   [x] Set up basic health check endpoint (`/health`) and CORS configuration in `main.py`.
+    *   [x] Copy the related file for the set of deep research agents in `new_app/agents/`
 
 *   [ ] **Step 0.2: Define Global State (`state.py`)**
     *   [ ] Create `x_automation_app/backend/new_app/app/state.py`.

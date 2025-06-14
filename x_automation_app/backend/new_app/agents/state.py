@@ -5,20 +5,6 @@ from langgraph.graph import add_messages
 import operator
 from dataclasses import dataclass, field
 
-# --- Helper schemas for state ---
-
-class Trend(TypedDict):
-    """Represents a single trending topic found on X."""
-    name: str
-    rank: Optional[int]
-    url: Optional[str]
-    tweet_count: Optional[str]
-
-class TweetDraft(TypedDict):
-    """Represents a single generated tweet draft."""
-    text: str
-    image_prompt: Optional[str]
-
 # --- State for the Deep Research Loop ---
 
 class Query(TypedDict):
@@ -51,17 +37,6 @@ class OverallState(TypedDict):
     """
     messages: Annotated[list, add_messages]
 
-    # Overall workflow state
-    trending_topics: Annotated[List[Trend], operator.add]
-    selected_topic: Optional[Trend]
-    current_context: Optional[str]
-    noteworthy_fact: Optional[str]
-    tweet_drafts: Annotated[List[TweetDraft], operator.add]
-    final_tweet: Optional[str]
-    final_image_prompt: Optional[str]
-    final_image_url: Optional[str]
-    publication_id: Optional[str]
-
     # State for the Deep Research loop
     search_query: Annotated[list, operator.add]
     web_research_result: Annotated[list, operator.add]
@@ -70,11 +45,3 @@ class OverallState(TypedDict):
     max_research_loops: int
     research_loop_count: int
     reasoning_model: str
-
-    # Human-in-the-Loop interaction state
-    human_in_the_loop_required: bool
-    validation_result: Optional[dict]
-
-    # Meta-state
-    current_step: str
-    error_message: Optional[str] 
