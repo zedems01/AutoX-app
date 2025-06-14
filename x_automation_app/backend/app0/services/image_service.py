@@ -3,7 +3,7 @@ import uuid
 import boto3
 from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 from openai import OpenAI
-from ...config import settings
+from ...new_app.config import settings
 
 def generate_and_upload_image(prompt: str) -> str:
     """

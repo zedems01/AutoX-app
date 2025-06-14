@@ -10,8 +10,9 @@ from dataclasses import dataclass, field
 class Trend(TypedDict):
     """Represents a single trending topic found on X."""
     name: str
-    url: str
-    tweet_count: Optional[int]
+    rank: Optional[int]
+    url: Optional[str]
+    tweet_count: Optional[str]
 
 class TweetDraft(TypedDict):
     """Represents a single generated tweet draft."""
