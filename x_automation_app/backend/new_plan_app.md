@@ -32,29 +32,31 @@ The system supports four distinct workflows based on user input:
 
 *   **I. HiTL + User Provides Topic:**
     1.  Topic received.
-    2.  Tweet Advanced Search Endpoint (fetches tweets on X).
+    2.  **Tweet Search Agent** (LLM-driven search query generation and pagination for fetching tweets on X).
     3.  Opinion Analysis Agent (assesses public opinion, extracts summary, sentiment, subject/topic).
     4.  Deep Research Agents (set of nodes for news and information search, using topic from Opinion Analysis or user-provided one).
     5.  Writer (writes content and image prompts).
     6.  Quality Assurance (checks, validates, and refines Writer's output).
     7.  HiTL 1 (User reviews content/prompts, validates or provides feedback for revision back to Writer).
-    8.  Image Generator (generates images from prompts).
+    8.  **Image Generator** (LLM-driven image generation and iterative refinement based on prompts).
     9.  HiTL 2 (User reviews images, validates or provides feedback for regeneration back to Image Generator).
     10. Publicator (Conditional: if `GET_OUTPUTS`, returns Markdown; if `PUBLISH_X`, chunks content into threads/single tweets and posts to X).
 
 *   **II. HiTL + User Does NOT Provide Topic:**
-    1.  Fetch Trending Topics on X.
+    1.  **Trend Harvester** (LLM-driven trend fetching and selection from X).
     2.  HiTL 0 (Present trending topics to user for selection).
-    3.  Tweet Advanced Search Endpoint (fetches tweets on X).
+    3.  **Tweet Search Agent** (LLM-driven search query generation and pagination for fetching tweets on X).
     4.  ... Rest proceeds as in Workflow I.
 
 *   **III. Autonomous + User Provides Topic:**
-    1.  Same as Workflow I, but all HiTL steps are skipped. Default actions are taken automatically.
+    1.  Same as Workflow I, but all HiTL steps are skipped. Default actions are taken automatically. This includes:
+        *   **Tweet Search Agent** (LLM-driven search query generation and pagination).
+        *   **Image Generator** (LLM-driven image generation and refinement).
 
 *   **IV. Autonomous + User Does NOT Provide Topic:**
-    1.  Fetch Trending Topics on X.
-    2.  System automatically selects the top-ranked topic.
-    3.  Tweet Advanced Search Endpoint (fetches tweets on X).
+    1.  **Trend Harvester** (LLM-driven trend fetching and selection from X).
+    2.  System automatically selects the top-ranked topic (via autonomous node).
+    3.  **Tweet Search Agent** (LLM-driven search query generation and pagination for fetching tweets on X).
     4.  ... Rest proceeds as in Workflow I, skipping HiTL nodes.
 
 ---
@@ -63,14 +65,15 @@ The system supports four distinct workflows based on user input:
 
 This phase establishes the new backend directory, sets up foundational components, and defines the central state.
 
-*   [x] **Step 0.1: New Backend Directory Setup**
+*   [ ] **Step 0.1: New Backend Directory Setup**
+    *   [x] Create the `x_automation_app/backend/new_app` directory. All subsequent backend files will be created within this new structure.
     *   [x] Create the initial `main.py` for the FastAPI application within `new_app`.
     *   [x] Set up basic health check endpoint (`/health`) and CORS configuration in `main.py`.
-    *   [x] Copy the related file for the set of deep research agents in `new_app/agents/`
+    *   [x] Copy all files related to the deep research set of agents in `new_app/agents*`. You should review them before continue.
 
 *   [ ] **Step 0.2: Define Global State (`state.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/app/state.py`.
-    *   [ ] Define the `OverallState` TypedDict, which will hold all data relevant to the workflow's progression. This will include:
+    *   [x] Create `x_automation_app/backend/new_app/state.py`.
+    *   [x] Define the `OverallState` TypedDict, which will hold all data relevant to the workflow's progression. This will include:
         *   **Workflow Configuration:** `is_autonomous_mode: bool`, `output_destination: str`, `has_user_provided_topic: bool`, `x_content_type: Optional[str]`, `content_length: Optional[str]`, `content_tone: Optional[str]`.
         *   **Login & Session:** `login_data: Optional[str]`, `session: Optional[str]`, `user_details: Optional[dict]`.
         *   **Content Generation Data:** `trending_topics: List[Trend]`, `selected_topic: Optional[Trend]`, `user_provided_topic: Optional[str]`.
@@ -79,18 +82,12 @@ This phase establishes the new backend directory, sets up foundational component
         *   **Content & Image Drafts:** `content_draft: Optional[str]`, `image_prompts: List[str]`.
         *   **Final Output:** `final_content: Optional[str]`, `final_image_prompts: List[str]`, `generated_images: List[GeneratedImage]`, `publication_id: Optional[str]`.
         *   **HiTL & Meta-state:** `next_human_input_step: Optional[str]`, `validation_result: Optional[dict]`, `current_step: str`, `error_message: Optional[str]`, `messages: Annotated[list, add_messages]`.
-    *   [ ] Define `GeneratedImage` BaseModel/TypedDict within `state.py` or a dedicated `tools_and_schemas.py`:
-        ```python
-        class GeneratedImage(TypedDict):
-            image_name: str
-            local_file_path: str
-            s3_url: str
-        ```
-    *   [ ] Incorporate existing `TypedDict` for `Trend`, `Query`, `QueryGenerationState`, `WebSearchState`, `ReflectionState`, `SearchStateOutput` into this `state.py`.
+    *   [ ] Define `Trend` as `Pydantic BaseModel` class within `state.py` or `tools_and_schemas.py`.
 
 *   [ ] **Step 0.3: Shared Tools & Schemas**
-    *   [ ] Create `x_automation_app/backend/new_app/app/tools_and_schemas.py`.
-    *   [ ] Move or redefine common Pydantic models/schemas (e.g., `SearchQueryList`, `Reflection`, `TweetDrafts`, `FinalTweet` - though `FinalTweet` will need adjustment given the new `Writer` and `Quality Assurance` outputs) and any shared Langchain tools here.
+    *   [x] Create `x_automation_app/backend/new_app/agents/tools_and_schemas.py`.
+    *   [ ] Define common **Pydantic BaseModel classes** for structured outputs and tool inputs/outputs (e.g., `GeneratedImage`, `SearchQueryList`, `TweetDrafts`, schemas for `tweet_advanced_search` tool parameters and results) and any shared Langchain tools here.
+    *   [ ] Define `GeneratedImage` as a `Pydantic BaseModel` with image_name, local_file_path, s3_url.
 
 ---
 
@@ -99,12 +96,12 @@ This phase establishes the new backend directory, sets up foundational component
 This phase focuses on implementing the external API interactions, ensuring they are stateless and reusable.
 
 *   [ ] **Step 1.1: Centralized Twitter Service (`twitter_service.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/app/services/twitter_service.py`.
+    *   [ ] Create `x_automation_app/backend/new_app/services/twitter_service.py`.
     *   [ ] Refactor the existing `TwitterService` class to be stateless. All authenticated methods will require `session` as an argument.
     *   [ ] Implement/Update the following functions:
         *   [ ] `start_login(email: str, password: str, proxy: str) -> dict`: Executes the first 2FA login step, returns `login_data`.
         *   [ ] `complete_login(login_data: str, two_fa_code: str, proxy: str) -> dict`: Executes the second 2FA login step, returns `session` token and `user_details`.
-        *   [ ] `get_trends(woeid: int, count: int) -> List[Trend]`: Fetches trending topics.        
+        *   [ ] `get_trends(woeid: int, count: int) -> List[Trend]`: Fetches trending topics.
         *   [ ] `tweet_advanced_search(query: str, query_type: str = "Latest") -> List[dict]`: This will fetch tweets related to a given query, supporting pagination (7 queries for ~100 tweets if `next_cursor` still true).
             *   **Endpoint Details:**
                 ```python
@@ -142,7 +139,7 @@ This phase focuses on implementing the external API interactions, ensuring they 
         *   [ ] `post_tweet_thread(session: str, tweet_texts: List[str], media_ids_per_tweet: Optional[List[List[str]]] = None) -> List[dict]`: Publishes a thread of tweets (implementation details for chunking will come later if `x_content_type` is `TWEET_THREAD`).
 
 *   [ ] **Step 1.2: Image Generation Service (`image_service.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/app/services/image_service.py`.
+    *   [ ] Create `x_automation_app/backend/new_app/services/image_service.py`.
     *   [ ] Implement `generate_and_upload_image(prompt: str) -> GeneratedImage`. This function will:
         *   Generate image using OpenAI DALL-E.
         *   Save the image locally (e.g., `x_automation_app/backend/new_app/images/`).
@@ -151,7 +148,7 @@ This phase focuses on implementing the external API interactions, ensuring they 
         *   Return a `GeneratedImage` object including `image_name`, `local_file_path`, and `s3_url`.
 
 *   [ ] **Step 1.3: Notification Service (`notifications.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/app/utils/notifications.py`.
+    *   [ ] Create `x_automation_app/backend/new_app/utils/notifications.py`.
     *   [ ] Implement `send_notification(subject: str, body: str)` using Composio Gmail.
 
 ---
@@ -161,7 +158,7 @@ This phase focuses on implementing the external API interactions, ensuring they 
 This phase involves creating each specialized agent (node) that will form the LangGraph workflow. Each agent will interact with the `OverallState`.
 
 *   [ ] **Step 2.1: Trend Harvester Agent (`trend_harvester.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/app/agents/trend_harvester.py`.
+    *   [ ] Create `x_automation_app/backend/new_app/agents/trend_harvester.py`.
     *   [ ] This agent will be defined using `langgraph.prebuilt.create_react_agent`.
     *   [ ] It will have the `twitter_service.get_trends` function registered as a tool.
     *   [ ] Implement `trend_harvester_node(state: OverallState) -> dict`. This node will:
@@ -170,7 +167,7 @@ This phase involves creating each specialized agent (node) that will form the La
         *   Update `state['trending_topics']` with this curated list.
 
 *   [ ] **Step 2.2: Tweet Search Agent (`tweet_search_agent.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/app/agents/tweet_search_agent.py`.
+    *   [ ] Create `x_automation_app/backend/new_app/agents/tweet_search_agent.py`.
     *   [ ] This agent will be defined using `langgraph.prebuilt.create_react_agent`.
     *   [ ] It will have the `twitter_service.tweet_advanced_search` function registered as a tool.
     *   [ ] Implement `tweet_search_node(state: OverallState) -> dict`. This node will:
@@ -180,42 +177,49 @@ This phase involves creating each specialized agent (node) that will form the La
         *   Execute the `twitter_service.tweet_advanced_search` tool call, handling pagination (making 7 queries or until `has_next_page` is false to collect ~100 tweets).
         *   Update `state['tweet_search_results']` with the collected tweets.
 
-*   [ ] **Step 2.3: Deep Research Agents (Consolidated in `deep_researcher.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/app/agents/deep_researcher.py`.
+*   [ ] **Step 2.3: Opinion Analysis Agent (`opinion_analysis_agent.py`)**
+    *   [ ] Create `x_automation_app/backend/new_app/agents/opinion_analysis_agent.py`.
+    *   [ ] Implement `opinion_analysis_node(state: OverallState) -> dict`. This node will use a direct LLM call (not `create_react_agent`):
+        *   Take `state['tweet_search_results']` as input.
+        *   Use an LLM to analyze the tweets.
+        *   Return `state['opinion_summary']`, `state['overall_sentiment']`, and `state['topic_from_opinion_analysis']`.
+
+*   [ ] **Step 2.4: Deep Research Agents (Consolidated in `deep_researcher.py`)**
+    *   [ ] Create `x_automation_app/backend/new_app/agents/deep_researcher.py`.
     *   [ ] Move and adapt the `generate_query`, `web_research`, `reflection`, `evaluate_research`, and `finalize_answer` nodes into this file. These nodes will use direct LLM calls and programmatic logic, with `web_research` directly calling the Google Search API (not `create_react_agent`).
     *   [ ] Ensure `generate_query` (the entry point for deep research) correctly takes input by **prioritizing `state['topic_from_opinion_analysis']` if it exists, otherwise falling back to `state['user_provided_topic']`**.
     *   [ ] Their output will update `state['current_context']` and `state['sources_gathered']`.
 
-*   [ ] **Step 2.4: Writer Agent (`writer_agent.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/app/agents/writer_agent.py`.
+*   [ ] **Step 2.5: Writer Agent (`writer_agent.py`)**
+    *   [ ] Create `x_automation_app/backend/new_app/agents/writer_agent.py`.
     *   [ ] Implement `writer_node(state: OverallState, feedback: Optional[str] = None) -> dict`. This node will use a direct LLM call (not `create_react_agent`):
         *   Take `state['current_context']`, `state['opinion_summary']`, `state['overall_sentiment']`, workflow parameters (`content_length`, `brand_voice`, `target_audience`, `x_content_type`, etc.), and crucially, `feedback` (if provided from a `HiTL 1` rejection) as input.
         *   The LLM prompt will be specifically designed to **incorporate the `feedback`** when revising the `content_draft` and `image_prompts`.
         *   Use an LLM (e.g., Gemini-Pro) to generate the main content and a *list* of descriptive image prompts.
         *   Return `state['content_draft']` and `state['image_prompts']`.
 
-*   [ ] **Step 2.5: Quality Assurance Agent (`quality_assurance_agent.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/app/agents/quality_assurance_agent.py`.
+*   [ ] **Step 2.6: Quality Assurance Agent (`quality_assurance_agent.py`)**
+    *   [ ] Create `x_automation_app/backend/new_app/agents/quality_assurance_agent.py`.
     *   [ ] Implement `quality_assurance_node(state: OverallState) -> dict`. This node will use a direct LLM call (not `create_react_agent`):
         *   Take `state['content_draft']` and `state['image_prompts']` as input.
         *   Use an LLM to review, refine, and select the best version of the content and the best *list* of image prompts. It will perform changes if necessary, even in autonomous mode.
         *   Return `state['final_content']` and `state['final_image_prompts']`.
 
-*   [ ] **Step 2.6: Image Generator Agent (`image_generator_agent.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/app/agents/image_generator_agent.py`.
+*   [ ] **Step 2.7: Image Generator Agent (`image_generator_agent.py`)**
+    *   [ ] Create `x_automation_app/backend/new_app/agents/image_generator_agent.py`.
     *   [ ] This agent will be defined using `langgraph.prebuilt.create_react_agent`.
     *   [ ] It will have the `image_service.generate_and_upload_image` function registered as a tool.
     *   [ ] Implement `image_generator_node(state: OverallState, feedback: Optional[str] = None) -> dict`. This node will:
         *   Take `state['final_image_prompts']` as input (a list of prompts) and `feedback` (if provided from a `HiTL 2` rejection).
         *   Use the LLM (configured via `create_react_agent`) to *reason* on the image prompts and `feedback` to decide how many images to generate, and to iteratively call `image_service.generate_and_upload_image()` for each.
-        *   It will specifically handle *reasoning with user feedback* to refine image prompts and regenerate images if the workflow loops back from `HiTL 2`.
+        *   It will also handle *reasoning with user feedback* to refine image prompts and regenerate images if the workflow loops back from `HiTL 2`.
         *   Collect and return a `List[GeneratedImage]` to update `state['generated_images']`.
 
-*   [ ] **Step 2.7: Publicator Agent (`publicator_agent.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/app/agents/publicator_agent.py`.
+*   [ ] **Step 2.8: Publicator Agent (`publicator_agent.py`)**
+    *   [ ] Create `x_automation_app/backend/new_app/agents/publicator_agent.py`.
     *   [ ] Implement `publicator_node(state: OverallState) -> dict`. This node will use programmatic logic and direct service calls (not `create_react_agent`):
         *   Retrieve `session`, `final_content`, `generated_images` from `OverallState`.
-        *   **Implement a helper utility for tweet chunking:** Create `x_automation_app/backend/new_app/app/utils/tweet_chunking.py` for this deterministic logic.
+        *   **Implement a helper utility for tweet chunking:** Create `x_automation_app/backend/new_app/utils/tweet_chunking.py` for this deterministic logic.
         *   **Conditional Logic based on `state['output_destination']`:**
             *   **If `GET_OUTPUTS`:** Format `final_content` and `generated_images` (using `local_file_path` for local display or `s3_url` for direct link) into a Markdown string. Update `state['publication_id']` to indicate completion.
             *   **If `PUBLISH_X`:**
@@ -232,7 +236,7 @@ This phase involves creating each specialized agent (node) that will form the La
 This phase integrates all agents into the main LangGraph workflow and exposes the system via FastAPI endpoints.
 
 *   [ ] **Step 3.1: Build the Orchestrator Graph (`orchestrator.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/app/orchestrator.py`.
+    *   [ ] Create `x_automation_app/backend/new_app/orchestrator.py`.
     *   [ ] Initialize the `StateGraph` with `OverallState` and a `Checkpointer` (using `InMemoryStore` for development).
     *   [ ] **Add all agent nodes:** `trend_harvester_node`, `tweet_search_node`, `opinion_analysis_node`, `generate_query` (from deep research), `web_research`, `reflection`, `evaluate_research`, `finalize_answer`, `writer_node`, `quality_assurance_node`, `image_generator_node`, `publicator_node`.
     *   [ ] **Implement explicit HiTL interrupt nodes:** (e.g., `await_topic_selection`, `await_content_validation`, `await_image_validation`). These nodes will set `state['next_human_input_step']` and will be `interrupt_after` points in the graph.
@@ -249,6 +253,7 @@ This phase integrates all agents into the main LangGraph workflow and exposes th
         *   **Post-Validation Routing for Revisions (incorporating feedback):** After `await_X_validation`, conditional edges check `state['validation_result']['action']`. If "reject", the edge will route back to the appropriate previous agent (`writer_node` or `image_generator_node`), passing the user's feedback as a parameter. If "approve" or "edit", it routes forward.
         *   **Image Generation Routing:** After `quality_assurance_node`, a conditional edge checks if `state['final_image_prompts']` is not empty to route to `image_generator_node` or bypass directly to `publicator_node`.
     *   [ ] **(Optional) Graph Visualization:** Add utility to `orchestrator.py` to generate a Mermaid diagram or PNG of the graph.
+
 
 *   [ ] **Step 3.2: FastAPI Endpoints for Frontend Interaction (`main.py`)**
     *   [ ] **3.2.1: Authentication Endpoints:**
@@ -276,7 +281,7 @@ This phase integrates all agents into the main LangGraph workflow and exposes th
         2.  **Graph Routes to Interrupt:** If `is_autonomous_mode` is `False`, the graph is routed to a dedicated interrupt node (e.g., `await_content_validation`), which sets `next_human_input_step` and pauses.
         3.  **Frontend Displays & User Validates:** The WebSocket pushes the updated state to the frontend, which renders the UI for user input. The user submits their decision via `POST /workflow/validate`.
         4.  **Backend Updates & Resumes:** The backend updates `validation_result` (and potentially other fields for edits) and resumes the graph.
-        5.  **Graph Routes Based on Decision:** A conditional edge checks `validation_result` to route the workflow forward (to the next agent) or backward (to a previous agent for revision).
+        5.  **Graph Routes Based on Decision:** A conditional edge checks `validation_result` to route the workflow forward (to the next agent) or backward (to a previous agent for revision), passing feedback to the agent if applicable.
 
 *   [ ] **Step 3.4: Robust Notification Integration**
     *   [ ] Integrate `notifications.send_notification` at critical points:
