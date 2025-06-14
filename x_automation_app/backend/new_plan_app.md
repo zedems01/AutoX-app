@@ -66,14 +66,14 @@ The system supports four distinct workflows based on user input:
 This phase establishes the new backend directory, sets up foundational components, and defines the central state.
 
 *   [ ] **Step 0.1: New Backend Directory Setup**
-    *   [x] Create the `x_automation_app/backend/new_app` directory. All subsequent backend files will be created within this new structure.
-    *   [x] Create the initial `main.py` for the FastAPI application within `new_app`.
+    *   [x] Create the `x_automation_app/backend/new_app` directory.
+    *   [x] Create the initial `main.py` for the FastAPI application
     *   [x] Set up basic health check endpoint (`/health`) and CORS configuration in `main.py`.
-    *   [x] Copy all files related to the deep research set of agents in `new_app/agents*`. You should review them before continue.
+    *   [x] Copy all files related to the deep research set of agents in `new_app/agents/`. You should review them before continue.
 
 *   [ ] **Step 0.2: Define Global State (`state.py`)**
-    *   [x] Create `x_automation_app/backend/new_app/state.py`.
-    *   [x] Define the `OverallState` TypedDict, which will hold all data relevant to the workflow's progression. This will include:
+    *   [x] Create `x_automation_app/backend/new_app/agents/state.py`.
+    *   [ ] Complete the `OverallState` TypedDict, which will hold all data relevant to the workflow's progression. This will include:
         *   **Workflow Configuration:** `is_autonomous_mode: bool`, `output_destination: str`, `has_user_provided_topic: bool`, `x_content_type: Optional[str]`, `content_length: Optional[str]`, `content_tone: Optional[str]`.
         *   **Login & Session:** `login_data: Optional[str]`, `session: Optional[str]`, `user_details: Optional[dict]`.
         *   **Content Generation Data:** `trending_topics: List[Trend]`, `selected_topic: Optional[Trend]`, `user_provided_topic: Optional[str]`.
@@ -148,7 +148,7 @@ This phase focuses on implementing the external API interactions, ensuring they 
         *   Return a `GeneratedImage` object including `image_name`, `local_file_path`, and `s3_url`.
 
 *   [ ] **Step 1.3: Notification Service (`notifications.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/utils/notifications.py`.
+    *   [ ] Create `x_automation_app/backend/new_app/agents/notifications.py`.
     *   [ ] Implement `send_notification(subject: str, body: str)` using Composio Gmail.
 
 ---
