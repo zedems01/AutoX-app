@@ -64,8 +64,6 @@ The system supports four distinct workflows based on user input:
 This phase establishes the new backend directory, sets up foundational components, and defines the central state.
 
 *   [x] **Step 0.1: New Backend Directory Setup**
-    *   [x] Create the `x_automation_app/backend/new_app` directory. All subsequent backend files will be created within this new structure.
-    *   [x] Copy essential configuration files (`.env.template`, `config.py`) to the new `new_app` root, and adjust paths/imports as necessary.
     *   [x] Create the initial `main.py` for the FastAPI application within `new_app`.
     *   [x] Set up basic health check endpoint (`/health`) and CORS configuration in `main.py`.
 
