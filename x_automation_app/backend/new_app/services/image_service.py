@@ -8,6 +8,9 @@ from ..agents.tools_and_schemas import GeneratedImage
 import logging
 from pathlib import Path
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 
 
 @tool
@@ -47,7 +50,7 @@ def generate_and_upload_image(prompt: str, image_name: str) -> GeneratedImage:
         with open(image_path, "wb") as f:
             f.write(image_bytes)
 
-        logging.info(f"Image saved to {image_path}")
+        logger.info(f"Image saved to {image_path}")
         
         # 2. Upload the image to AWS S3
         s3_client = boto3.client(
@@ -69,7 +72,7 @@ def generate_and_upload_image(prompt: str, image_name: str) -> GeneratedImage:
             ExpiresIn=3600
         )
         
-        logging.info(f"Successfully uploaded image {image_name} to S3 bucket {bucket_name}.")
+        logger.info(f"Successfully uploaded image {image_name} to S3 bucket {bucket_name}.")
         return GeneratedImage(
             image_name=image_name,
             local_file_path=image_path,
@@ -77,8 +80,8 @@ def generate_and_upload_image(prompt: str, image_name: str) -> GeneratedImage:
         )
 
     except (NoCredentialsError, PartialCredentialsError):
-        logging.error("AWS credentials not found. Please configure them in your .env file.")
+        logger.error("AWS credentials not found. Please configure them in your .env file.")
         return None
     except Exception as e:
-        logging.error(f"An error occurred in image service: {e}")
+        logger.error(f"An error occurred in image service: {e}")
         return None 

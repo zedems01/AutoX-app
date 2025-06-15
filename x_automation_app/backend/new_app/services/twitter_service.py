@@ -4,8 +4,10 @@ from ..agents.tools_and_schemas import Trend, TweetSearched, TweetAuthor
 from typing import List, Optional
 from langchain_core.tools import tool
 from .tweet_chunking import chunk_text
+import logging
 
-
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 
 def start_login(

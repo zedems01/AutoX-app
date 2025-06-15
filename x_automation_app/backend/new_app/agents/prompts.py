@@ -33,7 +33,6 @@ Topic: What revenue grew more last year apple stock or the number of people buyi
 
 Context: {research_topic}"""
 
-
 web_searcher_instructions = """Conduct targeted Google Searches to gather the most recent, credible information on "{research_topic}" and synthesize it into a verifiable text artifact.
 
 Instructions:
@@ -95,3 +94,5 @@ User Context:
 Summaries:
 {summaries}"""
 
+#TODO: Complete this prompt
+trend_harvester_prompt = """"""
