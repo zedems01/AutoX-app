@@ -219,7 +219,7 @@ This phase involves creating each specialized agent (node) that will form the La
     *   [ ] Create `x_automation_app/backend/new_app/agents/publicator_agent.py`.
     *   [ ] Implement `publicator_node(state: OverallState) -> dict`. This node will use programmatic logic and direct service calls (not `create_react_agent`):
         *   Retrieve `session`, `final_content`, `generated_images` from `OverallState`.
-        *   **Implement a helper utility for tweet chunking:** Create `x_automation_app/backend/new_app/services/tweet_chunking.py` for this deterministic logic.
+        *   **Implement a helper utilities functions for tweet chunking:** Let the functions be in twitter_service.py for this deterministic logic.
         *   **Conditional Logic based on `state['output_destination']`:**
             *   **If `GET_OUTPUTS`:** Format `final_content` and `generated_images` (using `local_file_path` for local display or `s3_url` for direct link) into a Markdown string. Update `state['publication_id']` to indicate completion.
             *   **If `PUBLISH_X`:**
