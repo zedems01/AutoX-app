@@ -21,3 +21,63 @@ class Reflection(BaseModel):
     follow_up_queries: List[str] = Field(
         description="A list of follow-up queries to address the knowledge gap."
     )
+
+
+class GeneratedImage(BaseModel):
+    """
+    Represents a generated image with its metadata.
+    """
+    image_name: str
+    local_file_path: str
+    s3_url: str
+
+
+class Trend(BaseModel):
+    """
+    Represents a trending topic on X.
+    """
+    name: str
+    rank: int
+    tweet_count: Optional[str] = None
+
+
+class TweetAuthor(BaseModel):
+    """
+    Represents a tweet author.
+    """
+    userName: str
+    name: str
+    isVerified: bool
+    followers: int
+    following: int
+
+class TweetSearched(BaseModel):
+    """
+    Represents a single tweet searched.
+    """
+    text: str
+    source: str
+    retweetCount: int
+    replyCount: int
+    likeCount: int
+    quoteCount: int
+    viewCount: int
+    createdAt: str
+    lang: str
+    isReply: bool
+    author: TweetAuthor
+
+# class TweetAdvancedSearchResult(BaseModel):
+#     """
+#     A result from the tweet advanced search endpoint.
+#     """
+#     tweets: List[TweetSearched]
+
+
+class TweetDrafts(BaseModel):
+    """
+    A list of tweet drafts, intended to be posted as a thread.
+    """
+    drafts: List[str]
+
+

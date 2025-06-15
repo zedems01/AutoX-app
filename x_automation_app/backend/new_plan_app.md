@@ -82,12 +82,12 @@ This phase establishes the new backend directory, sets up foundational component
         *   **Content & Image Drafts:** `content_draft: Optional[str]`, `image_prompts: List[str]`.
         *   **Final Output:** `final_content: Optional[str]`, `final_image_prompts: List[str]`, `generated_images: List[GeneratedImage]`, `publication_id: Optional[str]`.
         *   **HiTL & Meta-state:** `next_human_input_step: Optional[str]`, `validation_result: Optional[dict]`, `current_step: str`, `error_message: Optional[str]`, `messages: Annotated[list, add_messages]`.
-    *   [ ] Define `Trend` as `Pydantic BaseModel` class within `state.py` or `tools_and_schemas.py`.
+    *   [x] Define `Trend` as `Pydantic BaseModel` class within `state.py` or `tools_and_schemas.py`.
 
 *   [ ] **Step 0.3: Shared Tools & Schemas**
     *   [x] Create `x_automation_app/backend/new_app/agents/tools_and_schemas.py`.
     *   [ ] Define common **Pydantic BaseModel classes** for structured outputs and tool inputs/outputs (e.g., `GeneratedImage`, `SearchQueryList`, `TweetDrafts`, schemas for `tweet_advanced_search` tool parameters and results) and any shared Langchain tools here.
-    *   [ ] Define `GeneratedImage` as a `Pydantic BaseModel` with image_name, local_file_path, s3_url.
+    *   [x] Define `GeneratedImage` as a `Pydantic BaseModel` with image_name, local_file_path, s3_url.
 
 ---
 
@@ -99,10 +99,10 @@ This phase focuses on implementing the external API interactions, ensuring they 
     *   [ ] Create `x_automation_app/backend/new_app/services/twitter_service.py`.
     *   [ ] Refactor the existing `TwitterService` class to be stateless. All authenticated methods will require `session` as an argument.
     *   [ ] Implement/Update the following functions:
-        *   [ ] `start_login(email: str, password: str, proxy: str) -> dict`: Executes the first 2FA login step, returns `login_data`.
-        *   [ ] `complete_login(login_data: str, two_fa_code: str, proxy: str) -> dict`: Executes the second 2FA login step, returns `session` token and `user_details`.
-        *   [ ] `get_trends(woeid: int, count: int) -> List[Trend]`: Fetches trending topics.
-        *   [ ] `tweet_advanced_search(query: str, query_type: str = "Latest") -> List[dict]`: This will fetch tweets related to a given query, supporting pagination (7 queries for ~100 tweets if `next_cursor` still true).
+        *   [x] `start_login(email: str, password: str, proxy: str) -> dict`: Executes the first 2FA login step, returns `login_data`.
+        *   [x] `complete_login(login_data: str, two_fa_code: str, proxy: str) -> dict`: Executes the second 2FA login step, returns `session` token and `user_details`.
+        *   [x] `get_trends(woeid: int, count: int) -> List[Trend]`: Fetches trending topics.
+        *   [x] `tweet_advanced_search(query: str, query_type: str = "Latest", cursor: str = "") -> TweetAdvancedSearchResult`: This will fetch tweets related to a given query, supporting pagination (7 queries for ~100 tweets if `has_next_page` still true).
             *   **Endpoint Details:**
                 ```python
                 url = f"{base_url}/tweet/advanced_search"
@@ -134,8 +134,8 @@ This phase focuses on implementing the external API interactions, ensuring they 
                     *   `-min_faves:N`: A maximum number of Likes.
                     *   `-min_replies:N`: A maximum number of replies.
 
-        *   [ ] `upload_image(session: str, image_url: str) -> str`: Uploads media from a presigned S3 URL to X, returns `media_id`.
-        *   [ ] `post_tweet(session: str, tweet_text: str, media_ids: Optional[List[str]] = None) -> dict`: Publishes a single tweet.
+        *   [x] `upload_image(session: str, image_url: str) -> str`: Uploads media from a presigned S3 URL to X, returns `media_id`.
+        *   [x] `post_tweet(session: str, tweet_text: str, media_ids: Optional[List[str]] = None) -> str`: Publishes a single tweet and return the tweet ID.
         *   [ ] `post_tweet_thread(session: str, tweet_texts: List[str], media_ids_per_tweet: Optional[List[List[str]]] = None) -> List[dict]`: Publishes a thread of tweets (implementation details for chunking will come later if `x_content_type` is `TWEET_THREAD`).
 
 *   [ ] **Step 1.2: Image Generation Service (`image_service.py`)**
