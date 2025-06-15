@@ -63,7 +63,7 @@ class OverallState(TypedDict):
     topic_from_opinion_analysis: Optional[str]
 
     # === Deep Research Output ===
-    # current_context: Optional[str]
+    final_deep_research_report: Optional[str]
     search_query: Annotated[list, operator.add]
     web_research_result: Annotated[list, operator.add]
     sources_gathered: Annotated[list, operator.add]

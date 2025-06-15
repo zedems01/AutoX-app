@@ -41,6 +41,7 @@ def generate_query(state: OverallState, config: RunnableConfig) -> QueryGenerati
     """
     configurable = Configuration.from_runnable_config(config)
 
+    # check for custom initial search query count
     if state.get("initial_search_query_count") is None:
         state["initial_search_query_count"] = configurable.number_of_initial_queries
 
@@ -80,7 +81,7 @@ def web_research(state: WebSearchState, config: RunnableConfig) -> OverallState:
         current_date=get_current_date(),
         research_topic=state["search_query"],
     )
-
+    # Uses the google genai client as the langchain client doesn't return grounding metadata
     response = genai_client.models.generate_content(
         model=configurable.query_generator_model,
         contents=formatted_prompt,
@@ -90,9 +91,11 @@ def web_research(state: WebSearchState, config: RunnableConfig) -> OverallState:
         },
     )
     
+    # resolve the urls to short urls for saving tokens and time
     resolved_urls = resolve_urls(
         response.candidates[0].grounding_metadata.grounding_chunks, state["id"]
     )
+    # Gets the citations and adds them to the generated text
     citations = get_citations(response, resolved_urls)
     modified_text = insert_citation_markers(response.text, citations)
     sources_gathered = [item for citation in citations for item in citation["segments"]]
@@ -137,7 +140,10 @@ def reflection(state: OverallState, config: RunnableConfig) -> ReflectionState:
 
 def evaluate_research(state: ReflectionState, config: RunnableConfig):
     """
-    Determines whether to continue with more research loops or finalize the answer.
+    LangGraph routing function that determines the next step in the research flow.
+
+    Controls the research loop by deciding whether to continue gathering information
+    or to finalize the summary based on the configured maximum number of research loops.
     """
     configurable = Configuration.from_runnable_config(config)
     max_research_loops = (
@@ -162,7 +168,11 @@ def evaluate_research(state: ReflectionState, config: RunnableConfig):
 
 def finalize_answer(state: OverallState, config: RunnableConfig):
     """
-    Compiles the final research report from all gathered information.
+    LangGraph node that finalizes the research summary.
+
+    Prepares the final output by deduplicating and formatting sources, then
+    combining them with the running summary to create a well-structured
+    research report with proper citations.
     """
     configurable = Configuration.from_runnable_config(config)
     reasoning_model = state.get("reasoning_model") or configurable.reasoning_model
@@ -180,4 +190,17 @@ def finalize_answer(state: OverallState, config: RunnableConfig):
         api_key=api_key,
     )
     response = llm.invoke(formatted_prompt).content
-    return {"current_context": response} 
+
+    # Replace the short urls with the original urls and add all used urls to the sources_gathered
+    unique_sources = []
+    for source in state["sources_gathered"]:
+        if source["short_url"] in response:
+            response = response.replace(
+                source["short_url"], source["value"]
+            )
+            unique_sources.append(source)
+            
+    return {
+        "final_deep_research_report": response,
+        "sources_gathered": unique_sources
+    } 
