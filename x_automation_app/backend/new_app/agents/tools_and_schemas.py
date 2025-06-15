@@ -40,6 +40,12 @@ class Trend(BaseModel):
     rank: Optional[int] = Field(description="The rank of the trend.")
     tweet_count: Optional[str] = Field(description="The number of tweets associated with the trend.")
 
+class TrendResponse(BaseModel):
+    """
+    Represents a response from the trend harvester agent.
+    """
+    trends: List[Trend]
+
 
 class TweetAuthor(BaseModel):
     """
@@ -67,6 +73,11 @@ class TweetSearched(BaseModel):
     isReply: bool
     author: TweetAuthor
 
+class TweetSearchResponse(BaseModel):
+    """
+    Represents a response from the tweet search agent.
+    """
+    tweets: List[TweetSearched]
 
 class TweetDrafts(BaseModel):
     """

@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TypedDict, Optional, List
 from typing_extensions import Annotated
 from langgraph.graph import add_messages
-from .tools_and_schemas import Trend, GeneratedImage, TweetSearched
+from .tools_and_schemas import Trend, GeneratedImage, TweetSearched, TrendResponse
 import operator
 from dataclasses import dataclass, field
 

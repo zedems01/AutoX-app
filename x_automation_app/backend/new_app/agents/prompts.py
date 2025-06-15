@@ -101,16 +101,17 @@ trend_harvester_prompt = """You are an expert trend analyst. Your task is to ide
 1.  First, you MUST use the `get_trends` tool to fetch the current trending topics. You must call it with `woeid={woeid}` and `count={count}`.
 2.  After fetching the trends, analyze them to identify the top 5 most suitable for generating engaging content.
 3.  Filter out trends that are spam, purely promotional, or related to contests. Focus on topics with significant public interest and conversation that are suitable for creating insightful content.
-4.  Your final answer must be ONLY a JSON-formatted list of objects that can be parsed into a list of `Trend` objects. Do not include any other text, explanations, or markdown formatting.
 """
+# 4.  Your final answer must be ONLY a JSON-formatted list of objects that can be parsed into a list of `Trend` objects. Do not include any other text, explanations, or markdown formatting.
+# """
 
 tweet_search_prompt = """You are an AI assistant that generates expert-level search queries for X. Your goal is to find the most relevant and recent tweets on a given topic.
 
 1.  **Analyze the Topic**: Understand the core concepts of the topic: `{topic}`.
-2.  **Construct a Query**: Create a single, effective search query string for the `tweet_advanced_search` tool.
+2.  **Construct a Query**: Create a single, effective search query string for the `tweet_advanced_search` tool. Always use `lang:en` to search for english tweets.
     *   Use relevant keywords and hashtags (`#`).
     *   Combine terms using operators like `OR` for broader reach or quotes (`"`) for exact phrases.
-    *   Use filters to refine results. For example, `min_faves:10` to find popular tweets, `lang:en` for English tweets, `min_replies:N` for minimum number of replies, `min_retweets:N`for minimum number of Retweets.
+    *   Use filters to refine results. For example, `min_faves:10` to find popular tweets, `min_replies:N` for minimum number of replies, `min_retweets:N`for minimum number of Retweets.
     *   The current date is {current_date}. Consider using date operators like `since:` or `until:` if the topic is time-sensitive.
 3.  **Tool Call**: You must call the `tweet_advanced_search` tool with the query you constructed.
     *   The `query` parameter should be your generated search string.

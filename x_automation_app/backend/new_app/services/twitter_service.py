@@ -129,18 +129,18 @@ def tweet_advanced_search(
         query: str,
         query_type: str = "Latest",
         cursor: str = "",
-        min_tweets_to_return: int = 50, # Changed from num_requests
+        max_tweets_to_return: int = 10,
         api_key: str = settings.X_API_KEY
     ) -> List[TweetSearched]:
     """
     Performs an advanced search for tweets based on the provided query and query type.
-    Collects tweets until a minimal number of tweets is reached or no more pages are available.
+    Collects tweets up to a specified maximum number.
     """
     url = "https://api.twitterapi.io/twitter/tweet/advanced_search"
     all_tweets: List[TweetSearched] = []
     current_cursor = cursor
 
-    while len(all_tweets) < min_tweets_to_return:
+    while len(all_tweets) < max_tweets_to_return:
         params = {"query": query, "query_type": query_type, "cursor": current_cursor}
         headers = {"X-API-Key": api_key}
 
@@ -148,9 +148,14 @@ def tweet_advanced_search(
             response = requests.get(url, params=params, headers=headers)
             response.raise_for_status() # Raises HTTPError for bad responses (4xx or 5xx)
             data = response.json()
+            logger.info(f"First batch of tweets fetched!!")
 
             # Directly process the data, assuming success if raise_for_status() passed
             for tweet_data in data.get("tweets", []):
+
+                if len(all_tweets) >= max_tweets_to_return:
+                    logger.info(f"Reached max tweets ({max_tweets_to_return}), stopping collection from current batch.")
+                    break
                 # Extract author details
                 author_data = tweet_data.get("author", {})
                 author = TweetAuthor(
@@ -176,6 +181,11 @@ def tweet_advanced_search(
                     author=author
                 )
                 all_tweets.append(tweet_obj)
+                logger.info(f"Tweets fetched!! Found {len(all_tweets)} tweets so far")
+
+            if len(all_tweets) >= max_tweets_to_return:
+                logger.info(f"Total tweets reached max limit {max_tweets_to_return}, exiting loop for new requests.")
+                break
 
             has_next_page = data.get("has_next_page", False)
             next_cursor = data.get("next_cursor", "")
