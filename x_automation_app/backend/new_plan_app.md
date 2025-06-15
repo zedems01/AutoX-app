@@ -187,8 +187,8 @@ This phase involves creating each specialized agent (node) that will form the La
 *   [ ] **Step 2.4: Deep Research Agents (Consolidated in `deep_researcher.py`)**
     *   [x] Create `x_automation_app/backend/new_app/agents/deep_researcher.py`.
     *   [x] Move and adapt the `generate_query`, `web_research`, `reflection`, `evaluate_research`, and `finalize_answer` nodes into this file. These nodes will use direct LLM calls and programmatic logic, with `web_research` directly calling the Google Search API (not `create_react_agent`).
-    *   [ ] Ensure `generate_query` (the entry point for deep research) correctly takes input by **prioritizing `state['topic_from_opinion_analysis']` if it exists, otherwise falling back to `state['user_provided_topic']`**.
-    *   [ ] Their output will update `state['final_deep_research_report']` and `state['sources_gathered']`.
+    *   [x] Ensure `generate_query` (the entry point for deep research) correctly takes input by **prioritizing `state['topic_from_opinion_analysis']` if it exists, otherwise falling back to `state['user_provided_topic']`**.
+    *   [x] Their output will update `state['final_deep_research_report']` and `state['sources_gathered']`.
 
 *   [ ] **Step 2.5: Writer Agent (`writer_agent.py`)**
     *   [ ] Create `x_automation_app/backend/new_app/agents/writer_agent.py`.
