@@ -177,15 +177,15 @@ This phase involves creating each specialized agent (node) that will form the La
         *   Execute the `twitter_service.tweet_advanced_search` tool call, handling pagination (making 7 queries or until `has_next_page` is false to collect ~100 tweets).
         *   Update `state['tweet_search_results']` with the collected tweets.
 
-*   [ ] **Step 2.3: Opinion Analysis Agent (`opinion_analysis_agent.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/agents/opinion_analysis_agent.py`.
+*   [x] **Step 2.3: Opinion Analysis Agent (`opinion_analysis_agent.py`)**
+    *   [x] Create `x_automation_app/backend/new_app/agents/opinion_analysis_agent.py`.
     *   [ ] Implement `opinion_analysis_node(state: OverallState) -> dict`. This node will use a direct LLM call (not `create_react_agent`):
         *   Take `state['tweet_search_results']` as input.
         *   Use an LLM to analyze the tweets.
         *   Return `state['opinion_summary']`, `state['overall_sentiment']`, and `state['topic_from_opinion_analysis']`.
 
 *   [ ] **Step 2.4: Deep Research Agents (Consolidated in `deep_researcher.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/agents/deep_researcher.py`.
+    *   [x] Create `x_automation_app/backend/new_app/agents/deep_researcher.py`.
     *   [ ] Move and adapt the `generate_query`, `web_research`, `reflection`, `evaluate_research`, and `finalize_answer` nodes into this file. These nodes will use direct LLM calls and programmatic logic, with `web_research` directly calling the Google Search API (not `create_react_agent`).
     *   [ ] Ensure `generate_query` (the entry point for deep research) correctly takes input by **prioritizing `state['topic_from_opinion_analysis']` if it exists, otherwise falling back to `state['user_provided_topic']`**.
     *   [ ] Their output will update `state['current_context']` and `state['sources_gathered']`.

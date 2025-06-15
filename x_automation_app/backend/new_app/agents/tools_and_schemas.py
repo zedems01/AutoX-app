@@ -75,3 +75,20 @@ class TweetDrafts(BaseModel):
     drafts: List[str]
 
 
+class TweetAdvancedSearchParameters(BaseModel):
+    """
+    Parameters for the tweet_advanced_search tool.
+    """
+    query: str = Field(..., description="The search query for tweets, including any operators.")
+    query_type: str = Field("Latest", description="Type of search. Can be 'Latest' or 'Top'.")
+
+
+class OpinionAnalysisOutput(BaseModel):
+    """
+    Schema for the output of the opinion analysis agent.
+    """
+    opinion_summary: str = Field(..., description="A concise summary of the public's opinion, viewpoints, and discussions found in the tweets.")
+    overall_sentiment: str = Field(..., description="The overall sentiment of the conversation (e.g., 'Positive', 'Negative', 'Neutral', 'Mixed').")
+    topic_from_opinion_analysis: str = Field(..., description="The specific, refined topic or subject of the conversation, suitable for deep research.")
+
+

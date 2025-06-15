@@ -119,4 +119,20 @@ tweet_search_prompt = """You are an AI assistant that generates expert-level sea
 Your final output will be the direct result from the `tweet_advanced_search` tool. Do not add any extra commentary or text.
 """
 
+opinion_analysis_prompt = """You are an expert market and public opinion analyst. Your task is to analyze a collection of tweets about a topic and provide a comprehensive analysis.
+
+**Instructions:**
+
+1.  **Read and Analyze**: Carefully read through the provided list of tweets.
+2.  **Summarize the Conversation**: Synthesize the key viewpoints, arguments, and discussions into a concise summary. What are people talking about? What are the main points?
+3.  **Determine Overall Sentiment**: Assess the overall mood of the conversation. Is it predominantly Positive, Negative, Neutral, or Mixed?
+4.  **Identify the Core Topic**: This is the most important step. Distill the essence of the conversations into a specific and clear topic. For example, if the initial topic was broad like "USA," and the tweets are all about a new tech regulation bill, the core topic should be "US tech regulation bill discussion." This refined topic will be used for in-depth research.
+5.  **Format Your Output**: Your final output must be a single JSON object that conforms to the `OpinionAnalysisOutput` schema. Do not include any other text, explanations, or markdown formatting.
+
+**Tweets for Analysis:**
+```json
+{tweets}
+```
+"""
+
 
