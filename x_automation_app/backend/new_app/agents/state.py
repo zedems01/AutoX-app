@@ -29,7 +29,7 @@ class ReflectionState(TypedDict):
 
 @dataclass(kw_only=True)
 class SearchStateOutput:
-    running_summary: str = field(default=None)
+    running_summary: str = field(default=None)   # Final report
 
 
 class OverallState(TypedDict):
@@ -63,6 +63,7 @@ class OverallState(TypedDict):
     topic_from_opinion_analysis: Optional[str]
 
     # === Deep Research Output ===
+    current_context: Optional[str]
     search_query: Annotated[list, operator.add]
     web_research_result: Annotated[list, operator.add]
     sources_gathered: Annotated[list, operator.add]
@@ -70,7 +71,6 @@ class OverallState(TypedDict):
     max_research_loops: int
     research_loop_count: int
     reasoning_model: str
-
 
     # === Content & Image Drafts ===
     content_draft: Optional[str]

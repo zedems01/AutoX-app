@@ -67,12 +67,6 @@ class TweetSearched(BaseModel):
     isReply: bool
     author: TweetAuthor
 
-# class TweetAdvancedSearchResult(BaseModel):
-#     """
-#     A result from the tweet advanced search endpoint.
-#     """
-#     tweets: List[TweetSearched]
-
 
 class TweetDrafts(BaseModel):
     """

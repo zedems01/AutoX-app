@@ -86,7 +86,7 @@ This phase establishes the new backend directory, sets up foundational component
 
 *   [ ] **Step 0.3: Shared Tools & Schemas**
     *   [x] Create `x_automation_app/backend/new_app/agents/tools_and_schemas.py`.
-    *   [ ] Define common **Pydantic BaseModel classes** for structured outputs and tool inputs/outputs (e.g., `GeneratedImage`, `SearchQueryList`, `TweetDrafts`, schemas for `tweet_advanced_search` tool parameters and results) and any shared Langchain tools here.
+    *   [x] Define common **Pydantic BaseModel classes** for structured outputs and tool outputs (e.g., `GeneratedImage`, `TweetDrafts`, TweetSearched, ...) and any shared Langchain tools here.
     *   [x] Define `GeneratedImage` as a `Pydantic BaseModel` with image_name, local_file_path, s3_url.
 
 ---
@@ -97,7 +97,7 @@ This phase focuses on implementing the external API interactions, ensuring they 
 
 *   [ ] **Step 1.1: Centralized Twitter Service (`twitter_service.py`)**
     *   [ ] Create `x_automation_app/backend/new_app/services/twitter_service.py`.
-    *   [ ] Refactor the existing `TwitterService` class to be stateless. All authenticated methods will require `session` as an argument.
+    *   [ ] Refactor the existing `TwitterService` functions to be stateless. All authenticated methods will require `session` as an argument.
     *   [ ] Implement/Update the following functions:
         *   [x] `start_login(email: str, password: str, proxy: str) -> dict`: Executes the first 2FA login step, returns `login_data`.
         *   [x] `complete_login(login_data: str, two_fa_code: str, proxy: str) -> dict`: Executes the second 2FA login step, returns `session` token and `user_details`.
@@ -135,8 +135,8 @@ This phase focuses on implementing the external API interactions, ensuring they 
                     *   `-min_replies:N`: A maximum number of replies.
 
         *   [x] `upload_image(session: str, image_url: str) -> str`: Uploads media from a presigned S3 URL to X, returns `media_id`.
-        *   [x] `post_tweet(session: str, tweet_text: str, media_ids: Optional[List[str]] = None) -> str`: Publishes a single tweet and return the tweet ID.
-        *   [ ] `post_tweet_thread(session: str, tweet_texts: List[str], media_ids_per_tweet: Optional[List[List[str]]] = None) -> List[dict]`: Publishes a thread of tweets (implementation details for chunking will come later if `x_content_type` is `TWEET_THREAD`).
+        *   [x] `post_tweet(session: str, tweet_text: str, image_url: Optional[str]=None, in_reply_to_tweet_id: Optional[str]=None) -> str`: Publishes a single tweet and return the tweet ID.
+        *   [ ] `post_tweet_thread(session: str, tweet_texts: List[str], media_ids_per_tweet: Optional[List[str]] = None)`: Publishes a thread of tweets (implementation details for chunking will come later if `x_content_type` is `TWEET_THREAD`).
 
 *   [ ] **Step 1.2: Image Generation Service (`image_service.py`)**
     *   [ ] Create `x_automation_app/backend/new_app/services/image_service.py`.
