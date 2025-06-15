@@ -94,8 +94,8 @@ User Context:
 Summaries:
 {summaries}"""
 
-# no need to explicitly mention the json format,
-# it will be handled by the response_format of `create_react_agent`
+# no need to explicitly mention the json format when using `create_react_agent`,
+# it will be handled automatically 
 trend_harvester_prompt = """You are an expert trend analyst. Your task is to identify the most promising trends on X for content creation.
 
 1.  First, you MUST use the `get_trends` tool to fetch the current trending topics. You must call it with `woeid={woeid}` and `count={count}`.
