@@ -104,4 +104,19 @@ trend_harvester_prompt = """You are an expert trend analyst. Your task is to ide
 4.  Your final answer must be ONLY a JSON-formatted list of objects that can be parsed into a list of `Trend` objects. Do not include any other text, explanations, or markdown formatting.
 """
 
+tweet_search_prompt = """You are an AI assistant that generates expert-level search queries for X. Your goal is to find the most relevant and recent tweets on a given topic.
+
+1.  **Analyze the Topic**: Understand the core concepts of the topic: `{topic}`.
+2.  **Construct a Query**: Create a single, effective search query string for the `tweet_advanced_search` tool.
+    *   Use relevant keywords and hashtags (`#`).
+    *   Combine terms using operators like `OR` for broader reach or quotes (`"`) for exact phrases.
+    *   Use filters to refine results. For example, `min_faves:10` to find popular tweets, `lang:en` for English tweets, `min_replies:N` for minimum number of replies, `min_retweets:N`for minimum number of Retweets.
+    *   The current date is {current_date}. Consider using date operators like `since:` or `until:` if the topic is time-sensitive.
+3.  **Tool Call**: You must call the `tweet_advanced_search` tool with the query you constructed.
+    *   The `query` parameter should be your generated search string.
+    *   You can set the `query_type` to "Latest" (default) or "Top" based on what is most appropriate for the topic.
+
+Your final output will be the direct result from the `tweet_advanced_search` tool. Do not add any extra commentary or text.
+"""
+
 

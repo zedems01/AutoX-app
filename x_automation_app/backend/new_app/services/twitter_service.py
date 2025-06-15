@@ -129,19 +129,18 @@ def tweet_advanced_search(
         query: str,
         query_type: str = "Latest",
         cursor: str = "",
-        num_requests: int = 7,
+        min_tweets_to_return: int = 50, # Changed from num_requests
         api_key: str = settings.X_API_KEY
     ) -> List[TweetSearched]:
     """
     Performs an advanced search for tweets based on the provided query and query type.
-    Collects tweets over multiple pages up to num_requests.
+    Collects tweets until a minimal number of tweets is reached or no more pages are available.
     """
     url = "https://api.twitterapi.io/twitter/tweet/advanced_search"
     all_tweets: List[TweetSearched] = []
     current_cursor = cursor
-    requests_made = 0
 
-    while requests_made < num_requests:
+    while len(all_tweets) < min_tweets_to_return:
         params = {"query": query, "query_type": query_type, "cursor": current_cursor}
         headers = {"X-API-Key": api_key}
 
@@ -186,10 +185,7 @@ def tweet_advanced_search(
             current_cursor = next_cursor
             
         except requests.exceptions.RequestException as e:
-            # Handle network errors or HTTP errors caught by raise_for_status()
             raise Exception(f"Network or API error during tweet advanced search: {e}")
-        
-        requests_made += 1
 
     return all_tweets
 

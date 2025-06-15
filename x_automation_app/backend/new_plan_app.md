@@ -157,20 +157,20 @@ This phase focuses on implementing the external API interactions, ensuring they 
 
 This phase involves creating each specialized agent (node) that will form the LangGraph workflow. Each agent will interact with the `OverallState`.
 
-*   [ ] **Step 2.1: Trend Harvester Agent (`trend_harvester.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/agents/trend_harvester.py`.
-    *   [ ] This agent will be defined using `langgraph.prebuilt.create_react_agent`.
-    *   [ ] It will have the `twitter_service.get_trends` function registered as a tool.
-    *   [ ] Implement `trend_harvester_node(state: OverallState) -> dict`. This node will:
+*   [x] **Step 2.1: Trend Harvester Agent (`trend_harvester.py`)**
+    *   [x] Create `x_automation_app/backend/new_app/agents/trend_harvester.py`.
+    *   [x] This agent will be defined using `langgraph.prebuilt.create_react_agent`.
+    *   [x] It will have the `twitter_service.get_trends` function registered as a tool.
+    *   [x] Implement `trend_harvester_node(state: OverallState) -> dict`. This node will:
         *   Call the `get_trends` tool.
         *   Use the LLM (configured via `create_react_agent`) to *reason* over the fetched trends and *select* a curated subset of the most promising trends for content generation.
         *   Update `state['trending_topics']` with this curated list.
 
-*   [ ] **Step 2.2: Tweet Search Agent (`tweet_search_agent.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/agents/tweet_search_agent.py`.
+*   [x] **Step 2.2: Tweet Search Agent (`tweet_search_agent.py`)**
+    *   [x] Create `x_automation_app/backend/new_app/agents/tweet_search_agent.py`.
     *   [ ] This agent will be defined using `langgraph.prebuilt.create_react_agent`.
-    *   [ ] It will have the `twitter_service.tweet_advanced_search` function registered as a tool.
-    *   [ ] Implement `tweet_search_node(state: OverallState) -> dict`. This node will:
+    *   [x] It will have the `twitter_service.tweet_advanced_search` function registered as a tool.
+    *   [x] Implement `tweet_search_node(state: OverallState) -> dict`. This node will:
         *   Receive the search topic from `state['selected_topic']['name']` (if HiTL) or `state['topic_from_opinion_analysis']` (if autonomous).
         *   Use the LLM (configured via `create_react_agent`) to generate the `query` parameters for the `tweet_advanced_search` tool, potentially leveraging `queryType` (Latest/Top) and other operators (time, engagement).
         *   Provide a structured output schema for the LLM to ensure the generated parameters are correct.

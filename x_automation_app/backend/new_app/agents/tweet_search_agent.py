@@ -1,41 +1,69 @@
+import json
 from langgraph.prebuilt import create_react_agent
 from langchain_openai import ChatOpenAI
-from .prompts import trend_harvester_prompt
-from typing import Dict, Any, List
-from agents.state import (
-    OverallState,
-    Trend
-)
-from ..services.twitter_service import get_trends
+from .prompts import tweet_search_prompt, get_current_date
+from typing import Dict, Any
+from .state import OverallState
+from ..services.twitter_service import tweet_advanced_search
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-
+# Create the agent once and reuse it
 llm = ChatOpenAI(model="gpt-4o")
+tweet_search_agent = create_react_agent(model=llm, tools=[tweet_advanced_search])
 
-def trend_harvester_node(state: OverallState) -> Dict[str, Any]:
+def tweet_search_node(state: OverallState) -> Dict[str, Any]:
     """
-    Fetches trending topics from the Twitter service and updates the state.
+    Uses a ReAct agent to search for tweets based on the current topic and updates the state.
 
-    This node calls the `twitter_service.get_trends` method, processes the
-    raw trend data into the structured `Trend` format, and adds it to the
-    `trending_topics` list in the application's state.
-
-    Args:
-        state: The current state of the LangGraph.
+    This node determines the search topic from various possible keys in the state,
+    invokes an agent to generate a search query, executes the search, and returns
+    the results to be saved in the state.
 
     Returns:
-        A dictionary with the `trending_topics` key to update the state.
+        A dictionary to update the 'tweet_search_results' key in the state.
     """
-    logger.info("---Fetching Trending Topics---")
+    logger.info("---SEARCHING FOR TWEETS---")
+    
+    try:
+        # Determine the topic from the state, with a clear priority
+        topic = ""
+        selected_topic = state.get("selected_topic")
+        if selected_topic:
+            topic = selected_topic.name
+        elif state.get("user_provided_topic"):
+            topic = state.get("user_provided_topic")
 
-    agent = create_react_agent(
-        model=llm,
-        tools=[get_trends],
-        response_format=List[Trend]
-    )
-    response = agent.invoke({"messages": [("user", trend_harvester_prompt)]})
+        if not topic:
+            raise ValueError("No topic found in the state to initiate tweet search.")
 
-    return {"trending_topics": response}
+        logger.info(f"---Searching tweets for topic: {topic}---")
+        
+        prompt = tweet_search_prompt.format(
+            topic=topic,
+            current_date=get_current_date()
+        )
+        
+        response = tweet_search_agent.invoke({"messages": [("user", prompt)]})
+        
+        # The result of the tool call is usually in the last message content
+        tool_output = response['messages'][-1].content
+        
+        # The tool returns a list of TweetSearched objects, but via the agent it may be a string
+        # We'll assume the tool's direct output is what we need. If it's a string, it needs parsing.
+        try:
+            # If the tool output is a JSON string in the message content
+            tweet_search_results = json.loads(tool_output)
+        except (json.JSONDecodeError, TypeError):
+            # If the output is already a list of objects (ideal case)
+            tweet_search_results = tool_output
+
+        logger.info(f"---Found {len(tweet_search_results)} tweets.---")
+
+        return {"tweet_search_results": tweet_search_results}
+
+    except Exception as e:
+        logger.error(f"An unexpected error occurred in the tweet search node: {e}")
+        return {"error_message": f"An unexpected error occurred during tweet search: {str(e)}"}
