@@ -124,7 +124,7 @@ def get_trends(
     except requests.exceptions.RequestException as e:
         raise Exception(f"Network error while fetching trends: {e}")
 
-
+@tool
 def tweet_advanced_search(
         query: str,
         query_type: str = "Latest",
