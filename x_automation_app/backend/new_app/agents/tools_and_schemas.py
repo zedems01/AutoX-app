@@ -36,9 +36,9 @@ class Trend(BaseModel):
     """
     Represents a trending topic on X.
     """
-    name: str
-    rank: int
-    tweet_count: Optional[str] = None
+    name: str = Field(description="The name of the trend.")
+    rank: int = Field(description="The rank of the trend.")
+    tweet_count: Optional[str] = Field(description="The number of tweets associated with the trend.")
 
 
 class TweetAuthor(BaseModel):
