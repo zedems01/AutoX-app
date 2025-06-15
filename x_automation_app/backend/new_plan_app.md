@@ -192,15 +192,15 @@ This phase involves creating each specialized agent (node) that will form the La
 
 *   [ ] **Step 2.5: Writer Agent (`writer_agent.py`)**
     *   [x] Create `x_automation_app/backend/new_app/agents/writer_agent.py`.
-    *   [ ] Implement `writer_node(state: OverallState, feedback: Optional[str] = None) -> dict`. This node will use a direct LLM call (not `create_react_agent`):
+    *   [x] Implement `writer_node(state: OverallState, feedback: Optional[str] = None) -> dict`. This node will use a direct LLM call (not `create_react_agent`):
         *   Take `state['current_context']`, `state['opinion_summary']`, `state['overall_sentiment']`, workflow parameters (`content_length`, `brand_voice`, `target_audience`, `x_content_type`, etc.), and crucially, `feedback` (if provided from a `HiTL 1` rejection) as input.
         *   The LLM prompt will be specifically designed to **incorporate the `feedback`** when revising the `content_draft` and `image_prompts`.
         *   Use an LLM to generate the main content and a descriptive image prompt (or a *list* of descriptive image prompts, if judged necessary).
         *   Return `state['content_draft']` and `state['image_prompts']`.
 
 *   [ ] **Step 2.6: Quality Assurance Agent (`quality_assurance_agent.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/agents/quality_assurance_agent.py`.
-    *   [ ] Implement `quality_assurance_node(state: OverallState) -> dict`. This node will use a direct LLM call (not `create_react_agent`):
+    *   [x] Create `x_automation_app/backend/new_app/agents/quality_assurance_agent.py`.
+    *   [x] Implement `quality_assurance_node(state: OverallState) -> dict`. This node will use a direct LLM call (not `create_react_agent`):
         *   Take `state['content_draft']` and `state['image_prompts']` as input.
         *   Use an LLM to review, refine, and select the best version of the content and the best *list* of image prompts. It will perform changes if necessary, even in autonomous mode.
         *   Return `state['final_content']` and `state['final_image_prompts']`.

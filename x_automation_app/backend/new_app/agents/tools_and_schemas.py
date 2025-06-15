@@ -1,5 +1,28 @@
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
+from enum import Enum
+
+
+class ValidationAction(str, Enum):
+    """Enumeration for validation actions."""
+    APPROVE = "approve"
+    REJECT = "reject"
+    EDIT = "edit"
+
+class ValidationData(BaseModel):
+    """
+    Data payload for validation, which can contain feedback or other information.
+    """
+    feedback: Optional[str] = None
+    # Allows for other potential data fields during validation
+    extra_data: Optional[Dict[str, Any]] = None
+
+class ValidationResult(BaseModel):
+    """
+    Defines the structure for the result of a human-in-the-loop validation step.
+    """
+    action: ValidationAction
+    data: Optional[ValidationData] = None
 
 
 class SearchQueryList(BaseModel):
@@ -109,5 +132,13 @@ class WriterOutput(BaseModel):
     """
     content_draft: str = Field(..., description="The main content draft, written according to the specified parameters.")
     image_prompts: list[str] = Field(..., description="A list of descriptive prompts for generating accompanying images.")
+
+
+class QAOutput(BaseModel):
+    """
+    Schema for the output of the quality assurance agent.
+    """
+    final_content: str = Field(..., description="The final, approved version of the content, ready for publication.")
+    final_image_prompts: list[str] = Field(..., description="The final, approved list of image prompts.")
 
 

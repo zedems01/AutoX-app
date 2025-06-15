@@ -2,7 +2,8 @@ from __future__ import annotations
 from typing import TypedDict, Optional, List
 from typing_extensions import Annotated
 from langgraph.graph import add_messages
-from .tools_and_schemas import Trend, GeneratedImage, TweetSearched, TrendResponse
+from langgraph.graph.message import add_messages
+from .tools_and_schemas import Trend, GeneratedImage, TweetSearched, TrendResponse, ValidationResult
 import operator
 from dataclasses import dataclass, field
 
@@ -84,7 +85,7 @@ class OverallState(TypedDict):
 
     # === HiTL & Meta-state ===
     next_human_input_step: Optional[str]
-    validation_result: Optional[dict]
+    validation_result: Optional[ValidationResult]
     current_step: str
     error_message: Optional[str]
     messages: Annotated[list, add_messages]
