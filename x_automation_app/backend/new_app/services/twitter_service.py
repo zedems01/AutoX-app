@@ -1,5 +1,5 @@
 import requests
-from ..config import settings
+from ...config import settings
 from ..agents.tools_and_schemas import Trend, TweetSearched, TweetAuthor
 from typing import List, Optional
 from langchain_core.tools import tool
@@ -78,6 +78,7 @@ def complete_login(
             raise Exception(f"Login Step 2 failed: {data.get('msg', 'Unknown error')}")
     except requests.exceptions.RequestException as e:
         raise Exception(f"Network error during Login Step 2: {e}")
+
 
 @tool
 def get_trends(

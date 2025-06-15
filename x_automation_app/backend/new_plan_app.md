@@ -139,15 +139,15 @@ This phase focuses on implementing the external API interactions, ensuring they 
         *   [x] `post_tweet_thread(session: str, tweet_texts: List[str], media_ids_per_tweet: Optional[List[str]] = None)`: Publishes a thread of tweets (implementation details for chunking will come later if `x_content_type` is `TWEET_THREAD`).
 
 *   [ ] **Step 1.2: Image Generation Service (`image_service.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/services/image_service.py`.
-    *   [ ] Implement `generate_and_upload_image(prompt: str) -> GeneratedImage`. This function will:
-        *   Generate image using OpenAI DALL-E.
+    *   [x] Create `x_automation_app/backend/new_app/services/image_service.py`.
+    *   [x] Implement `generate_and_upload_image(prompt: str, image_name: str) -> GeneratedImage`. This function will:
+        *   Generate image using OpenAI gpt-image-1.
         *   Save the image locally (e.g., `x_automation_app/backend/new_app/images/`).
         *   Upload to AWS S3.
         *   Generate a presigned S3 URL.
         *   Return a `GeneratedImage` object including `image_name`, `local_file_path`, and `s3_url`.
 
-*   [ ] **Step 1.3: Notification Service (`notifications.py`)**
+*   [ ] **Step 1.3: Notification Service (`notifications.py`)** (WILL BE DONE IN THE NEXT VERSION)
     *   [ ] Create `x_automation_app/backend/new_app/agents/notifications.py`.
     *   [ ] Implement `send_notification(subject: str, body: str)` using Composio Gmail.
 
