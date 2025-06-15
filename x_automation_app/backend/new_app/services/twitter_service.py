@@ -3,6 +3,7 @@ from ..config import settings
 from ..agents.tools_and_schemas import Trend, TweetSearched, TweetAuthor
 from typing import List, Optional
 from langchain_core.tools import tool
+from ..utils.tweet_chunking import chunk_text
 
 
 
@@ -285,5 +286,61 @@ def post_tweet(
     #     }
     #   }
     # } 
+
+
+def post_tweet_thread(
+        session: str,
+        tweet_texts: List[str],
+        proxy: str,
+        media_ids_per_tweet: Optional[List[List[str]]] = None,
+        api_key: str = settings.X_API_KEY
+    ) -> List[dict]:
+    """
+    Publishes a thread of tweets.
+    
+    Args:
+        session (str): The authenticated user session.
+        tweet_texts (List[str]): A list of tweet content strings. The first is the main tweet.
+        proxy (str): The proxy to use for the requests.
+        media_ids_per_tweet (Optional[List[List[str]]]): A list of lists of media IDs to attach to each tweet.
+        api_key (str): The API key.
+
+    Returns:
+        List[dict]: A list of dictionaries containing the response from the API for each posted tweet.
+    """
+    if not session:
+        raise Exception("Cannot post tweet thread: User is not logged in.")
+
+    # The user can provide already-chunked text, or a single block of text.
+    # If it's a single block, we chunk it.
+    if len(tweet_texts) == 1:
+        full_text = tweet_texts[0]
+        chunks = chunk_text(full_text)
+    else:
+        chunks = tweet_texts
+
+    posted_tweets = []
+    reply_to_id = None
+
+    for i, chunk in enumerate(chunks):
+        # For now, we are not handling images in threads.
+        # This can be extended to use media_ids_per_tweet.
+        tweet_id = post_tweet(
+            session=session,
+            tweet_text=chunk,
+            proxy=proxy,
+            in_reply_to_tweet_id=reply_to_id,
+            api_key=api_key
+        )
+        
+        if tweet_id:
+            posted_tweets.append({"status": "success", "tweet_id": tweet_id})
+            reply_to_id = tweet_id  # The next tweet will reply to this one
+        else:
+            # If a tweet fails, we stop and report the failure.
+            posted_tweets.append({"status": "error", "message": f"Failed to post chunk {i+1}"})
+            break
+            
+    return posted_tweets
 
 

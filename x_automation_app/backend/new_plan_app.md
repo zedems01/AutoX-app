@@ -96,7 +96,7 @@ This phase establishes the new backend directory, sets up foundational component
 This phase focuses on implementing the external API interactions, ensuring they are stateless and reusable.
 
 *   [ ] **Step 1.1: Centralized Twitter Service (`twitter_service.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/services/twitter_service.py`.
+    *   [x] Create `x_automation_app/backend/new_app/services/twitter_service.py`.
     *   [ ] Refactor the existing `TwitterService` functions to be stateless. All authenticated methods will require `session` as an argument.
     *   [ ] Implement/Update the following functions:
         *   [x] `start_login(email: str, password: str, proxy: str) -> dict`: Executes the first 2FA login step, returns `login_data`.
@@ -136,7 +136,7 @@ This phase focuses on implementing the external API interactions, ensuring they 
 
         *   [x] `upload_image(session: str, image_url: str) -> str`: Uploads media from a presigned S3 URL to X, returns `media_id`.
         *   [x] `post_tweet(session: str, tweet_text: str, image_url: Optional[str]=None, in_reply_to_tweet_id: Optional[str]=None) -> str`: Publishes a single tweet and return the tweet ID.
-        *   [ ] `post_tweet_thread(session: str, tweet_texts: List[str], media_ids_per_tweet: Optional[List[str]] = None)`: Publishes a thread of tweets (implementation details for chunking will come later if `x_content_type` is `TWEET_THREAD`).
+        *   [x] `post_tweet_thread(session: str, tweet_texts: List[str], media_ids_per_tweet: Optional[List[str]] = None)`: Publishes a thread of tweets (implementation details for chunking will come later if `x_content_type` is `TWEET_THREAD`).
 
 *   [ ] **Step 1.2: Image Generation Service (`image_service.py`)**
     *   [ ] Create `x_automation_app/backend/new_app/services/image_service.py`.
