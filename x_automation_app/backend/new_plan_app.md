@@ -205,7 +205,7 @@ This phase involves creating each specialized agent (node) that will form the La
         *   Use an LLM to review, refine, and select the best version of the content and the best *list* of image prompts. It will perform changes if necessary, even in autonomous mode.
         *   Return `state['final_content']` and `state['final_image_prompts']`.
 
-*   [ ] **Step 2.7: Image Generator Agent (`image_generator_agent.py`)**
+*   [x] **Step 2.7: Image Generator Agent (`image_generator_agent.py`)**
     *   [x] Create `x_automation_app/backend/new_app/agents/image_generator_agent.py`.
     *   [x] This agent will be defined using `langgraph.prebuilt.create_react_agent`.
     *   [x] It will have the `image_service.generate_and_upload_image` function registered as a tool.
@@ -216,8 +216,8 @@ This phase involves creating each specialized agent (node) that will form the La
         *   Collect and return a `List[GeneratedImage]` to update `state['generated_images']`.
 
 *   [ ] **Step 2.8: Publicator Agent (`publicator_agent.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/agents/publicator_agent.py`.
-    *   [ ] Implement `publicator_node(state: OverallState) -> dict`. This node will use programmatic logic and direct service calls (not `create_react_agent`):
+    *   [x] Create `x_automation_app/backend/new_app/agents/publicator_agent.py`.
+    *   [x] Implement `publicator_node(state: OverallState) -> dict`. This node will use programmatic logic and direct service calls (not `create_react_agent`):
         *   Retrieve `session`, `final_content`, `generated_images` from `OverallState`.
         *   **Implement a helper utilities functions for tweet chunking:** Let the functions be in twitter_service.py for this deterministic logic.
         *   **Conditional Logic based on `state['output_destination']`:**
