@@ -3,7 +3,7 @@ from ..config import settings
 from ..agents.tools_and_schemas import Trend, TweetSearched, TweetAuthor
 from typing import List, Optional
 from langchain_core.tools import tool
-from ..utils.tweet_chunking import chunk_text
+from .tweet_chunking import chunk_text
 
 
 
@@ -272,27 +272,11 @@ def post_tweet(
     except requests.exceptions.RequestException as e:
         raise Exception(f"Network error during tweet posting: {e}")
     
-    # response format:
-    # {
-    #   "status": "<string>",
-    #   "msg": "<string>",
-    #   "data": {
-    #     "create_tweet": {
-    #       "tweet_result": {
-    #         "result": {
-    #           "rest_id": "<string>" # The ID of the tweet
-    #         }
-    #       }
-    #     }
-    #   }
-    # } 
-
-
 def post_tweet_thread(
         session: str,
-        tweet_texts: List[str],
+        tweet_text: str,
         proxy: str,
-        media_ids_per_tweet: Optional[List[List[str]]] = None,
+        image_url: Optional[str]=None,
         api_key: str = settings.X_API_KEY
     ) -> List[dict]:
     """
@@ -302,7 +286,7 @@ def post_tweet_thread(
         session (str): The authenticated user session.
         tweet_texts (List[str]): A list of tweet content strings. The first is the main tweet.
         proxy (str): The proxy to use for the requests.
-        media_ids_per_tweet (Optional[List[List[str]]]): A list of lists of media IDs to attach to each tweet.
+        image_url (Optional[str]): The URL of the image to attach to the first tweet.
         api_key (str): The API key.
 
     Returns:
@@ -311,24 +295,19 @@ def post_tweet_thread(
     if not session:
         raise Exception("Cannot post tweet thread: User is not logged in.")
 
-    # The user can provide already-chunked text, or a single block of text.
-    # If it's a single block, we chunk it.
-    if len(tweet_texts) == 1:
-        full_text = tweet_texts[0]
-        chunks = chunk_text(full_text)
-    else:
-        chunks = tweet_texts
-
+    chunks = chunk_text(tweet_text)
     posted_tweets = []
     reply_to_id = None
 
     for i, chunk in enumerate(chunks):
-        # For now, we are not handling images in threads.
+        # For now, we are not handling multiple images in threads.
+        # If there is an image, it will be added to the first tweet.
         # This can be extended to use media_ids_per_tweet.
         tweet_id = post_tweet(
             session=session,
             tweet_text=chunk,
             proxy=proxy,
+            image_url=image_url if i == 0 else None,
             in_reply_to_tweet_id=reply_to_id,
             api_key=api_key
         )
