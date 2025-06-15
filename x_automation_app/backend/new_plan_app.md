@@ -184,13 +184,13 @@ This phase involves creating each specialized agent (node) that will form the La
         *   Use an LLM to analyze the tweets.
         *   Return `state['opinion_summary']`, `state['overall_sentiment']`, and `state['topic_from_opinion_analysis']`.
 
-*   [ ] **Step 2.4: Deep Research Agents (Consolidated in `deep_researcher.py`)**
+*   [x] **Step 2.4: Deep Research Agents (Consolidated in `deep_researcher.py`)**
     *   [x] Create `x_automation_app/backend/new_app/agents/deep_researcher.py`.
     *   [x] Move and adapt the `generate_query`, `web_research`, `reflection`, `evaluate_research`, and `finalize_answer` nodes into this file. These nodes will use direct LLM calls and programmatic logic, with `web_research` directly calling the Google Search API (not `create_react_agent`).
     *   [x] Ensure `generate_query` (the entry point for deep research) correctly takes input by **prioritizing `state['topic_from_opinion_analysis']` if it exists, otherwise falling back to `state['user_provided_topic']`**.
     *   [x] Their output will update `state['final_deep_research_report']` and `state['sources_gathered']`.
 
-*   [ ] **Step 2.5: Writer Agent (`writer_agent.py`)**
+*   [x] **Step 2.5: Writer Agent (`writer_agent.py`)**
     *   [x] Create `x_automation_app/backend/new_app/agents/writer_agent.py`.
     *   [x] Implement `writer_node(state: OverallState, feedback: Optional[str] = None) -> dict`. This node will use a direct LLM call (not `create_react_agent`):
         *   Take `state['current_context']`, `state['opinion_summary']`, `state['overall_sentiment']`, workflow parameters (`content_length`, `brand_voice`, `target_audience`, `x_content_type`, etc.), and crucially, `feedback` (if provided from a `HiTL 1` rejection) as input.
@@ -198,7 +198,7 @@ This phase involves creating each specialized agent (node) that will form the La
         *   Use an LLM to generate the main content and a descriptive image prompt (or a *list* of descriptive image prompts, if judged necessary).
         *   Return `state['content_draft']` and `state['image_prompts']`.
 
-*   [ ] **Step 2.6: Quality Assurance Agent (`quality_assurance_agent.py`)**
+*   [x] **Step 2.6: Quality Assurance Agent (`quality_assurance_agent.py`)**
     *   [x] Create `x_automation_app/backend/new_app/agents/quality_assurance_agent.py`.
     *   [x] Implement `quality_assurance_node(state: OverallState) -> dict`. This node will use a direct LLM call (not `create_react_agent`):
         *   Take `state['content_draft']` and `state['image_prompts']` as input.
@@ -206,10 +206,10 @@ This phase involves creating each specialized agent (node) that will form the La
         *   Return `state['final_content']` and `state['final_image_prompts']`.
 
 *   [ ] **Step 2.7: Image Generator Agent (`image_generator_agent.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/agents/image_generator_agent.py`.
-    *   [ ] This agent will be defined using `langgraph.prebuilt.create_react_agent`.
-    *   [ ] It will have the `image_service.generate_and_upload_image` function registered as a tool.
-    *   [ ] Implement `image_generator_node(state: OverallState, feedback: Optional[str] = None) -> dict`. This node will:
+    *   [x] Create `x_automation_app/backend/new_app/agents/image_generator_agent.py`.
+    *   [x] This agent will be defined using `langgraph.prebuilt.create_react_agent`.
+    *   [x] It will have the `image_service.generate_and_upload_image` function registered as a tool.
+    *   [x] Implement `image_generator_node(state: OverallState, feedback: Optional[str] = None) -> dict`. This node will:
         *   Take `state['final_image_prompts']` as input (a list of prompts) and `feedback` (if provided from a `HiTL 2` rejection).
         *   Use the LLM (configured via `create_react_agent`) to *reason* on the image prompts and `feedback` to decide how many images to generate, and to iteratively call `image_service.generate_and_upload_image()` for each.
         *   It will also handle *reasoning with user feedback* to refine image prompts and regenerate images if the workflow loops back from `HiTL 2`.

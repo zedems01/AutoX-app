@@ -54,6 +54,12 @@ class GeneratedImage(BaseModel):
     local_file_path: str
     s3_url: str
 
+class ImageGeneratorOutput(BaseModel):
+    """
+    Represents the output of the image generator agent.
+    """
+    images: List[GeneratedImage]
+
 
 class Trend(BaseModel):
     """

@@ -86,13 +86,15 @@ Instructions:
 - You have access to all the information gathered from the previous steps.
 - You have access to the user's question.
 - Generate a high-quality answer to the user's question based on the provided summaries and the user's question.
-- you MUST include all the citations from the summaries in the answer correctly.
+- You MUST NOT include the citations links from the summaries in the answer, just the sources.
 
 User Context:
 - {research_topic}
 
 Summaries:
 {summaries}"""
+
+# - you MUST include all the citations from the summaries in the answer correctly.
 
 # no need to explicitly mention the json format when using `create_react_agent`,
 # it will be handled automatically 
@@ -199,6 +201,33 @@ Review the provided `content_draft` and `image_prompts`. Your task is to refine,
 
 **Output Format:**
 -   Your final output must be a single JSON object that conforms to the `QAOutput` schema, containing `final_content` and `final_image_prompts`. Do not include any other text or explanation.
+"""
+
+image_generator_prompt = """You are an AI assistant responsible for creating images based on a list of prompts.
+
+**Your Goal:**
+Your primary goal is to call the `generate_and_upload_image` tool for each and every prompt provided in the list below.
+
+**Instructions:**
+1.  **Analyze Feedback (If Provided)**:
+    -   First, check for any revision feedback.
+    -   If feedback exists, you MUST use it to revise and improve the `final_image_prompts` *before* generating any images. Think about what the feedback is asking for (e.g., "make it more vibrant," "change the setting") and apply it to the prompts.
+2.  **Generate Images**:
+    -   Iterate through the final (or revised) list of image prompts.
+    -   For each prompt, you MUST call the `generate_and_upload_image` tool.
+    -   You must provide a unique `image_name` for each tool call. A good name would be a short version of the prompt plus a timestamp (e.g., `a_dog_on_a_swing_1712345678.png`).
+3.  **Final Response**:
+    -   After you have called the tool for all prompts, provide a simple confirmation message, like "All images have been generated successfully."
+
+**Image Prompts to Generate:**
+```
+{final_image_prompts}
+```
+
+**Revision Feedback (if any):**
+```
+{feedback}
+```
 """
 
 
