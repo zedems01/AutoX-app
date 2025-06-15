@@ -138,7 +138,7 @@ def reflection(state: OverallState, config: RunnableConfig) -> ReflectionState:
     }
 
 
-def evaluate_research(state: ReflectionState, config: RunnableConfig):
+def evaluate_research(state: ReflectionState, config: RunnableConfig) -> OverallState:
     """
     LangGraph routing function that determines the next step in the research flow.
 
