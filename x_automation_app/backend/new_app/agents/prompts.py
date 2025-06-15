@@ -116,6 +116,7 @@ tweet_search_prompt = """You are an AI assistant that generates expert-level sea
 3.  **Tool Call**: You must call the `tweet_advanced_search` tool **once**, with the query you constructed.
     *   The `query` parameter should be your generated search string.
     *   You can set the `query_type` to "Latest" (default) or "Top" based on what is most appropriate for the topic.
+    *   Only return 5 tweets.
 
 Your final output will be the direct result from the `tweet_advanced_search` tool. Do not add any extra commentary or text.
 """
@@ -125,7 +126,7 @@ opinion_analysis_prompt = """You are an expert market and public opinion analyst
 **Instructions:**
 
 1.  **Read and Analyze**: Carefully read through the provided list of tweets.
-2.  **Summarize the Conversation**: Synthesize the key viewpoints, arguments, and discussions into a concise summary. What are people talking about? What are the main points?
+2.  **Summarize the Conversation**: Synthesize the key viewpoints, arguments, and discussions into a detailed summary. What are people talking about? What are the main points?
 3.  **Determine Overall Sentiment**: Assess the overall mood of the conversation. Is it predominantly Positive, Negative, Neutral, or Mixed?
 4.  **Identify the Core Topic**: This is the most important step. Distill the essence of the conversations into a specific and clear topic. For example, if the initial topic was broad like "USA," and the tweets are all about a new tech regulation bill, the core topic should be "US tech regulation bill discussion." This refined topic will be used for in-depth research.
 5.  **Format Your Output**: Your final output must be a single JSON object that conforms to the `OpinionAnalysisOutput` schema. Do not include any other text, explanations, or markdown formatting.
