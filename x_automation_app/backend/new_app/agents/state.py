@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TypedDict, Optional, List
 from typing_extensions import Annotated
 from langgraph.graph import add_messages
-from .tools_and_schemas import Trend, GeneratedImage
+from .tools_and_schemas import Trend, GeneratedImage, TweetSearched
 import operator
 from dataclasses import dataclass, field
 
@@ -57,13 +57,13 @@ class OverallState(TypedDict):
     user_provided_topic: Optional[str]
 
     # === Advanced Search & Opinion Analysis Output ===
-    tweet_search_results: Optional[List[dict]]
+    tweet_search_results: Optional[List[TweetSearched]]
     opinion_summary: Optional[str]
     overall_sentiment: Optional[str]
     topic_from_opinion_analysis: Optional[str]
 
     # === Deep Research Output ===
-    current_context: Optional[str]
+    # current_context: Optional[str]
     search_query: Annotated[list, operator.add]
     web_research_result: Annotated[list, operator.add]
     sources_gathered: Annotated[list, operator.add]
