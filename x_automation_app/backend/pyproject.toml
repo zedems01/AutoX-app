@@ -13,6 +13,7 @@ dependencies = [
     "composio-openai>=0.7.16",
     "dotenv>=0.9.9",
     "fastapi>=0.115.12",
+    "google-genai>=1.20.0",
     "jupyter>=1.1.1",
     "langchain>=0.3.25",
     "langchain-google-genai>=2.1.5",

@@ -113,7 +113,7 @@ tweet_search_prompt = """You are an AI assistant that generates expert-level sea
     *   Combine terms using operators like `OR` for broader reach or quotes (`"`) for exact phrases.
     *   Use filters to refine results. For example, `min_faves:10` to find popular tweets, `min_replies:N` for minimum number of replies, `min_retweets:N`for minimum number of Retweets.
     *   The current date is {current_date}. Consider using date operators like `since:` or `until:` if the topic is time-sensitive.
-3.  **Tool Call**: You must call the `tweet_advanced_search` tool with the query you constructed.
+3.  **Tool Call**: You must call the `tweet_advanced_search` tool **once**, with the query you constructed.
     *   The `query` parameter should be your generated search string.
     *   You can set the `query_type` to "Latest" (default) or "Top" based on what is most appropriate for the topic.
 

@@ -46,25 +46,13 @@ def tweet_search_node(state: OverallState) -> Dict[str, Any]:
         prompt = tweet_search_prompt.format(
             topic=topic,
             current_date=get_current_date()
-        )
-        
+        )        
         response = tweet_search_agent.invoke({"messages": [("user", prompt)]})
+        parsed_response = response["structured_response"]
         
-        # The result of the tool call is usually in the last message content
-        tool_output = response['messages'][-1].content
-        
-        # The tool returns a list of TweetSearched objects, but via the agent it may be a string
-        # We'll assume the tool's direct output is what we need. If it's a string, it needs parsing.
-        try:
-            # If the tool output is a JSON string in the message content
-            tweet_search_results = json.loads(tool_output)
-        except (json.JSONDecodeError, TypeError):
-            # If the output is already a list of objects (ideal case)
-            tweet_search_results = tool_output
+        logger.info(f"---Found {len(parsed_response.tweets)} tweets.---")
 
-        logger.info(f"---Found {len(tweet_search_results)} tweets.---")
-
-        return {"tweet_search_results": tweet_search_results}
+        return {"tweet_search_results": parsed_response.tweets}
 
     except Exception as e:
         logger.error(f"An unexpected error occurred in the tweet search node: {e}")

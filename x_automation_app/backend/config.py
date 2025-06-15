@@ -24,6 +24,7 @@ class Settings:
     # LLM Provider API Keys
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
     # Composio (for Notifications)
     COMPOSIO_API_KEY = os.getenv("COMPOSIO_API_KEY")
@@ -37,5 +38,11 @@ class Settings:
     # Trend fetching settings
     TRENDS_WOEID = int(os.getenv("TRENDS_WOEID", "1"))  # Default to 1 (Worldwide)
     TRENDS_COUNT = int(os.getenv("TRENDS_COUNT", "30")) # Default to 30
+
+    # Tweet search settings
+    MAX_TWEETS_TO_RETRIEVE = int(os.getenv("MAX_TWEETS_TO_RETRIEVE", "5"))
+    LANGUAGE = os.getenv("LANGUAGE", "french")
+
+
 
 settings = Settings() 
