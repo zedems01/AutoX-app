@@ -15,19 +15,27 @@ class Configuration(BaseModel):
         },
     )
 
-    reflection_model: str = Field(
-        default="gemini-2.5-flash-preview-04-17",
+    # reflection_model: str = Field(
+    #     default="gemini-2.5-flash-preview-05-20",
+    #     metadata={
+    #         "description": "The name of the language model to use for the agent's reflection."
+    #     },
+    # )
+
+    reasoning_model: str = Field(
+        default="gemini-2.5-flash-preview-05-20",
         metadata={
-            "description": "The name of the language model to use for the agent's reflection."
+            "description": "The name of the language model to use for the agent's reasoning."
         },
     )
 
-    answer_model: str = Field(
-        default="gemini-2.5-pro-preview-05-06",
-        metadata={
-            "description": "The name of the language model to use for the agent's answer."
-        },
-    )
+    # answer_model: str = Field(
+    #     # default="gemini-2.5-pro-preview-05-06",
+    #     default="gemini-2.5-flash-preview-05-20",
+    #     metadata={
+    #         "description": "The name of the language model to use for the agent's answer."
+    #     },
+    # )
 
     number_of_initial_queries: int = Field(
         default=3,
@@ -38,6 +46,8 @@ class Configuration(BaseModel):
         default=2,
         metadata={"description": "The maximum number of research loops to perform."},
     )
+
+    
 
     @classmethod
     def from_runnable_config(
