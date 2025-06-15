@@ -1,0 +1,72 @@
+from langchain_openai import ChatOpenAI
+from .prompts import writer_prompt
+from typing import Dict, Any, Optional
+from .state import OverallState
+from .tools_and_schemas import WriterOutput
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+# Initialize the base LLM and create a structured version for the writer
+llm = ChatOpenAI(model="gpt-4o")
+structured_llm = llm.with_structured_output(WriterOutput)
+
+def writer_node(state: OverallState) -> Dict[str, Any]:
+    """
+    Generates a content draft and image prompts based on research and user requirements.
+
+    This node uses a structured LLM to synthesize deep research context, public
+    opinion analysis, and user-defined parameters into a draft. It also
+    handles revision feedback from the HiTL loop.
+    
+    Args:
+        state: The current state of the LangGraph.
+
+    Returns:
+        A dictionary to update the 'content_draft' and 'image_prompts' keys in the state.
+    """
+    logger.info("---DRAFTING CONTENT AND IMAGE PROMPTS---")
+
+    try:
+        # Extract all necessary data from the state
+        final_deep_research_report = state.get("final_deep_research_report", "No deep research context provided.")
+        opinion_summary = state.get("opinion_summary", "No opinion summary provided.")
+        overall_sentiment = state.get("overall_sentiment", "Neutral")
+        x_content_type = state.get("x_content_type", "Article")
+        content_length = state.get("content_length", "Medium")
+        brand_voice = state.get("brand_voice", "Professional")
+        target_audience = state.get("target_audience", "General audience")
+        
+        # Handle feedback from the HiTL validation step
+        feedback = "No feedback provided."
+        validation_result = state.get("validation_result")
+        if validation_result and validation_result.get("action") == "reject":
+            feedback = validation_result.get("data", {}).get("feedback", "No specific feedback provided.")
+            logger.info(f"---Revising draft based on feedback: {feedback}---")
+
+        # Format the prompt
+        prompt = writer_prompt.format(
+            final_deep_research_report=final_deep_research_report,
+            opinion_summary=opinion_summary,
+            overall_sentiment=overall_sentiment,
+            x_content_type=x_content_type,
+            content_length=content_length,
+            brand_voice=brand_voice,
+            target_audience=target_audience,
+            feedback=feedback,
+        )
+        
+        # Invoke the structured LLM
+        writer_output = structured_llm.invoke(prompt)
+
+        logger.info(f"---Draft content generated. {len(writer_output.image_prompts)} image prompts created.---")
+
+        return {
+            "content_draft": writer_output.content_draft,
+            "image_prompts": writer_output.image_prompts,
+        }
+
+    except Exception as e:
+        logger.error(f"An error occurred in the writer node: {e}")
+        return {"error_message": f"An unexpected error occurred during content writing: {str(e)}"}
