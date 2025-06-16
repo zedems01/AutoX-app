@@ -104,7 +104,7 @@ def route_after_validation(state: OverallState) -> str:
 #     # It checks if the research is sufficient to continue or finalize.
 #     if evaluate_research(state, None) == "finalize_answer":
 #         return "finalize_answer"
-#     return "web_searcher"
+#     return "web_research"
 
 # Step 3.1.2: Initialize the StateGraph
 workflow = StateGraph(OverallState)
@@ -115,7 +115,7 @@ workflow.add_node("trend_harvester", trend_harvester_node)
 workflow.add_node("tweet_searcher", tweet_search_node)
 workflow.add_node("opinion_analyzer", opinion_analysis_node)
 workflow.add_node("query_generator", generate_query)
-workflow.add_node("web_searcher", web_research)
+workflow.add_node("web_research", web_research)
 workflow.add_node("reflection", reflection)
 # workflow.add_node("deep_research_evaluator", evaluate_research)
 workflow.add_node("finalize_answer", finalize_answer)
@@ -149,20 +149,20 @@ workflow.add_edge("opinion_analyzer", "query_generator")
 
 # Deep Research Sub-Graph
 workflow.add_conditional_edges(
-    "query_generator", continue_to_web_research, ["web_searcher"]
+    "query_generator", continue_to_web_research, ["web_research"]
 )
 # workflow.add_conditional_edges(
 #     "query_generator", 
-#     lambda x: "web_searcher", 
-#     {"web_searcher": "web_searcher"}
+#     lambda x: "web_research", 
+#     {"web_research": "web_research"}
 # )
-workflow.add_edge("web_searcher", "reflection")
+workflow.add_edge("web_research", "reflection")
 workflow.add_conditional_edges(
-    "reflection", evaluate_research, ["web_searcher", "finalize_answer"]
+    "reflection", evaluate_research, ["web_research", "finalize_answer"]
 )
 # workflow.add_conditional_edges(
 #     "reflection", route_deep_research, {
-#         "web_searcher": "web_searcher", 
+#         "web_research": "web_research", 
 #         "finalize_answer": "finalize_answer"
 #     }
 # )
