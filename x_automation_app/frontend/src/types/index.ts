@@ -70,11 +70,40 @@ export interface Trend {
   tweet_count: number;
 }
 
+export interface TweetAuthor {
+  userName: string;
+  name: string;
+  isVerified: boolean;
+  followers: number;
+  following: number;
+}
+
+export interface TweetSearched {
+  text: string;
+  source: string;
+  retweetCount: number;
+  replyCount: number;
+  likeCount: number;
+  quoteCount: number;
+  viewCount: number;
+  createdAt: string;
+  lang: string;
+  isReply: boolean;
+  author: TweetAuthor;
+}
+
+export interface GeneratedImage {
+  image_name: string;
+  local_file_path: string;
+  s3_url: string;
+}
+
+
 export interface OverallState {
   // From login
-  login_data?: any;
+  login_data?: string;
   proxy?: string;
-  session?: any;
+  session?: string;
   user_details?: any;
 
   // From workflow start
@@ -91,7 +120,7 @@ export interface OverallState {
   // From graph execution
   trending_topics?: Trend[];
   selected_topic?: Trend;
-  tweet_search_results?: any[];
+  tweet_search_results?: TweetSearched[];
   opinion_summary?: string;
   overall_sentiment?: string;
   topic_from_opinion_analysis?: string;
@@ -106,7 +135,7 @@ export interface OverallState {
   image_prompts?: string[];
   final_content?: string;
   final_image_prompts?: string[];
-  generated_images?: string[]; // Assuming URLs or base64 strings
+  generated_images?: GeneratedImage[]; // Assuming URLs or base64 strings
   publication_id?: string;
   
   // State management
