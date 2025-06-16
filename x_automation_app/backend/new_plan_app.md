@@ -257,8 +257,8 @@ This phase integrates all agents into the main LangGraph workflow and exposes th
 
 *   [ ] **Step 3.2: FastAPI Endpoints for Frontend Interaction (`main.py`)**
     *   [ ] **3.2.1: Authentication Endpoints:**
-        *   [ ] `POST /auth/start-login`: Receives `email`, `password`, `proxy`. Calls `twitter_service.start_login`. Stores `login_data` in the workflow state (accessed via `Checkpointer`) and sets `next_human_input_step = "await_2fa_code"`.
-        *   [ ] `POST /auth/complete-login`: Receives `thread_id`, `two_fa_code`. Loads `login_data` from state, calls `twitter_service.complete_login`. Stores `session` and `user_details` in state. Resumes graph execution by invoking the `graph.py` graph with the updated state.
+        *   [x] `POST /auth/start-login`: Receives `email`, `password`, `proxy`. Calls `twitter_service.start_login`. Stores `login_data` in the workflow state (accessed via `Checkpointer`) and sets `next_human_input_step = "await_2fa_code"`.
+        *   [x] `POST /auth/complete-login`: Receives `thread_id`, `two_fa_code`. Loads `login_data` from state, calls `twitter_service.complete_login`. Stores `session` and `user_details` in state. Resumes graph execution by invoking the `graph.py` graph with the updated state.
     *   [ ] **3.2.2: Start Workflow Endpoint:**
         *   [ ] `POST /workflow/start`: Receives initial user inputs (topic, automation mode, output destination, content type params, etc.).
         *   [ ] Creates a unique `thread_id`.

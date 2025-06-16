@@ -51,6 +51,7 @@ class OverallState(TypedDict):
     login_data: Optional[str]
     session: Optional[str]
     user_details: Optional[dict]
+    proxy: Optional[str]
 
     # === Content Generation Data ===
     trending_topics: Optional[List[Trend]]
