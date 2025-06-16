@@ -58,7 +58,10 @@ def resolve_urls(urls_to_resolve: List[Any], id: int) -> Dict[str, str]:
     Ensures each original URL gets a consistent shortened form while maintaining uniqueness.
     """
     prefix = f"https://vertexaisearch.cloud.google.com/id/"
-    urls = [site.web.uri for site in urls_to_resolve]
+    # urls = [site.web.uri for site in urls_to_resolve]
+    urls = [
+        site.web.uri for site in urls_to_resolve if site is not None and hasattr(site, 'web') and site.web is not None and hasattr(site.web, 'uri') and site.web.uri is not None
+    ]
 
     # Create a dictionary that maps each unique URL to its first occurrence index
     resolved_map = {}
@@ -216,7 +219,7 @@ def generate_query(state: OverallState, config: RunnableConfig) -> QueryGenerati
     """
     logger.info("---GENERATING DEEP RESEARCH QUERIES---")
     configurable = Configuration.from_runnable_config(config)
-    query_generator_model = state["user_config"].get("gemini_base_model") or configurable.query_generator_model
+    query_generator_model = state.get("user_config", {}).get("gemini_base_model") or configurable.query_generator_model
 
     # Determine the topic from the state, prioritizing the analysis result
     topic = state.get("topic_from_opinion_analysis") or state.get("user_provided_topic")
@@ -263,7 +266,7 @@ def web_research(state: WebSearchState, config: RunnableConfig) -> OverallState:
     """
     logger.info(f"---PERFORMING WEB RESEARCH FOR: {state['search_query']}---")
     configurable = Configuration.from_runnable_config(config)
-    web_search_model = state["user_config"].get("gemini_base_model") or configurable.query_generator_model
+    web_search_model = state.get("user_config", {}).get("gemini_base_model") or configurable.query_generator_model
     formatted_prompt = web_searcher_instructions.format(
         current_date=get_current_date(),
         research_topic=state["search_query"],
@@ -301,7 +304,7 @@ def reflection(state: OverallState, config: RunnableConfig) -> ReflectionState:
     logger.info("---REFLECTING ON RESEARCH RESULTS---")
     configurable = Configuration.from_runnable_config(config)
     state["research_loop_count"] = state.get("research_loop_count", 0) + 1
-    reasoning_model = state["user_config"].get("gemini_reasoning_model") or configurable.reasoning_model
+    reasoning_model = state.get("user_config", {}).get("gemini_reasoning_model") or configurable.reasoning_model
 
     # Determine the topic from the state for the prompt
     topic = state.get("topic_from_opinion_analysis") or state.get("user_provided_topic")
@@ -370,7 +373,7 @@ def finalize_answer(state: OverallState, config: RunnableConfig):
     """
     logger.info("---FINALIZING DEEP RESEARCH REPORT---")
     configurable = Configuration.from_runnable_config(config)
-    reasoning_model = state["user_config"].get("gemini_reasoning_model") or configurable.reasoning_model
+    reasoning_model = state.get("user_config", {}).get("gemini_reasoning_model") or configurable.reasoning_model
 
     # Determine the topic from the state for the prompt
     topic = state.get("topic_from_opinion_analysis") or state.get("user_provided_topic")

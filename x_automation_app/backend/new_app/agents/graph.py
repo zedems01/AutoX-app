@@ -14,12 +14,12 @@ from deep_researcher import (
     finalize_answer,
 )
 
-from langgraph.graph import StateGraph
+from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 
 from .state import OverallState
 
-# Step 3.1.4: Implement explicit HiTL interrupt nodes
+
 def await_topic_selection(state: OverallState) -> dict:
     """Node to await user selection of a topic."""
     state['next_human_input_step'] = "await_topic_selection"
@@ -35,7 +35,6 @@ def await_image_validation(state: OverallState) -> dict:
     state['next_human_input_step'] = "await_image_validation"
     return {"next_human_input_step": "await_image_validation"}
 
-# Step 3.1.5: Implement Autonomous Default Action Nodes
 def auto_select_topic(state: OverallState) -> dict:
     """Node to automatically select the top trending topic in autonomous mode."""
     if state.get("trending_topics"):
@@ -135,7 +134,9 @@ workflow.add_node("auto_select_topic", auto_select_topic)
 # Set interrupt points for HiTL
 workflow.interrupt = ["await_topic_selection", "await_content_validation", "await_image_validation"]
 
-# Step 3.1.6: Define Comprehensive Workflow Edges & Routing
+
+
+# Comprehensive Workflow Edges & Routing
 workflow.set_conditional_entry_point(initial_routing)
 
 workflow.add_conditional_edges("trend_harvester", route_after_trend_harvester)
@@ -151,21 +152,12 @@ workflow.add_edge("opinion_analyzer", "query_generator")
 workflow.add_conditional_edges(
     "query_generator", continue_to_web_research, ["web_research"]
 )
-# workflow.add_conditional_edges(
-#     "query_generator", 
-#     lambda x: "web_research", 
-#     {"web_research": "web_research"}
-# )
+
 workflow.add_edge("web_research", "reflection")
 workflow.add_conditional_edges(
     "reflection", evaluate_research, ["web_research", "finalize_answer"]
 )
-# workflow.add_conditional_edges(
-#     "reflection", route_deep_research, {
-#         "web_research": "web_research", 
-#         "finalize_answer": "finalize_answer"
-#     }
-# )
+
 workflow.add_edge("finalize_answer", "writer")
 
 workflow.add_edge("writer", "quality_assurer")
@@ -179,7 +171,7 @@ workflow.add_conditional_edges("image_generator", route_after_image_generation)
 # This edge handles the continuation from the HiTL image validation
 workflow.add_conditional_edges("await_image_validation", route_after_validation)
 
-workflow.add_edge("publicator", "END")
+workflow.add_edge("publicator", END)
 
 # Compile the graph
 graph = workflow.compile(checkpointer=memory)

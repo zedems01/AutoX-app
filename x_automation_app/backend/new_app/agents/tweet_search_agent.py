@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 llm = ChatOpenAI(model=settings.OPENAI_MODEL) or ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL)
 tweet_search_agent = create_react_agent(model=llm, tools=[tweet_advanced_search], response_format=TweetSearchResponse)
 
-def tweet_search_node(state: OverallState) -> List[TweetSearched]:
+def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
     """
     Uses a ReAct agent to search for tweets based on the current topic and updates the state.
 
@@ -45,8 +45,8 @@ def tweet_search_node(state: OverallState) -> List[TweetSearched]:
 
         logger.info(f"---Searching tweets for topic: {topic}---")
         
-        if state["user_config"].get("tweets_language"):
-            tweets_language = state["user_config"].get("tweets_language")
+        if state.get("user_config", {}).get("tweets_language"):
+            tweets_language = state.get("user_config", {}).get("tweets_language")
         else:
             tweets_language = settings.TWEETS_LANGUAGE
         
