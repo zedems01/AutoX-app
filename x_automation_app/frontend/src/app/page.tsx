@@ -48,11 +48,11 @@ import {
 
 const formSchema = z
   .object({
-    is_autonomous_mode: z.boolean().default(false),
+    is_autonomous_mode: z.boolean(),
     output_destination: z.enum(["GET_OUTPUTS", "PUBLISH_X"], {
       required_error: "You need to select an output destination.",
     }),
-    has_user_provided_topic: z.boolean().default(false),
+    has_user_provided_topic: z.boolean(),
     user_provided_topic: z.string().optional(),
     x_content_type: z.enum(["TWEET_THREAD", "SINGLE_TWEET"], {
       required_error: "You need to select a content type.",
@@ -88,6 +88,18 @@ const formSchema = z
     }
   )
 
+type FormSchemaType = z.infer<typeof formSchema>
+const userConfigFields: (keyof NonNullable<FormSchemaType['user_config']>)[] = [
+  "gemini_base_model",
+  "gemini_reasoning_model",
+  "openai_model",
+  "trends_count",
+  "trends_woeid",
+  "max_tweets_to_retrieve",
+  "tweets_language",
+  "content_language",
+]
+
 export default function WorkflowConfigPage() {
   const router = useRouter()
   const { threadId, setWorkflowState } = useWorkflowContext()
@@ -103,14 +115,23 @@ export default function WorkflowConfigPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       is_autonomous_mode: false,
-      output_destination: "GET_OUTPUTS",
       has_user_provided_topic: false,
       user_provided_topic: "",
+      output_destination: "GET_OUTPUTS",
       x_content_type: "TWEET_THREAD",
       content_length: "SHORT",
       brand_voice: "",
       target_audience: "",
-      user_config: {},
+      user_config: {
+        gemini_base_model: "",
+        gemini_reasoning_model: "",
+        openai_model: "",
+        trends_count: "",
+        trends_woeid: "",
+        max_tweets_to_retrieve: "",
+        tweets_language: "",
+        content_language: "",
+      },
     },
   })
 
@@ -356,11 +377,11 @@ export default function WorkflowConfigPage() {
                     <p className="text-sm text-muted-foreground">
                       Optional: Override default agent settings. Leave blank to use defaults.
                     </p>
-                    {Object.keys(form.getValues("user_config") ?? {}).map((key) => (
+                    {userConfigFields.map((key) => (
                       <FormField
                         key={key}
                         control={form.control}
-                        name={`user_config.${key as keyof z.infer<typeof formSchema>["user_config"]}`}
+                        name={`user_config.${key}`}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="capitalize">{key.replace(/_/g, " ")}</FormLabel>
