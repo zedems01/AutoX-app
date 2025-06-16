@@ -182,13 +182,13 @@ workflow.add_conditional_edges("await_image_validation", route_after_validation)
 workflow.add_edge("publicator", "END")
 
 # Compile the graph
-app = workflow.compile(checkpointer=memory)
+graph = workflow.compile(checkpointer=memory)
 
 # (Optional) Utility to generate a Mermaid diagram of the graph
 try:
     with open("workflow_graph.md", "w") as f:
         f.write("```mermaid\n")
-        f.write(app.get_graph().draw_mermaid())
+        f.write(graph.get_graph().draw_mermaid())
         f.write("\n```")
 except Exception as e:
     print(f"Could not write mermaid graph: {e}")

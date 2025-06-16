@@ -259,12 +259,12 @@ This phase integrates all agents into the main LangGraph workflow and exposes th
     *   [ ] **3.2.1: Authentication Endpoints:**
         *   [x] `POST /auth/start-login`: Receives `email`, `password`, `proxy`. Calls `twitter_service.start_login`. Stores `login_data` in the workflow state (accessed via `Checkpointer`) and sets `next_human_input_step = "await_2fa_code"`.
         *   [x] `POST /auth/complete-login`: Receives `thread_id`, `two_fa_code`. Loads `login_data` from state, calls `twitter_service.complete_login`. Stores `session` and `user_details` in state. Resumes graph execution by invoking the `graph.py` graph with the updated state.
-    *   [ ] **3.2.2: Start Workflow Endpoint:**
-        *   [ ] `POST /workflow/start`: Receives initial user inputs (topic, automation mode, output destination, content type params, etc.).
-        *   [ ] Creates a unique `thread_id`.
-        *   [ ] Initializes the `OverallState` with these inputs.
-        *   [ ] Invokes the `graph.py` graph with the initial state and `thread_id`. The graph will run until the first interrupt (HiTL 0 or the first agent if autonomous).
-        *   [ ] Returns the full initial `OverallState` to the frontend.
+    *   [x] **3.2.2: Start Workflow Endpoint:**
+        *   [x] `POST /workflow/start`: Receives initial user inputs (topic, automation mode, output destination, content type params, etc.).
+        *   [x] Creates a unique `thread_id`.
+        *   [x] Initializes the `OverallState` with these inputs.
+        *   [x] Invokes the `graph.py` graph with the initial state and `thread_id`. The graph will run until the first interrupt (HiTL 0 or the first agent if autonomous).
+        *   [x] Returns the full initial `OverallState` to the frontend.
     *   [ ] **3.2.3: Real-time Status Updates with WebSockets:**
         *   [ ] `WS /workflow/ws/{thread_id}`: Implement a WebSocket endpoint.
         *   [ ] Use LangGraph's `astream_events()` (or `astream()` combined with state updates) method to push real-time `OverallState` changes to the connected frontend client as the workflow progresses.
