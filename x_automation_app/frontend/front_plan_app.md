@@ -208,7 +208,7 @@ The backend exposes the following endpoints:
     - Receives `trending_topics` from the dashboard.
     - Displays topics in a `Table` with a `RadioGroup` in the first column for selection.
     - Has an "Approve" button that calls the `validateStep` mutation.
-*   [ ] **Step 4.4.2: Content Validation (`components/workflow/ContentValidation.tsx`):**
+*   [x] **Step 4.4.2: Content Validation (`components/workflow/ContentValidation.tsx`):**
     - Receives `final_content` and `final_image_prompts`.
     - Displays content in a `Textarea` to allow for edits.
     - Provides "Approve", "Reject", and "Save & Approve" buttons.
