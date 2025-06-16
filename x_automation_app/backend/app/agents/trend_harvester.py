@@ -1,12 +1,12 @@
 from langgraph.prebuilt import create_react_agent
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
-from .prompts import trend_harvester_prompt
+from ..utils.prompts import trend_harvester_prompt
 from typing import Dict, Any, List
 from .state import OverallState
-from .schemas import Trend, TrendResponse
-from .twitter_service import get_trends
-from ...config import settings
+from ..utils.schemas import Trend, TrendResponse
+from ..utils.x_utils import get_trends
+from ..config import settings
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

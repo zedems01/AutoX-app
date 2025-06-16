@@ -1,10 +1,10 @@
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
-from .prompts import writer_prompt
+from ..utils.prompts import writer_prompt
 from typing import Dict, Any, Optional
 from .state import OverallState
-from .schemas import WriterOutput
-from ...config import settings
+from ..utils.schemas import WriterOutput
+from ..config import settings
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

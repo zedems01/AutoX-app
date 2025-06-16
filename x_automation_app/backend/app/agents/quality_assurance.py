@@ -1,11 +1,11 @@
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
-from .prompts import quality_assurance_prompt
+from ..utils.prompts import quality_assurance_prompt
 from typing import Dict, Any
 from .state import OverallState
-from .schemas import QAOutput
+from ..utils.schemas import QAOutput
 import logging
-from ...config import settings
+from ..config import settings
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)

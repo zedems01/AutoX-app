@@ -2,13 +2,13 @@ import json
 from langgraph.prebuilt import create_react_agent
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
-from .prompts import tweet_search_prompt, get_current_date
+from ..utils.prompts import tweet_search_prompt, get_current_date
 from typing import Dict, Any
 from .state import OverallState
-from .twitter_service import tweet_advanced_search
-from .schemas import TweetSearched, TweetSearchResponse
+from ..utils.x_utils import tweet_advanced_search
+from ..utils.schemas import TweetSearched, TweetSearchResponse
 from typing import List
-from ...config import settings
+from ..config import settings
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

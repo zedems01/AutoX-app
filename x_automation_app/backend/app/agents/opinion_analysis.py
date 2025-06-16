@@ -1,11 +1,11 @@
 import json
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
-from .prompts import opinion_analysis_prompt
+from ..utils.prompts import opinion_analysis_prompt
 from typing import Dict, Any
 from .state import OverallState
-from .schemas import OpinionAnalysisOutput
-from ...config import settings
+from ..utils.schemas import OpinionAnalysisOutput
+from ..config import settings
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

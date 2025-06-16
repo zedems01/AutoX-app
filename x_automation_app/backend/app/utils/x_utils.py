@@ -1,5 +1,5 @@
 import requests
-from ...config import settings
+from ..config import settings
 from .schemas import Trend, TweetSearched, TweetAuthor
 from typing import List, Optional
 from langchain_core.tools import tool

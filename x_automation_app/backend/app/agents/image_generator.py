@@ -2,16 +2,16 @@ from langgraph.prebuilt import create_react_agent
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import ToolMessage
-from .prompts import image_generator_prompt
+from ..utils.prompts import image_generator_prompt
 from typing import Dict, Any, List
 from .state import OverallState
-from .schemas import (
+from ..utils.schemas import (
     GeneratedImage,
     ValidationAction,
     ImageGeneratorOutput
 )
-from .image_service import generate_and_upload_image
-from ...config import settings
+from ..utils.image import generate_and_upload_image
+from ..config import settings
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

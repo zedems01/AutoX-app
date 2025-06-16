@@ -12,9 +12,9 @@ from .state import (
     ReflectionState,
     WebSearchState,
 )
-from .schemas import SearchQueryList, Reflection
-from .configuration import Configuration
-from .prompts import (
+from ..utils.schemas import SearchQueryList, Reflection
+from .deep_research_config import Configuration
+from ..utils.prompts import (
     get_current_date,
     query_writer_instructions,
     web_searcher_instructions,

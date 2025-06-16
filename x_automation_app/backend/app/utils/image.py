@@ -2,7 +2,7 @@ import base64
 import boto3
 from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 from openai import OpenAI
-from ...config import settings
+from ..config import settings
 from langchain_core.tools import tool
 from .schemas import GeneratedImage
 import logging

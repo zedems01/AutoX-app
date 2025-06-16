@@ -1,6 +1,6 @@
 from typing import Dict, Any
 from .state import OverallState
-from . import twitter_service
+from ..utils import x_utils
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -46,7 +46,7 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
                 logger.info("---Content Type: TWEET_THREAD---")
                 # The post_tweet_thread service handles chunking internally.
                 # It returns a list of results; we'll use the ID of the first tweet as the publication ID.
-                thread_results = twitter_service.post_tweet_thread(
+                thread_results = x_utils.post_tweet_thread(
                     session=session,
                     tweet_text=final_content,
                     image_url=image_url,
@@ -57,7 +57,7 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
 
             elif x_content_type == "SINGLE_TWEET":
                 logger.info("---Content Type: SINGLE_TWEET---")
-                publication_id = twitter_service.post_tweet(
+                publication_id = x_utils.post_tweet(
                     session=session,
                     tweet_text=final_content,
                     image_url=image_url,
