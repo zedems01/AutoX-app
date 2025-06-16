@@ -215,7 +215,7 @@ This phase involves creating each specialized agent (node) that will form the La
         *   It will also handle *reasoning with user feedback* to refine image prompts and regenerate images if the workflow loops back from `HiTL 2`.
         *   Collect and return a `List[GeneratedImage]` to update `state['generated_images']`.
 
-*   [ ] **Step 2.8: Publicator Agent (`publicator_agent.py`)**
+*   [x] **Step 2.8: Publicator Agent (`publicator_agent.py`)**
     *   [x] Create `x_automation_app/backend/new_app/agents/publicator_agent.py`.
     *   [x] Implement `publicator_node(state: OverallState) -> dict`. This node will use programmatic logic and direct service calls (not `create_react_agent`):
         *   Retrieve `session`, `final_content`, `generated_images` from `OverallState`.
@@ -235,13 +235,13 @@ This phase involves creating each specialized agent (node) that will form the La
 
 This phase integrates all agents into the main LangGraph workflow and exposes the system via FastAPI endpoints.
 
-*   [ ] **Step 3.1: Build the Orchestrator Graph (`orchestrator.py`)**
-    *   [ ] Create `x_automation_app/backend/new_app/orchestrator.py`.
+*   [ ] **Step 3.1: Build the Orchestrator Graph (`graph.py`)**
+    *   [x] 3.1.1. Create `x_automation_app/backend/new_app/agents/graph.py`.
     *   [ ] Initialize the `StateGraph` with `OverallState` and a `Checkpointer` (using `InMemoryStore` for development).
-    *   [ ] **Add all agent nodes:** `trend_harvester_node`, `tweet_search_node`, `opinion_analysis_node`, `generate_query` (from deep research), `web_research`, `reflection`, `evaluate_research`, `finalize_answer`, `writer_node`, `quality_assurance_node`, `image_generator_node`, `publicator_node`.
-    *   [ ] **Implement explicit HiTL interrupt nodes:** (e.g., `await_topic_selection`, `await_content_validation`, `await_image_validation`). These nodes will set `state['next_human_input_step']` and will be `interrupt_after` points in the graph.
-    *   [ ] **Implement Autonomous Default Action Nodes:** (e.g., `auto_select_topic` which selects the top trending topic in autonomous mode).
-    *   [ ] **Define Comprehensive Workflow Edges & Routing:**
+    *   [ ] 3.1.2. **Add all agent nodes:** `trend_harvester_node`, `tweet_search_node`, `opinion_analysis_node`, `generate_query` (from deep research), `web_research`, `reflection`, `evaluate_research`, `finalize_answer`, `writer_node`, `quality_assurance_node`, `image_generator_node`, `publicator_node`.
+    *   [ ] 3.1.3. **Implement explicit HiTL interrupt nodes:** (e.g., `await_topic_selection`, `await_content_validation`, `await_image_validation`). These nodes will set `state['next_human_input_step']` and will be `interrupt_after` points in the graph.
+    *   [ ] 3.1.4. **Implement Autonomous Default Action Nodes:** (e.g., `auto_select_topic` which selects the top trending topic in autonomous mode).
+    *   [ ] 3.1.5. **Define Comprehensive Workflow Edges & Routing:**
         *   **Initial Routing:** Based on `state['has_user_provided_topic']` and `state['is_autonomous_mode']`.
             *   If `state['has_user_provided_topic']` is `True`, route directly to `tweet_search_node` (Workflow I & III start here).
             *   If `state['has_user_provided_topic']` is `False`:
@@ -252,18 +252,18 @@ This phase integrates all agents into the main LangGraph workflow and exposes th
             *   If `True` (Autonomous), bypass the interrupt node and route directly to the next agent or an `auto_X_action` node if a default selection/decision is needed.
         *   **Post-Validation Routing for Revisions (incorporating feedback):** After `await_X_validation`, conditional edges check `state['validation_result']['action']`. If "reject", the edge will route back to the appropriate previous agent (`writer_node` or `image_generator_node`), passing the user's feedback as a parameter. If "approve" or "edit", it routes forward.
         *   **Image Generation Routing:** After `quality_assurance_node`, a conditional edge checks if `state['final_image_prompts']` is not empty to route to `image_generator_node` or bypass directly to `publicator_node`.
-    *   [ ] **(Optional) Graph Visualization:** Add utility to `orchestrator.py` to generate a Mermaid diagram or PNG of the graph.
+    *   [ ] **(Optional) Graph Visualization:** Add utility to `graph.py` to generate a Mermaid diagram or PNG of the graph.
 
 
 *   [ ] **Step 3.2: FastAPI Endpoints for Frontend Interaction (`main.py`)**
     *   [ ] **3.2.1: Authentication Endpoints:**
         *   [ ] `POST /auth/start-login`: Receives `email`, `password`, `proxy`. Calls `twitter_service.start_login`. Stores `login_data` in the workflow state (accessed via `Checkpointer`) and sets `next_human_input_step = "await_2fa_code"`.
-        *   [ ] `POST /auth/complete-login`: Receives `thread_id`, `two_fa_code`. Loads `login_data` from state, calls `twitter_service.complete_login`. Stores `session` and `user_details` in state. Resumes graph execution by invoking the `orchestrator.py` graph with the updated state.
+        *   [ ] `POST /auth/complete-login`: Receives `thread_id`, `two_fa_code`. Loads `login_data` from state, calls `twitter_service.complete_login`. Stores `session` and `user_details` in state. Resumes graph execution by invoking the `graph.py` graph with the updated state.
     *   [ ] **3.2.2: Start Workflow Endpoint:**
         *   [ ] `POST /workflow/start`: Receives initial user inputs (topic, automation mode, output destination, content type params, etc.).
         *   [ ] Creates a unique `thread_id`.
         *   [ ] Initializes the `OverallState` with these inputs.
-        *   [ ] Invokes the `orchestrator.py` graph with the initial state and `thread_id`. The graph will run until the first interrupt (HiTL 0 or the first agent if autonomous).
+        *   [ ] Invokes the `graph.py` graph with the initial state and `thread_id`. The graph will run until the first interrupt (HiTL 0 or the first agent if autonomous).
         *   [ ] Returns the full initial `OverallState` to the frontend.
     *   [ ] **3.2.3: Real-time Status Updates with WebSockets:**
         *   [ ] `WS /workflow/ws/{thread_id}`: Implement a WebSocket endpoint.
@@ -273,7 +273,7 @@ This phase integrates all agents into the main LangGraph workflow and exposes th
         *   [ ] `validation_data` structure: `{ "action": "approve" | "reject" | "edit", "data": { ... } }`.
         *   [ ] Loads the `OverallState` using `thread_id`.
         *   [ ] Updates `state['validation_result']` with `validation_data`. If action is "edit", it overwrites specific state fields (e.g., `state['final_content']`, `state['final_image_prompts']`).
-        *   [ ] Resumes graph execution from the last interrupted point by invoking the `orchestrator.py` graph with the updated state.
+        *   [ ] Resumes graph execution from the last interrupted point by invoking the `graph.py` graph with the updated state.
 
 *   [ ] **Step 3.3: The HiTL Interaction Pattern (Consistent Implementation)**
     *   This pattern will be consistently applied at all user validation points:
