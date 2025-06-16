@@ -196,7 +196,7 @@ The backend exposes the following endpoints:
     - Build a comprehensive form for all `StartWorkflowPayload` parameters. Use Shadcn `Switch`, `RadioGroup`, `Select`, `Input`, and `Textarea` components.
     - Use `useMutation` to call the `startWorkflow` API function.
     - On success, navigate the user to the main dashboard: `/workflow/{thread_id}`.
-*   [ ] **Step 4.3.2: Workflow Dashboard (`app/workflow/[threadId]/page.tsx`):**
+*   [x] **Step 4.3.2: Workflow Dashboard (`app/workflow/[threadId]/page.tsx`):**
     - This is the main view for monitoring and interacting with an active workflow.
     - Use the `useWorkflow` hook to get the latest state.
     - Display a "Current Status" component based on `state.current_step`.
@@ -204,7 +204,7 @@ The backend exposes the following endpoints:
 
 ### **Phase 4.4: Human-in-the-Loop (HiTL) UI Components**
 
-*   [ ] **Step 4.4.1: Topic Selection (`components/workflow/TopicSelection.tsx`):**
+*   [x] **Step 4.4.1: Topic Selection (`components/workflow/TopicSelection.tsx`):**
     - Receives `trending_topics` from the dashboard.
     - Displays topics in a `Table` with a `RadioGroup` in the first column for selection.
     - Has an "Approve" button that calls the `validateStep` mutation.

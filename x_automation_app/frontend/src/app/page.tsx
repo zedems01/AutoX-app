@@ -248,7 +248,7 @@ export default function WorkflowConfigPage() {
                         <FormDescription>
                           Do you want to provide your own topic or use trends?
                         </FormDescription>
-                      </div>
+        </div>
                       <FormControl>
                         <Switch
                           checked={field.value}
