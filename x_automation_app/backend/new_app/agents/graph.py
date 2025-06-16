@@ -1,11 +1,11 @@
-from trend_harvester import trend_harvester_node
-from tweet_search_agent import tweet_search_node
-from opinion_analysis_agent import opinion_analysis_node
-from writer_agent import writer_node
-from quality_assurance_agent import quality_assurance_node
-from image_generator_agent import image_generator_node
-from publicator_agent import publicator_node
-from deep_researcher import (
+from .trend_harvester import trend_harvester_node
+from .tweet_search_agent import tweet_search_node
+from .opinion_analysis_agent import opinion_analysis_node
+from .writer_agent import writer_node
+from .quality_assurance_agent import quality_assurance_node
+from .image_generator_agent import image_generator_node
+from .publicator_agent import publicator_node
+from .deep_researcher import (
     generate_query,
     continue_to_web_research,
     web_research,

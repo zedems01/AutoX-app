@@ -217,3 +217,63 @@ The backend exposes the following endpoints:
     - Receives `generated_images`.
     - Renders the images in a grid.
     - Provides "Approve" and "Reject" buttons. The reject button could allow feedback for regeneration.
+
+
+
+## **Part 3: How to Launch the Backend**
+
+To develop the frontend, you will need to run the backend server locally. Follow these steps:
+
+### **1. Setup Your Environment**
+
+*   **Navigate to the Backend Directory:**
+    Open your terminal and change into the backend directory:
+    ```bash
+    cd x_automation_app/backend
+    ```
+
+*   **Install Dependencies:**
+    This project uses `uv` for package management. If you haven't already, install the required packages from within the `x_automation_app/backend` directory:
+    ```bash
+    uv pip install fastapi "uvicorn[standard]" python-dotenv pydantic langgraph langchain-google-genai google-genai "openai<2.0.0"
+    uv sync
+    ```
+
+*   **Create Your `.env` File:**
+    In the `x_automation_app/backend` directory, create a file named `.env`. You will need to populate it with your secret keys and credentials. Use the following template:
+    ```env
+    # LLM Provider API Keys (Gemini is mandatory)
+    GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
+    OPENAI_API_KEY="YOUR_OPENAI_API_KEY"
+
+    # twitterapi.io API Credentials
+    X_API_KEY="YOUR_X_API_KEY_FROM_TWITTERAPI.IO"
+    USER_PROXY="http://username:password@ip:port" # From a service like Webshare
+
+    # Your X (Twitter) Credentials
+    USER_EMAIL="YOUR_X_EMAIL"
+    USER_PASSWORD="YOUR_X_PASSWORD"
+
+    # AWS S3 Settings for Image Storage
+    AWS_ACCESS_KEY_ID="YOUR_AWS_ACCESS_KEY_ID"
+    AWS_SECRET_ACCESS_KEY="YOUR_AWS_SECRET_ACCESS_KEY"
+    AWS_DEFAULT_REGION="us-east-1"
+    BUCKET_NAME="your-s3-bucket-name"
+
+    # LangSmith API Keys for Tracing (Optional)
+    LANGSMITH_TRACING="false"
+    LANGSMITH_ENDPOINT="https://api.smith.langchain.com"
+    LANGSMITH_API_KEY=""
+    LANGSMITH_PROJECT=""
+    ```
+
+### **2. Run the Server**
+
+Once your environment is set up, run the following command from the `x_automation_app/backend` directory:
+
+```bash
+uvicorn new_app.main:app --reload
+```
+
+The API server will start, typically on `http://127.0.0.1:8000`. You can now access the API endpoints and connect your frontend application. The auto-generated documentation will be available at `http://127.0.0.1:8000/docs`.
+
