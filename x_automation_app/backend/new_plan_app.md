@@ -268,12 +268,12 @@ This phase integrates all agents into the main LangGraph workflow and exposes th
     *   [x] **3.2.3: Real-time Status Updates with WebSockets:**
         *   [x] `WS /workflow/ws/{thread_id}`: Implement a WebSocket endpoint.
         *   [x] Use LangGraph's `astream_events()` (or `astream()` combined with state updates) method to push real-time `OverallState` changes to the connected frontend client as the workflow progresses.
-    *   [ ] **3.2.4: Standardized Validation Endpoint:**
-        *   [ ] `POST /workflow/validate`: Receives `thread_id` and `validation_data` payload.
-        *   [ ] `validation_data` structure: `{ "action": "approve" | "reject" | "edit", "data": { ... } }`.
-        *   [ ] Loads the `OverallState` using `thread_id`.
-        *   [ ] Updates `state['validation_result']` with `validation_data`. If action is "edit", it overwrites specific state fields (e.g., `state['final_content']`, `state['final_image_prompts']`).
-        *   [ ] Resumes graph execution from the last interrupted point by invoking the `graph.py` graph with the updated state.
+    *   [x] **3.2.4: Standardized Validation Endpoint:**
+        *   [x] `POST /workflow/validate`: Receives `thread_id` and `validation_data` payload.
+        *   [x] `validation_data` structure: `{ "action": "approve" | "reject" | "edit", "data": { ... } }`.
+        *   [x] Loads the `OverallState` using `thread_id`.
+        *   [x] Updates `state['validation_result']` with `validation_data`. If action is "edit", it overwrites specific state fields (e.g., `state['final_content']`, `state['final_image_prompts']`).
+        *   [x] Resumes graph execution from the last interrupted point by invoking the `graph.py` graph with the updated state.
 
 *   [ ] **Step 3.3: The HiTL Interaction Pattern (Consistent Implementation)**
     *   This pattern will be consistently applied at all user validation points:

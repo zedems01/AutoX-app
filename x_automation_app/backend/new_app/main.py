@@ -7,6 +7,7 @@ from typing import Optional
 from .agents.graph import graph, memory
 from .services import twitter_service
 from .agents.state import OverallState
+from .agents.tools_and_schemas import ValidationResult, Trend
 
 # --- FastAPI App Initialization ---
 app = FastAPI(
@@ -50,6 +51,9 @@ class StartWorkflowPayload(BaseModel):
     brand_voice: Optional[str] = None
     target_audience: Optional[str] = None
 
+class ValidationPayload(BaseModel):
+    thread_id: str
+    validation_result: ValidationResult
 
 # --- Health Check Endpoint ---
 @app.get("/health", summary="Health Check", tags=["Status"])
@@ -225,4 +229,49 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
         print(f"WebSocket disconnected for thread: {thread_id}")
     except Exception as e:
         print(f"Error in WebSocket for thread {thread_id}: {e}")
-        await websocket.close(code=1011, reason=str(e)) 
+        await websocket.close(code=1011, reason=str(e))
+
+
+# --- Step 3.2.4: Standardized Validation Endpoint ---
+
+@app.post("/workflow/validate", tags=["Workflow"])
+async def validate_step(payload: ValidationPayload):
+    """
+    Receives user validation, updates the state, and resumes the workflow.
+    """
+    config = {"configurable": {"thread_id": payload.thread_id}}
+
+    try:
+        current_state = graph.get_state(config)
+        if not current_state:
+            raise HTTPException(status_code=404, detail="Workflow thread not found.")
+
+        # Get the specific step that is awaiting validation
+        next_step = current_state.values.get("next_human_input_step")
+        if not next_step:
+            raise HTTPException(status_code=400, detail="No human input is currently awaited for this workflow.")
+
+        # Prepare the state update
+        update_data = {"validation_result": payload.validation_result}
+
+        # If the user is editing, overwrite the relevant part of the state
+        if payload.validation_result.action == "edit":
+            edit_data = payload.validation_result.data.extra_data
+            if next_step == "await_topic_selection" and "selected_topic" in edit_data:
+                 # Ensure the topic is in the correct Pydantic model format
+                update_data["selected_topic"] = Trend(**edit_data["selected_topic"])
+            elif next_step == "await_content_validation":
+                if "final_content" in edit_data:
+                    update_data["final_content"] = edit_data["final_content"]
+                if "final_image_prompts" in edit_data:
+                    update_data["final_image_prompts"] = edit_data["final_image_prompts"]
+            # Add other edit cases as needed
+
+        # Update the state and resume the graph
+        graph.update_state(config, update_data)
+        final_state = await graph.ainvoke(None, config)
+
+        return final_state
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred during validation: {e}") 
