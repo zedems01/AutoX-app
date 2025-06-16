@@ -192,7 +192,7 @@ The backend exposes the following endpoints:
 
 ### **Phase 4.3: Workflow Setup & Dashboard**
 
-*   [ ] **Step 4.3.1: Workflow Configuration Form (`app/page.tsx`):**
+*   [x] **Step 4.3.1: Workflow Configuration Form (`app/page.tsx`):**
     - Build a comprehensive form for all `StartWorkflowPayload` parameters. Use Shadcn `Switch`, `RadioGroup`, `Select`, `Input`, and `Textarea` components.
     - Use `useMutation` to call the `startWorkflow` API function.
     - On success, navigate the user to the main dashboard: `/workflow/{thread_id}`.

@@ -1,11 +1,395 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
-  return (
-    <section>
-      <p>
-        This is the main page. The workflow will be built out from here.
-      </p>
-    </section>
+import { useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { useMutation } from "@tanstack/react-query"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { startWorkflow } from "@/lib/api"
+import { useWorkflowContext } from "@/contexts/WorkflowProvider"
+import { Switch } from "@/components/ui/switch"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+
+const formSchema = z
+  .object({
+    is_autonomous_mode: z.boolean().default(false),
+    output_destination: z.enum(["GET_OUTPUTS", "PUBLISH_X"], {
+      required_error: "You need to select an output destination.",
+    }),
+    has_user_provided_topic: z.boolean().default(false),
+    user_provided_topic: z.string().optional(),
+    x_content_type: z.enum(["TWEET_THREAD", "SINGLE_TWEET"], {
+      required_error: "You need to select a content type.",
+    }),
+    content_length: z.enum(["SHORT", "MEDIUM", "LONG"], {
+      required_error: "You need to select a content length.",
+    }),
+    brand_voice: z.string().min(1, "Brand voice is required."),
+    target_audience: z.string().min(1, "Target audience is required."),
+    user_config: z
+      .object({
+        gemini_base_model: z.string().optional(),
+        gemini_reasoning_model: z.string().optional(),
+        openai_model: z.string().optional(),
+        trends_count: z.string().optional(),
+        trends_woeid: z.string().optional(),
+        max_tweets_to_retrieve: z.string().optional(),
+        tweets_language: z.string().optional(),
+        content_language: z.string().optional(),
+      })
+      .optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.has_user_provided_topic) {
+        return !!data.user_provided_topic && data.user_provided_topic.length > 0
+      }
+      return true
+    },
+    {
+      message: "A topic is required when you choose to provide one.",
+      path: ["user_provided_topic"],
+    }
   )
+
+export default function WorkflowConfigPage() {
+  const router = useRouter()
+  const { threadId, setWorkflowState } = useWorkflowContext()
+
+  useEffect(() => {
+    if (!threadId) {
+      toast.info("Please log in to start a workflow.")
+      router.replace("/login")
+    }
+  }, [threadId, router])
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      is_autonomous_mode: false,
+      output_destination: "GET_OUTPUTS",
+      has_user_provided_topic: false,
+      user_provided_topic: "",
+      x_content_type: "TWEET_THREAD",
+      content_length: "SHORT",
+      brand_voice: "",
+      target_audience: "",
+      user_config: {},
+    },
+  })
+
+  const mutation = useMutation({
+    mutationFn: startWorkflow,
+    onSuccess: (data) => {
+      toast.success("Workflow started successfully!")
+      setWorkflowState(data)
+      router.push(`/workflow/${threadId}`)
+    },
+    onError: (error) => {
+      toast.error(`Workflow failed to start: ${error.message}`)
+    },
+  })
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!threadId) {
+      toast.error("Session expired. Please log in again.")
+      return
+    }
+    mutation.mutate({ thread_id: threadId, ...values })
+  }
+
+  const hasUserProvidedTopic = form.watch("has_user_provided_topic")
+
+  if (!threadId) {
+    return (
+      <div className="flex justify-center items-center pt-10">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex justify-center pt-10">
+      <Card className="w-full max-w-2xl">
+        <CardHeader>
+          <CardTitle>Configure Your Workflow</CardTitle>
+          <CardDescription>
+            Fill out the details below to launch your automated content workflow.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              {/* --- Core Settings --- */}
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="is_autonomous_mode"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel>Autonomous Mode</FormLabel>
+                        <FormDescription>
+                          Enable to let the AI run without human validation steps.
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="output_destination"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>Output Destination</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="flex flex-col space-y-1"
+                        >
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="GET_OUTPUTS" />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              Just get the generated content
+                            </FormLabel>
+                          </FormItem>
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="PUBLISH_X" />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              Publish directly to X (Twitter)
+                            </FormLabel>
+                          </FormItem>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* --- Topic & Content --- */}
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="has_user_provided_topic"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel>Provide Specific Topic</FormLabel>
+                        <FormDescription>
+                          Do you want to provide your own topic or use trends?
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                {hasUserProvidedTopic && (
+                  <FormField
+                    control={form.control}
+                    name="user_provided_topic"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Your Topic</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="e.g., 'The future of artificial intelligence in education'"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+                <FormField
+                  control={form.control}
+                  name="x_content_type"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>Content Type</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="flex flex-col space-y-1"
+                        >
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="TWEET_THREAD" />
+                            </FormControl>
+                            <FormLabel className="font-normal">Tweet Thread</FormLabel>
+                          </FormItem>
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="SINGLE_TWEET" />
+                            </FormControl>
+                            <FormLabel className="font-normal">Single Tweet</FormLabel>
+                          </FormItem>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="content_length"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Content Length</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select content length" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="SHORT">Short</SelectItem>
+                          <SelectItem value="MEDIUM">Medium</SelectItem>
+                          <SelectItem value="LONG">Long</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* --- Voice & Audience --- */}
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="brand_voice"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Brand Voice</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Describe the tone and style, e.g., 'Informative, witty, and slightly informal'"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="target_audience"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Target Audience</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., 'Tech enthusiasts and AI developers'"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* --- Advanced Configuration --- */}
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="item-1">
+                  <AccordionTrigger>Advanced Configuration</AccordionTrigger>
+                  <AccordionContent className="space-y-4 p-1">
+                    <p className="text-sm text-muted-foreground">
+                      Optional: Override default agent settings. Leave blank to use defaults.
+                    </p>
+                    {Object.keys(form.getValues("user_config") ?? {}).map((key) => (
+                      <FormField
+                        key={key}
+                        control={form.control}
+                        name={`user_config.${key as keyof z.infer<typeof formSchema>["user_config"]}`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="capitalize">{key.replace(/_/g, " ")}</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    ))}
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={mutation.isPending}
+              >
+                {mutation.isPending && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Launch Workflow
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
