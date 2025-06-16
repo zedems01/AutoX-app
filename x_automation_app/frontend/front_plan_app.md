@@ -171,7 +171,7 @@ The backend exposes the following endpoints:
     - Create a root layout (`app/layout.tsx`) with a header and main content area.
     - Implement a Bright/Dark theme toggle using `next-themes`.
     - Add the `<Toaster />` component from `sonner` to the layout for notifications.
-*   [ ] **Step 4.1.2: API Service Layer (`lib/api.ts`):**
+*   [x] **Step 4.1.2: API Service Layer (`lib/api.ts`):**
     - Create typed functions for each backend endpoint (`startLogin`, `completeLogin`, etc.). Review the file `x_automation_app\backend\new_app\main.py` to get the correct types.
     These will be called by TanStack Query's `useMutation`.
 *   [ ] **Step 4.1.3: Global State & WebSocket (`contexts/WorkflowProvider.tsx` & `hooks/use-workflow.ts`):**
