@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { PageHeader } from "@/components/shared/page-header";
 import { ModeToggle } from "@/components/shared/theme-toggle";
 import { WorkflowProvider } from "@/contexts/WorkflowProvider";
+import { QueryProvider } from "@/components/shared/query-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,15 +29,17 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <WorkflowProvider>
-            <div className="container mx-auto p-4">
-              <PageHeader title="X Automation" description="Let's automate your X presence">
-                <ModeToggle />
-              </PageHeader>
-              <main className="mt-6">{children}</main>
-            </div>
-            <Toaster />
-          </WorkflowProvider>
+          <QueryProvider>
+            <WorkflowProvider>
+              <div className="container mx-auto p-4">
+                <PageHeader title="X Automation" description="Let's automate your X presence">
+                  <ModeToggle />
+                </PageHeader>
+                <main className="mt-6">{children}</main>
+              </div>
+              <Toaster />
+            </WorkflowProvider>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>
