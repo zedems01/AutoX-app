@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uuid
@@ -193,4 +193,36 @@ async def start_workflow(payload: StartWorkflowPayload):
         return final_state
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"An error occurred during workflow execution: {e}") 
+        raise HTTPException(status_code=500, detail=f"An error occurred during workflow execution: {e}")
+
+
+# --- Step 3.2.3: Real-time Status Updates with WebSockets ---
+
+@app.websocket("/workflow/ws/{thread_id}")
+async def workflow_ws(websocket: WebSocket, thread_id: str):
+    """
+    Handles WebSocket connections for real-time workflow status updates.
+    """
+    await websocket.accept()
+    config = {"configurable": {"thread_id": thread_id}}
+
+    try:
+        # Send the initial state as soon as the client connects
+        initial_state = graph.get_state(config)
+        if initial_state:
+            await websocket.send_json(initial_state.values)
+        
+        # Stream updates as the graph executes
+        async for event in graph.astream_events(None, config, version="v1"):
+            # After any node finishes, the state is potentially updated.
+            # We'll get the latest state and send it to the client.
+            if event["event"] == "on_chain_end":
+                current_state = graph.get_state(config)
+                if current_state:
+                    await websocket.send_json(current_state.values)
+
+    except WebSocketDisconnect:
+        print(f"WebSocket disconnected for thread: {thread_id}")
+    except Exception as e:
+        print(f"Error in WebSocket for thread {thread_id}: {e}")
+        await websocket.close(code=1011, reason=str(e)) 

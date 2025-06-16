@@ -265,9 +265,9 @@ This phase integrates all agents into the main LangGraph workflow and exposes th
         *   [x] Initializes the `OverallState` with these inputs.
         *   [x] Invokes the `graph.py` graph with the initial state and `thread_id`. The graph will run until the first interrupt (HiTL 0 or the first agent if autonomous).
         *   [x] Returns the full initial `OverallState` to the frontend.
-    *   [ ] **3.2.3: Real-time Status Updates with WebSockets:**
-        *   [ ] `WS /workflow/ws/{thread_id}`: Implement a WebSocket endpoint.
-        *   [ ] Use LangGraph's `astream_events()` (or `astream()` combined with state updates) method to push real-time `OverallState` changes to the connected frontend client as the workflow progresses.
+    *   [x] **3.2.3: Real-time Status Updates with WebSockets:**
+        *   [x] `WS /workflow/ws/{thread_id}`: Implement a WebSocket endpoint.
+        *   [x] Use LangGraph's `astream_events()` (or `astream()` combined with state updates) method to push real-time `OverallState` changes to the connected frontend client as the workflow progresses.
     *   [ ] **3.2.4: Standardized Validation Endpoint:**
         *   [ ] `POST /workflow/validate`: Receives `thread_id` and `validation_data` payload.
         *   [ ] `validation_data` structure: `{ "action": "approve" | "reject" | "edit", "data": { ... } }`.
