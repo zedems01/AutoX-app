@@ -92,13 +92,14 @@ def web_research(state: WebSearchState, config: RunnableConfig) -> OverallState:
     """
     logger.info(f"---PERFORMING WEB RESEARCH FOR: {state['search_query']}---")
     configurable = Configuration.from_runnable_config(config)
+    web_search_model = configurable.query_generator_model
     formatted_prompt = web_searcher_instructions.format(
         current_date=get_current_date(),
         research_topic=state["search_query"],
     )
     # Uses the google genai client as the langchain client doesn't return grounding metadata
     response = genai_client.models.generate_content(
-        model=configurable.query_generator_model,
+        model=web_search_model,
         contents=formatted_prompt,
         config={
             "tools": [{"google_search": {}}],

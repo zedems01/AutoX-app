@@ -7,9 +7,9 @@ load_dotenv()
 class Settings:
 
     # LLM Provider API Keys
-    # GEMINI Mandatory for Google Search News
+    # GEMINI (Mandatory for news and context web deep research, and defined as fallback for agents inference)
     GEMINI_API_KEY=os.getenv("GEMINI_API_KEY")
-    # OPENAI Optional for other tasks
+    # OPENAI (Mainly used for agents inference)
     OPENAI_API_KEY=os.getenv("OPENAI_API_KEY")
 
     # twitterapi.io API Credentials
@@ -37,7 +37,7 @@ class Settings:
     # Some default settings (Optional, as we first check for them in the graph state)
     # LLMs
     GEMINI_BASE_MODEL=os.getenv("GEMINI_BASE_MODEL", "gemini-2.0-flash")
-    GEMINI_REASONING_MODEL=os.getenv("GEMINI_REASONING_MODEL", "gemini-2.5-flash-preview-05-20")
+    GEMINI_REASONING_MODEL=os.getenv("GEMINI_REASONING_MODEL", "gemini-2.5-flash-preview-05-20") # for reflection during deep research
     OPENAI_MODEL=os.getenv("OPENAI_MODEL", "gpt-4o")
 
     # Trend Fetching Settings (Optional)

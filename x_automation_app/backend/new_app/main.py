@@ -7,7 +7,7 @@ from typing import Optional
 from .agents.graph import graph, memory
 from .services import twitter_service
 from .agents.state import OverallState
-from .agents.tools_and_schemas import ValidationResult, Trend
+from .agents.tools_and_schemas import ValidationResult, Trend, UserConfigSchema
 
 # --- FastAPI App Initialization ---
 app = FastAPI(
@@ -50,6 +50,7 @@ class StartWorkflowPayload(BaseModel):
     content_length: Optional[str] = None
     brand_voice: Optional[str] = None
     target_audience: Optional[str] = None
+    user_config: Optional[UserConfigSchema] = None
 
 class ValidationPayload(BaseModel):
     thread_id: str
@@ -94,6 +95,7 @@ async def start_login(payload: StartLoginPayload):
         "content_length": None,
         "brand_voice": None,
         "target_audience": None,
+        "user_config": None,
         "session": None,
         "user_details": None,
         "trending_topics": None,
@@ -185,6 +187,7 @@ async def start_workflow(payload: StartWorkflowPayload):
             "content_length": payload.content_length,
             "brand_voice": payload.brand_voice,
             "target_audience": payload.target_audience,
+            "user_config": payload.user_config,
             "current_step": "workflow_started",
         }
 

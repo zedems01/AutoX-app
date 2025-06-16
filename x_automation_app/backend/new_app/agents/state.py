@@ -39,6 +39,8 @@ class SearchStateOutput:
     running_summary: str = field(default=None)   # Final report
 
 
+# --- State for the Overall Workflow ---
+
 class OverallState(TypedDict):
     """
     Represents the overall state of the workflow, holding all data passed between nodes.

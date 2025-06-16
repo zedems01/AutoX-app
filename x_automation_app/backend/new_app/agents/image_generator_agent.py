@@ -1,18 +1,25 @@
 from langgraph.prebuilt import create_react_agent
 from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import ToolMessage
 from .prompts import image_generator_prompt
 from typing import Dict, Any, List
 from .state import OverallState
-from .tools_and_schemas import GeneratedImage, ValidationAction, ImageGeneratorOutput
+from .tools_and_schemas import (
+    GeneratedImage,
+    ValidationAction,
+    ImageGeneratorOutput
+)
 from ..services.image_service import generate_and_upload_image
+from ...config import settings
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Create the agent once and reuse it
-llm = ChatOpenAI(model="gpt-4o")
+
+
+llm = ChatOpenAI(model=settings.OPENAI_MODEL) or ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL)
 image_generating_agent = create_react_agent(model=llm, tools=[generate_and_upload_image], response_format=ImageGeneratorOutput)
 
 def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]:

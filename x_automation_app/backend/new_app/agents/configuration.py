@@ -1,6 +1,8 @@
 import os
 from pydantic import BaseModel, Field
 from typing import Any, Optional
+from dotenv import load_dotenv
+load_dotenv()
 
 from langchain_core.runnables import RunnableConfig
 
@@ -9,14 +11,14 @@ class Configuration(BaseModel):
     """The configuration for the agent."""
 
     query_generator_model: str = Field(
-        default="gemini-2.0-flash",
+        default=os.getenv("GEMINI_BASE_MODEL", "gemini-2.0-flash"),
         metadata={
             "description": "The name of the language model to use for the agent's query generation."
         },
     )
 
     reasoning_model: str = Field(
-        default="gemini-2.5-flash-preview-05-20",
+        default=os.getenv("GEMINI_REASONING_MODEL", "gemini-2.5-flash-preview-05-20"),
         metadata={
             "description": "The name of the language model to use for the agent's reasoning."
         },
@@ -28,7 +30,7 @@ class Configuration(BaseModel):
     )
 
     max_research_loops: int = Field(
-        default=2,
+        default=3,
         metadata={"description": "The maximum number of research loops to perform."},
     )
 
