@@ -3,7 +3,7 @@ from typing import TypedDict, Optional, List
 from typing_extensions import Annotated
 from langgraph.graph import add_messages
 from langgraph.graph.message import add_messages
-from .tools_and_schemas import (
+from .schemas import (
     Trend,
     GeneratedImage,
     TweetSearched,

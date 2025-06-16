@@ -7,7 +7,7 @@ from typing import Optional
 from .agents.graph import graph, memory
 from .services import twitter_service
 from .agents.state import OverallState
-from .agents.tools_and_schemas import ValidationResult, Trend, UserConfigSchema
+from .agents.schemas import ValidationResult, Trend, UserConfigSchema
 
 # --- FastAPI App Initialization ---
 app = FastAPI(

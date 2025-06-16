@@ -5,7 +5,7 @@ from langchain_core.messages import ToolMessage
 from .prompts import image_generator_prompt
 from typing import Dict, Any, List
 from .state import OverallState
-from .tools_and_schemas import (
+from .schemas import (
     GeneratedImage,
     ValidationAction,
     ImageGeneratorOutput

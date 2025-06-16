@@ -1,22 +1,24 @@
 import json
 from langgraph.prebuilt import create_react_agent
 from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from .prompts import tweet_search_prompt, get_current_date
 from typing import Dict, Any
 from .state import OverallState
 from ..services.twitter_service import tweet_advanced_search
-from .tools_and_schemas import TweetSearched, TweetSearchResponse
+from .schemas import TweetSearched, TweetSearchResponse
 from typing import List
+from ...config import settings
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # Create the agent once and reuse it
-llm = ChatOpenAI(model="gpt-4o")
+llm = ChatOpenAI(model=settings.OPENAI_MODEL) or ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL)
 tweet_search_agent = create_react_agent(model=llm, tools=[tweet_advanced_search], response_format=TweetSearchResponse)
 
-def tweet_search_node(state: OverallState) -> Dict[str, Any]:
+def tweet_search_node(state: OverallState) -> List[TweetSearched]:
     """
     Uses a ReAct agent to search for tweets based on the current topic and updates the state.
 
@@ -43,10 +45,17 @@ def tweet_search_node(state: OverallState) -> Dict[str, Any]:
 
         logger.info(f"---Searching tweets for topic: {topic}---")
         
-        prompt = tweet_search_prompt.format(
-            topic=topic,
-            current_date=get_current_date()
-        )        
+        if state["user_config"].get("tweets_language"):
+            tweets_language = state["user_config"].get("tweets_language")
+        else:
+            tweets_language = settings.TWEETS_LANGUAGE
+        
+        if tweets_language:
+            prompt = tweet_search_prompt.format(
+                topic=topic,
+                current_date=get_current_date(),
+                tweets_language=tweets_language
+            )        
         response = tweet_search_agent.invoke({"messages": [("user", prompt)]})
         parsed_response = response["structured_response"]
         

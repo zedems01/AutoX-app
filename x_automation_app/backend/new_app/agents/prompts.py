@@ -96,6 +96,7 @@ Summaries:
 
 # - you MUST include all the citations from the summaries in the answer correctly.
 
+
 # no need to explicitly mention the json format when using `create_react_agent`,
 # it will be handled automatically 
 trend_harvester_prompt = """You are an expert trend analyst. Your task is to identify the most promising trends on X for content creation.
@@ -110,10 +111,11 @@ trend_harvester_prompt = """You are an expert trend analyst. Your task is to ide
 tweet_search_prompt = """You are an AI assistant that generates expert-level search queries for X. Your goal is to find the most relevant and recent tweets on a given topic.
 
 1.  **Analyze the Topic**: Understand the core concepts of the topic: `{topic}`.
-2.  **Construct a Query**: Create a single, effective search query string for the `tweet_advanced_search` tool. Always use `lang:en` to search for english tweets.
+2.  **Construct a Query**: Create a single, effective search query string for the `tweet_advanced_search` tool. 
     *   Use relevant keywords and hashtags (`#`).
     *   Combine terms using operators like `OR` for broader reach or quotes (`"`) for exact phrases.
-    *   Use filters to refine results. For example, `min_faves:10` to find popular tweets, `min_replies:N` for minimum number of replies, `min_retweets:N`for minimum number of Retweets.
+    *   Use operators to filter results. For example, `lang:fr` for french tweets, `min_faves:10` to find popular tweets, `min_replies:N` for minimum number of replies, `min_retweets:N`for minimum number of Retweets, etc.
+    *   Make sure to search for tweets in {tweets_language}.
     *   The current date is {current_date}. Consider using date operators like `since:` or `until:` if the topic is time-sensitive.
 3.  **Tool Call**: You must call the `tweet_advanced_search` tool **once**, with the query you constructed.
     *   The `query` parameter should be your generated search string.
@@ -142,7 +144,7 @@ opinion_analysis_prompt = """You are an expert market and public opinion analyst
 writer_prompt = """You are an expert content creator and copywriter. Your task is to write a compelling piece of content based on comprehensive research and analysis, tailored to specific audience and brand voice requirements.
 
 **Context and Research You Must Use:**
-1.  **Deep Research Context**: This is the main body of factual information and analysis gathered from the web.
+1.  **Deep Research News/Context**: This is the main body of factual news, informations and analysis gathered from the web.
     ```
     {final_deep_research_report}
     ```
@@ -155,6 +157,7 @@ writer_prompt = """You are an expert content creator and copywriter. Your task i
 -   **Length**: `{content_length}`
 -   **Brand Voice**: `{brand_voice}`
 -   **Target Audience**: `{target_audience}`
+-   **Final Language**: `{content_language}`
 
 **Revision Feedback (if any):**
 -   If feedback is provided below, you MUST revise the content based on it.

@@ -1,10 +1,12 @@
 import requests
 from ...config import settings
-from ..agents.tools_and_schemas import Trend, TweetSearched, TweetAuthor
+from ..agents.schemas import Trend, TweetSearched, TweetAuthor
 from typing import List, Optional
 from langchain_core.tools import tool
 from .tweet_chunking import chunk_text
 import logging
+import re
+import unicodedata
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -44,7 +46,6 @@ def start_login(
         # Handle network errors
         raise Exception(f"Network error during Login Step 1: {e}")
     
-
 
 def complete_login(
         login_data: str,
@@ -128,7 +129,6 @@ def get_trends(
 def tweet_advanced_search(
         query: str,
         query_type: str = "Latest",
-        cursor: str = "",
         api_key: str = settings.X_API_KEY
     ) -> List[TweetSearched]:
     """
@@ -138,7 +138,6 @@ def tweet_advanced_search(
     ---
         query: The query to search for.
         query_type: The type of query to search for.
-        cursor: The cursor to use for the search.
         api_key: The API key to use for the request.
 
     Returns:
@@ -147,7 +146,7 @@ def tweet_advanced_search(
     """
     url = "https://api.twitterapi.io/twitter/tweet/advanced_search"
     all_tweets: List[TweetSearched] = []
-    current_cursor = cursor
+    current_cursor = ""
 
     while len(all_tweets) < settings.MAX_TWEETS_TO_RETRIEVE:
         params = {"query": query, "query_type": query_type, "cursor": current_cursor}
@@ -254,7 +253,7 @@ def get_char_count(text: str) -> int:
     # Emojis count as 2, normal chars as 1, and each URL as 23
     return char_count + (emoji_count * 2) + (len(urls) * 23)
 
-def chunk_text(text: str, max_length: int = 280) -> list[str]:
+def chunk_text(text: str, max_length: int = 270) -> list[str]:
     """
     Chunks a long text into a list of smaller strings, each within the max_length,
     respecting word boundaries and Twitter's character counting rules.

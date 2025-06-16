@@ -1,15 +1,17 @@
 from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from .prompts import writer_prompt
 from typing import Dict, Any, Optional
 from .state import OverallState
-from .tools_and_schemas import WriterOutput
+from .schemas import WriterOutput
+from ...config import settings
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # Initialize the base LLM and create a structured version for the writer
-llm = ChatOpenAI(model="gpt-4o")
+llm = ChatOpenAI(model=settings.OPENAI_MODEL) or ChatGoogleGenerativeAI(model=settings.GEMINI_BASE_MODEL)
 structured_llm = llm.with_structured_output(WriterOutput)
 
 def writer_node(state: OverallState) -> Dict[str, Any]:
@@ -37,6 +39,7 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
         content_length = state.get("content_length", "Medium")
         brand_voice = state.get("brand_voice", "Professional")
         target_audience = state.get("target_audience", "General audience")
+        content_language = state.get("content_language") or settings.CONTENT_LANGUAGE
         
         # Handle feedback from the HiTL validation step
         feedback = "No feedback provided."
@@ -55,6 +58,7 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
             brand_voice=brand_voice,
             target_audience=target_audience,
             feedback=feedback,
+            content_language=content_language
         )
         
         # Invoke the structured LLM

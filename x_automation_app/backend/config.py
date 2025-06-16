@@ -45,8 +45,8 @@ class Settings:
     TRENDS_WOEID=os.getenv("TRENDS_WOEID", 23424819)
 
     # Tweet Search Settings (Optional)
-    MAX_TWEETS_TO_RETRIEVE=os.getenv("MAX_TWEETS_TO_RETRIEVE", 20)
-    LANGUAGE=os.getenv("LANGUAGE", "english")
+    MAX_TWEETS_TO_RETRIEVE=os.getenv("MAX_TWEETS_TO_RETRIEVE", 30)
+    TWEETS_LANGUAGE=os.getenv("TWEETS_LANGUAGE", "english")
 
     # Content Language
     CONTENT_LANGUAGE=os.getenv("CONTENT_LANGUAGE", "english")

@@ -1,5 +1,6 @@
 from langgraph.prebuilt import create_react_agent
 from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from .prompts import trend_harvester_prompt
 from typing import Dict, Any, List
 from .state import OverallState, Trend, TrendResponse
@@ -11,10 +12,10 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Create the agent once and reuse it
-llm = ChatOpenAI(model="gpt-4o")
+llm = ChatOpenAI(model=settings.OPENAI_MODEL) or ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL)
 trend_harvester_agent = create_react_agent(model=llm, tools=[get_trends], response_format=TrendResponse)
 
-def trend_harvester_node(state: OverallState) -> Dict[str, Any]:
+def trend_harvester_node(state: OverallState) -> List[Trend]:
     """
     Fetches a curated list of trending topics using a ReAct agent.
 
@@ -27,8 +28,8 @@ def trend_harvester_node(state: OverallState) -> Dict[str, Any]:
     try:
         # Format the prompt with values from the settings
         prompt = trend_harvester_prompt.format(
-            woeid=settings.TRENDS_WOEID,
-            count=settings.TRENDS_COUNT
+            woeid=state["user_config"].get("trends_woeid") or settings.TRENDS_WOEID,
+            count=state["user_config"].get("trends_count") or settings.TRENDS_COUNT
         )
         response = trend_harvester_agent.invoke({"messages": [("user", prompt)]})
         parsed_response = response["structured_response"]

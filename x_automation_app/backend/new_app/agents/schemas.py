@@ -158,6 +158,6 @@ class UserConfigSchema(BaseModel):
     trends_count: Optional[int] = Field(None, description="Number of trends to fetch.")
     trends_woeid: Optional[int] = Field(None, description="Where On Earth ID for trend fetching.")
     max_tweets_to_retrieve: Optional[int] = Field(None, description="Maximum number of tweets to retrieve in search.")
-    language: Optional[str] = Field(None, description="Language for tweet search results.")
+    tweets_language: Optional[str] = Field(None, description="Language for tweet search results.")
     content_language: Optional[str] = Field(None, description="Language for generated content.")
 

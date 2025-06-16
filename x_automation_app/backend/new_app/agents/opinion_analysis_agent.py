@@ -1,16 +1,18 @@
 import json
 from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from .prompts import opinion_analysis_prompt
 from typing import Dict, Any
 from .state import OverallState
-from .tools_and_schemas import OpinionAnalysisOutput
+from .schemas import OpinionAnalysisOutput
+from ...config import settings
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # Initialize the base LLM
-llm = ChatOpenAI(model="gpt-4o")
+llm = ChatOpenAI(model=settings.OPENAI_MODEL) or ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL)
 structured_llm = llm.with_structured_output(OpinionAnalysisOutput)
 
 def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
