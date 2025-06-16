@@ -174,7 +174,7 @@ The backend exposes the following endpoints:
 *   [x] **Step 4.1.2: API Service Layer (`lib/api.ts`):**
     - Create typed functions for each backend endpoint (`startLogin`, `completeLogin`, etc.). Review the file `x_automation_app\backend\new_app\main.py` to get the correct types.
     These will be called by TanStack Query's `useMutation`.
-*   [ ] **Step 4.1.3: Global State & WebSocket (`contexts/WorkflowProvider.tsx` & `hooks/use-workflow.ts`):**
+*   [x] **Step 4.1.3: Global State & WebSocket (`contexts/WorkflowProvider.tsx` & `hooks/use-workflow.ts`):**
     - Create a `WorkflowContext` to store the `thread_id` and the latest `OverallState`.
     - Create a `useWorkflow` hook that establishes the WebSocket connection and updates the context with new state messages. This hook will be the primary data source for the workflow dashboard.
 
