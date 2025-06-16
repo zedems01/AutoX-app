@@ -180,12 +180,12 @@ The backend exposes the following endpoints:
 
 ### **Phase 4.2: Authentication UI**
 
-*   [ ] **Step 4.2.1: Login Page (`app/login/page.tsx`):**
+*   [x] **Step 4.2.1: Login Page (`app/login/page.tsx`):**
     - Build an aesthetic login form using Shadcn components (`Input`, `Button`, `Card`).
     - Use `useMutation` (TanStack Query) to call the `startLogin` API function.
     - On success, store the `thread_id` in the `WorkflowContext` and navigate to the 2FA page.
     - Show loading states on the button and display errors using `sonner` toasts.
-*   [ ] **Step 4.2.2: 2FA Page (`app/login/2fa/page.tsx`):**
+*   [x] **Step 4.2.2: 2FA Page (`app/login/2fa/page.tsx`):**
     - Build a form for the 2FA code, using Shadcn's `InputOTP` for a great user experience.
     - Use `useMutation` to call `completeLogin`.
     - On success, navigate to the main workflow configuration page.
