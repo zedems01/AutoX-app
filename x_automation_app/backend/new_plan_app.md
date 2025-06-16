@@ -275,7 +275,7 @@ This phase integrates all agents into the main LangGraph workflow and exposes th
         *   [x] Updates `state['validation_result']` with `validation_data`. If action is "edit", it overwrites specific state fields (e.g., `state['final_content']`, `state['final_image_prompts']`).
         *   [x] Resumes graph execution from the last interrupted point by invoking the `graph.py` graph with the updated state.
 
-*   [ ] **Step 3.3: The HiTL Interaction Pattern (Consistent Implementation)**
+*   [x] **Step 3.3: The HiTL Interaction Pattern (Consistent Implementation)**
     *   This pattern will be consistently applied at all user validation points:
         1.  **Agent Executes:** An agent completes its task, saving its output to the `OverallState`.
         2.  **Graph Routes to Interrupt:** If `is_autonomous_mode` is `False`, the graph is routed to a dedicated interrupt node (e.g., `await_content_validation`), which sets `next_human_input_step` and pauses.
@@ -283,7 +283,7 @@ This phase integrates all agents into the main LangGraph workflow and exposes th
         4.  **Backend Updates & Resumes:** The backend updates `validation_result` (and potentially other fields for edits) and resumes the graph.
         5.  **Graph Routes Based on Decision:** A conditional edge checks `validation_result` to route the workflow forward (to the next agent) or backward (to a previous agent for revision), passing feedback to the agent if applicable.
 
-*   [ ] **Step 3.4: Robust Notification Integration**
+*   [ ] **Step 3.4: Robust Notification Integration (FOR LATER)**
     *   [ ] Integrate `notifications.send_notification` at critical points:
         *   Upon successful `Publicator` completion (already in Step 2.7).
         *   Within a `try...except` block wrapping the main graph invocation in API endpoints to catch unhandled errors and send failure notifications.

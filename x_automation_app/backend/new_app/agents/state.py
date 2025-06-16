@@ -3,7 +3,13 @@ from typing import TypedDict, Optional, List
 from typing_extensions import Annotated
 from langgraph.graph import add_messages
 from langgraph.graph.message import add_messages
-from .tools_and_schemas import Trend, GeneratedImage, TweetSearched, TrendResponse, ValidationResult
+from .tools_and_schemas import (
+    Trend,
+    GeneratedImage,
+    TweetSearched,
+    ValidationResult,
+    UserConfigSchema
+)
 import operator
 from dataclasses import dataclass, field
 
@@ -46,6 +52,7 @@ class OverallState(TypedDict):
     content_length: Optional[str]
     brand_voice: Optional[str]
     target_audience: Optional[str]
+    user_config: Optional[UserConfigSchema]
 
     # === Login & Session ===
     login_data: Optional[str]

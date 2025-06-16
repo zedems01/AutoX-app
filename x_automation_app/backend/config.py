@@ -5,43 +5,51 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Settings:
-    # X API Credentials
-    TWITTER_API_KEY = os.getenv("TWITTER_API_KEY")
-    TWITTER_API_SECRET_KEY = os.getenv("TWITTER_API_SECRET_KEY")
-    TWITTER_ACCESS_TOKEN = os.getenv("TWITTER_ACCESS_TOKEN")
-    TWITTER_ACCESS_TOKEN_SECRET = os.getenv("TWITTER_ACCESS_TOKEN_SECRET")
-    TWITTER_BEARER_TOKEN = os.getenv("TWITTER_BEARER_TOKEN")
-    # TWITTER_CLIENT_ID = os.getenv("TWITTER_CLIENT_ID")
-    # TWITTER_CLIENT_SECRET = os.getenv("TWITTER_CLIENT_SECRET")
-    
-    # Twitter API Credentials
-    X_API_KEY = os.getenv("X_API_KEY")
-    USER_EMAIL = os.getenv("USER_EMAIL")
-    USER_PASSWORD = os.getenv("USER_PASSWORD")
-    USER_PROXY = os.getenv("USER_PROXY")
-
 
     # LLM Provider API Keys
-    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-    GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+    # GEMINI Mandatory for Google Search News
+    GEMINI_API_KEY=os.getenv("GEMINI_API_KEY")
+    # OPENAI Optional for other tasks
+    OPENAI_API_KEY=os.getenv("OPENAI_API_KEY")
 
-    # Composio (for Notifications)
-    COMPOSIO_API_KEY = os.getenv("COMPOSIO_API_KEY")
+    # twitterapi.io API Credentials
+    X_API_KEY=os.getenv("X_API_KEY")   # from twitterapi.io
+    USER_PROXY=os.getenv("USER_PROXY")
+    # proxy example: http://username:password@ip:port
+    # You can get proxy from: https://www.webshare.io/?referral_code=s5x49lhr7ck7
 
-    # AWS S3 Settings for Image Storage
-    AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
-    AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-    AWS_DEFAULT_REGION = os.getenv("AWS_DEFAULT_REGION")
-    BUCKET_NAME = os.getenv("BUCKET_NAME")
+    # X Credentials
+    USER_EMAIL=os.getenv("USER_EMAIL")
+    USER_PASSWORD=os.getenv("USER_PASSWORD")
 
-    # Trend fetching settings
-    TRENDS_WOEID = int(os.getenv("TRENDS_WOEID", "1"))  # Default to 1 (Worldwide)
-    TRENDS_COUNT = int(os.getenv("TRENDS_COUNT", "30")) # Default to 30
+    # AWS S3 Settings for Image Storage (mandatory before posting on X)
+    AWS_ACCESS_KEY_ID=os.getenv("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY=os.getenv("AWS_SECRET_ACCESS_KEY")
+    AWS_DEFAULT_REGION=os.getenv("AWS_DEFAULT_REGION")
+    BUCKET_NAME=os.getenv("BUCKET_NAME")
 
-    # Tweet search settings
-    MAX_TWEETS_TO_RETRIEVE = int(os.getenv("MAX_TWEETS_TO_RETRIEVE", "5"))
-    LANGUAGE = os.getenv("LANGUAGE", "french")
+    # LangSmith API Keys for LLMs tracing (Optional)
+    LANGSMITH_TRACING=os.getenv("LANGSMITH_TRACING", "false")   # set to true to allow tracing
+    LANGSMITH_ENDPOINT=os.getenv("LANGSMITH_ENDPOINT", "https://api.smith.langchain.com")
+    LANGSMITH_API_KEY=os.getenv("LANGSMITH_API_KEY")
+    LANGSMITH_PROJECT=os.getenv("LANGSMITH_PROJECT", "x-automation-agent")
+
+    # Some default settings (Optional, as we first check for them in the graph state)
+    # LLMs
+    GEMINI_BASE_MODEL=os.getenv("GEMINI_BASE_MODEL", "gemini-2.0-flash")
+    GEMINI_REASONING_MODEL=os.getenv("GEMINI_REASONING_MODEL", "gemini-2.5-flash-preview-05-20")
+    OPENAI_MODEL=os.getenv("OPENAI_MODEL", "gpt-4o")
+
+    # Trend Fetching Settings (Optional)
+    TRENDS_COUNT=os.getenv("TRENDS_COUNT", 30)
+    TRENDS_WOEID=os.getenv("TRENDS_WOEID", 23424819)
+
+    # Tweet Search Settings (Optional)
+    MAX_TWEETS_TO_RETRIEVE=os.getenv("MAX_TWEETS_TO_RETRIEVE", 20)
+    LANGUAGE=os.getenv("LANGUAGE", "english")
+
+    # Content Language
+    CONTENT_LANGUAGE=os.getenv("CONTENT_LANGUAGE", "english")
 
 
 

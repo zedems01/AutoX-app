@@ -148,3 +148,16 @@ class QAOutput(BaseModel):
     final_image_prompts: list[str] = Field(..., description="The final, approved list of image prompts.")
 
 
+class UserConfigSchema(BaseModel):
+    """
+    Schema for user-configurable workflow parameters, overriding default environment settings.
+    """
+    gemini_base_model: Optional[str] = Field(None, description="Preferred Gemini base model for general tasks.")
+    gemini_reasoning_model: Optional[str] = Field(None, description="Preferred Gemini reasoning model for complex tasks.")
+    openai_model: Optional[str] = Field(None, description="Preferred OpenAI model if used.")
+    trends_count: Optional[int] = Field(None, description="Number of trends to fetch.")
+    trends_woeid: Optional[int] = Field(None, description="Where On Earth ID for trend fetching.")
+    max_tweets_to_retrieve: Optional[int] = Field(None, description="Maximum number of tweets to retrieve in search.")
+    language: Optional[str] = Field(None, description="Language for tweet search results.")
+    content_language: Optional[str] = Field(None, description="Language for generated content.")
+
