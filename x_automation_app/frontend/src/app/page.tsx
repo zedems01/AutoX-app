@@ -106,7 +106,7 @@ export default function WorkflowConfigPage() {
 
   useEffect(() => {
     if (!threadId) {
-      toast.info("Please log in to start a workflow.")
+      toast.info("Please log in to start a workflow.", { duration: 20000 })
       router.replace("/login")
     }
   }, [threadId, router])
@@ -138,18 +138,18 @@ export default function WorkflowConfigPage() {
   const mutation = useMutation({
     mutationFn: startWorkflow,
     onSuccess: (data) => {
-      toast.success("Workflow started successfully!")
+      toast.success("Workflow started successfully!", { duration: 20000 })
       setWorkflowState(data)
       router.push(`/workflow/${threadId}`)
     },
     onError: (error) => {
-      toast.error(`Workflow failed to start: ${error.message}`)
+      toast.error(`Workflow failed to start: ${error.message}`, { duration: 15000 })
     },
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     if (!threadId) {
-      toast.error("Session expired. Please log in again.")
+      toast.error("Session expired. Please log in again.", { duration: 15000 })
       return
     }
     mutation.mutate({ thread_id: threadId, ...values })

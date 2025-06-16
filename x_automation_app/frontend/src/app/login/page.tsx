@@ -51,12 +51,12 @@ export default function LoginPage() {
   const mutation = useMutation({
     mutationFn: startLogin,
     onSuccess: (data) => {
-      toast.success("Login initiated. Please check for a 2FA code.")
+      toast.success("Login initiated. Please check for a 2FA code.", { duration: 20000 })
       setThreadId(data.thread_id)
       router.push("/login/2fa")
     },
     onError: (error) => {
-      toast.error(`Login failed: ${error.message}`)
+      toast.error(`Login failed: ${error.message}`, { duration: 15000 })
     },
   })
 

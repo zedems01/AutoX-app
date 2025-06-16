@@ -69,13 +69,13 @@ export function ContentValidation() {
   const mutation = useMutation({
     mutationFn: validateStep,
     onSuccess: (data) => {
-      toast.success("Validation submitted! The workflow will now continue.")
+      toast.success("Validation submitted! The workflow will now continue.", { duration: 20000 })
       setWorkflowState(data)
       setRejectionDialogOpen(false)
       rejectionForm.reset()
     },
     onError: (error) => {
-      toast.error(`Validation failed: ${error.message}`)
+      toast.error(`Validation failed: ${error.message}`, { duration: 15000 })
     },
   })
 
@@ -84,7 +84,7 @@ export function ContentValidation() {
     data?: any
   ) => {
     if (!threadId) {
-      toast.error("Session expired. Please start over.")
+      toast.error("Session expired. Please start over.", { duration: 15000 })
       return
     }
 

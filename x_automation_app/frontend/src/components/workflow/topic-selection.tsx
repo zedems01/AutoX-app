@@ -53,17 +53,17 @@ export function TopicSelection() {
   const mutation = useMutation({
     mutationFn: validateStep,
     onSuccess: (data) => {
-      toast.success("Topic selected! The workflow will now continue.")
+      toast.success("Topic selected! The workflow will now continue.", { duration: 20000 })
       setWorkflowState(data)
     },
     onError: (error) => {
-      toast.error(`Validation failed: ${error.message}`)
+      toast.error(`Validation failed: ${error.message}`, { duration: 15000 })
     },
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     if (!threadId) {
-      toast.error("Session expired. Please start over.")
+      toast.error("Session expired. Please start over.", { duration: 15000 })
       return
     }
 
@@ -72,7 +72,7 @@ export function TopicSelection() {
     )
 
     if (!selectedTopic) {
-      toast.error("Invalid topic selected. Please try again.")
+      toast.error("Invalid topic selected. Please try again.", { duration: 15000 })
       return
     }
 

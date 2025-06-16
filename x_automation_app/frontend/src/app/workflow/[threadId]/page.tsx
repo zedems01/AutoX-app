@@ -21,7 +21,7 @@ export default function WorkflowDashboardPage() {
     if (threadId && !contextThreadId) {
       setThreadId(threadId)
     } else if (!threadId && !contextThreadId) {
-      toast.error("No workflow session found. Redirecting to start.")
+      toast.error("No workflow session found. Redirecting to start.", { duration: 15000 })
       router.replace("/")
     }
   }, [threadId, contextThreadId, setThreadId, router])

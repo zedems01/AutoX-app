@@ -45,7 +45,7 @@ export default function TwoFactorAuthPage() {
 
   useEffect(() => {
     if (!threadId) {
-      toast.error("No active login session. Please start again.")
+      toast.error("No active login session. Please start again.", { duration: 15000 })
       router.replace("/login")
     }
   }, [threadId, router])
@@ -60,18 +60,18 @@ export default function TwoFactorAuthPage() {
   const mutation = useMutation({
     mutationFn: completeLogin,
     onSuccess: (data) => {
-      toast.success("Login successful!")
+      toast.success("Login successful!", { duration: 20000 })
       console.log("Logged in user:", data.user_details)
       router.push("/") // Navigate to main configuration page
     },
     onError: (error) => {
-      toast.error(`Login failed: ${error.message}`)
+      toast.error(`Login failed: ${error.message}`, { duration: 15000 })
     },
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     if (!threadId) {
-      toast.error("Session expired. Please log in again.")
+      toast.error("Session expired. Please log in again.", { duration: 15000 })
       return
     }
     mutation.mutate({ thread_id: threadId, two_fa_code: values.two_fa_code })
