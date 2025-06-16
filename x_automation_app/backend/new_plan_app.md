@@ -300,6 +300,19 @@ This phase integrates all agents into the main LangGraph workflow and exposes th
 *   [ ] **Step 4.3: HiTL Validation UIs:** Create specific UI components for each HiTL step (e.g., Topic Selection, Content Validation, Image Validation) to display agent output and capture user feedback/decisions.
 *   [ ] **Step 4.4: Authentication UI:** Develop UI for the 2FA login flow.
 
+**General UI/UX Directives:**
+    *   **Simplicity & Intuition:** The UI should be clean, straightforward, and easy for a content manager to understand and use without extensive training.
+    *   **Reactivity:** Ensure a highly responsive interface with quick visual feedback on user interactions.
+    *   **Theming:** Implement a functional switch between Bright and Dark themes.
+    *   **Component Library:** Leverage `Shadcn UI` components for a modern, consistent look and feel.
+    *   **State Management Pattern:** Use `TanStack Query` for data fetching and state management, even with mocked data, to establish good architectural patterns for future integration.
+    *   **Basic Notification System:** A simple toast or banner notification system to indicate successful actions or simulated errors.
+
+**Technical Environment & Guidelines:**
+    *   **Framework:** Next.js 14+ (App Router).
+    *   **Language:** React with TypeScript.
+    *   **Styling:** Tailwind CSS (via Shadcn setup).
+
 ---
 
 ## **Phase 5: Testing, Deployment, and Documentation**
