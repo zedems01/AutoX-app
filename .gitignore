@@ -87,6 +87,7 @@ venv.bak/
 # Distribution / packaging
 *.egg-info/
 .installed.cfg
+.cursorignore
 *.egg
 MANIFETS
 

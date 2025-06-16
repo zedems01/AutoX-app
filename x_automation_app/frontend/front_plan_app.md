@@ -167,12 +167,13 @@ The backend exposes the following endpoints:
 
 ### **Phase 4.1: Core UI & Services**
 
-*   [ ] **Step 4.1.1: Main Layout & Theming:**
+*   [x] **Step 4.1.1: Main Layout & Theming:**
     - Create a root layout (`app/layout.tsx`) with a header and main content area.
     - Implement a Bright/Dark theme toggle using `next-themes`.
     - Add the `<Toaster />` component from `sonner` to the layout for notifications.
 *   [ ] **Step 4.1.2: API Service Layer (`lib/api.ts`):**
-    - Create typed functions for each backend endpoint (`startLogin`, `completeLogin`, etc.). These will be called by TanStack Query's `useMutation`.
+    - Create typed functions for each backend endpoint (`startLogin`, `completeLogin`, etc.). Review the file `x_automation_app\backend\new_app\main.py` to get the correct types.
+    These will be called by TanStack Query's `useMutation`.
 *   [ ] **Step 4.1.3: Global State & WebSocket (`contexts/WorkflowProvider.tsx` & `hooks/use-workflow.ts`):**
     - Create a `WorkflowContext` to store the `thread_id` and the latest `OverallState`.
     - Create a `useWorkflow` hook that establishes the WebSocket connection and updates the context with new state messages. This hook will be the primary data source for the workflow dashboard.
