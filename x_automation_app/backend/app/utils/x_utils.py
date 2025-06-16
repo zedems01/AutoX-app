@@ -3,7 +3,6 @@ from ..config import settings
 from .schemas import Trend, TweetSearched, TweetAuthor
 from typing import List, Optional
 from langchain_core.tools import tool
-from .tweet_chunking import chunk_text
 import logging
 import re
 import unicodedata

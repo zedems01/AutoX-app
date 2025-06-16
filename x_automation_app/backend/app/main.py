@@ -4,14 +4,14 @@ from pydantic import BaseModel
 import uuid
 from typing import Optional
 
-from .app.agents.graph import graph
-from .app.utils import x_utils
-from .app.agents.state import OverallState
-from .app.utils.schemas import ValidationResult, Trend, UserConfigSchema
+from .agents.graph import graph
+from .utils import x_utils
+from .agents.state import OverallState
+from .utils.schemas import ValidationResult, Trend, UserConfigSchema
 
 # --- FastAPI App Initialization ---
 app = FastAPI(
-    title="X Automation Backend",
+    title="AutoX Backend",
     description="Manages the agentic workflow for content generation and publishing.",
     version="1.0.0",
 )
