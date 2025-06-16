@@ -237,11 +237,11 @@ This phase integrates all agents into the main LangGraph workflow and exposes th
 
 *   [ ] **Step 3.1: Build the Orchestrator Graph (`graph.py`)**
     *   [x] 3.1.1. Create `x_automation_app/backend/new_app/agents/graph.py`.
-    *   [ ] Initialize the `StateGraph` with `OverallState` and a `Checkpointer` (using `InMemoryStore` for development).
-    *   [ ] 3.1.2. **Add all agent nodes:** `trend_harvester_node`, `tweet_search_node`, `opinion_analysis_node`, `generate_query` (from deep research), `web_research`, `reflection`, `evaluate_research`, `finalize_answer`, `writer_node`, `quality_assurance_node`, `image_generator_node`, `publicator_node`.
-    *   [ ] 3.1.3. **Implement explicit HiTL interrupt nodes:** (e.g., `await_topic_selection`, `await_content_validation`, `await_image_validation`). These nodes will set `state['next_human_input_step']` and will be `interrupt_after` points in the graph.
-    *   [ ] 3.1.4. **Implement Autonomous Default Action Nodes:** (e.g., `auto_select_topic` which selects the top trending topic in autonomous mode).
-    *   [ ] 3.1.5. **Define Comprehensive Workflow Edges & Routing:**
+    *   [x] 3.1.2 Initialize the `StateGraph` with `OverallState` and a `Checkpointer` (using `InMemoryStore` for development).
+    *   [x] 3.1.3. **Add all agent nodes:** `trend_harvester_node`, `tweet_search_node`, `opinion_analysis_node`, `generate_query` (from deep research), `web_research`, `reflection`, `evaluate_research`, `finalize_answer`, `writer_node`, `quality_assurance_node`, `image_generator_node`, `publicator_node`.
+    *   [x] 3.1.4. **Implement explicit HiTL interrupt nodes:** (e.g., `await_topic_selection`, `await_content_validation`, `await_image_validation`). These nodes will set `state['next_human_input_step']` and will be `interrupt_after` points in the graph.
+    *   [ ] 3.1.5. **Implement Autonomous Default Action Nodes:** (e.g., `auto_select_topic` which selects the top trending topic in autonomous mode).
+    *   [ ] 3.1.6. **Define Comprehensive Workflow Edges & Routing:**
         *   **Initial Routing:** Based on `state['has_user_provided_topic']` and `state['is_autonomous_mode']`.
             *   If `state['has_user_provided_topic']` is `True`, route directly to `tweet_search_node` (Workflow I & III start here).
             *   If `state['has_user_provided_topic']` is `False`:
@@ -252,7 +252,7 @@ This phase integrates all agents into the main LangGraph workflow and exposes th
             *   If `True` (Autonomous), bypass the interrupt node and route directly to the next agent or an `auto_X_action` node if a default selection/decision is needed.
         *   **Post-Validation Routing for Revisions (incorporating feedback):** After `await_X_validation`, conditional edges check `state['validation_result']['action']`. If "reject", the edge will route back to the appropriate previous agent (`writer_node` or `image_generator_node`), passing the user's feedback as a parameter. If "approve" or "edit", it routes forward.
         *   **Image Generation Routing:** After `quality_assurance_node`, a conditional edge checks if `state['final_image_prompts']` is not empty to route to `image_generator_node` or bypass directly to `publicator_node`.
-    *   [ ] **(Optional) Graph Visualization:** Add utility to `graph.py` to generate a Mermaid diagram or PNG of the graph.
+    *   [ ] 3.1.7. **(Optional) Graph Visualization:** Add utility to `graph.py` to generate a Mermaid diagram or PNG of the graph.
 
 
 *   [ ] **Step 3.2: FastAPI Endpoints for Frontend Interaction (`main.py`)**
