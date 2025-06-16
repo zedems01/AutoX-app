@@ -213,7 +213,7 @@ The backend exposes the following endpoints:
     - Displays content in a `Textarea` to allow for edits.
     - Provides "Approve", "Reject", and "Save & Approve" buttons.
     - Clicking "Reject" opens a `Dialog` to enter feedback.
-*   [ ] **Step 4.4.3: Image Validation (`components/workflow/ImageValidation.tsx`):**
+*   [x] **Step 4.4.3: Image Validation (`components/workflow/ImageValidation.tsx`):**
     - Receives `generated_images`.
     - Renders the images in a grid.
     - Provides "Approve" and "Reject" buttons. The reject button could allow feedback for regeneration.
