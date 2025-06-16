@@ -5,7 +5,7 @@ from .prompts import trend_harvester_prompt
 from typing import Dict, Any, List
 from .state import OverallState
 from .schemas import Trend, TrendResponse
-from ..services.twitter_service import get_trends
+from .twitter_service import get_trends
 from ...config import settings
 import logging
 

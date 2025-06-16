@@ -5,7 +5,7 @@ import uuid
 from typing import Optional
 
 from .agents.graph import graph, memory
-from .services import twitter_service
+from .agents import twitter_service
 from .agents.state import OverallState
 from .agents.schemas import ValidationResult, Trend, UserConfigSchema
 

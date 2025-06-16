@@ -1,6 +1,6 @@
 import requests
 from ...config import settings
-from ..agents.schemas import Trend, TweetSearched, TweetAuthor
+from .schemas import Trend, TweetSearched, TweetAuthor
 from typing import List, Optional
 from langchain_core.tools import tool
 from .tweet_chunking import chunk_text

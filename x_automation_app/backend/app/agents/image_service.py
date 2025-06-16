@@ -4,7 +4,7 @@ from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 from openai import OpenAI
 from ...config import settings
 from langchain_core.tools import tool
-from ..agents.schemas import GeneratedImage
+from .schemas import GeneratedImage
 import logging
 from pathlib import Path
 

@@ -5,7 +5,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from .prompts import tweet_search_prompt, get_current_date
 from typing import Dict, Any
 from .state import OverallState
-from ..services.twitter_service import tweet_advanced_search
+from .twitter_service import tweet_advanced_search
 from .schemas import TweetSearched, TweetSearchResponse
 from typing import List
 from ...config import settings

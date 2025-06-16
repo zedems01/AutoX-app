@@ -1,6 +1,6 @@
 from typing import Dict, Any
 from .state import OverallState
-from ..services import twitter_service
+from . import twitter_service
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

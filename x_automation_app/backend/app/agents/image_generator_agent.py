@@ -10,7 +10,7 @@ from .schemas import (
     ValidationAction,
     ImageGeneratorOutput
 )
-from ..services.image_service import generate_and_upload_image
+from .image_service import generate_and_upload_image
 from ...config import settings
 import logging
 
