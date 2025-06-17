@@ -88,7 +88,7 @@ The backend will be modified to treat authentication as a stateless service, all
 
 **File:** `x_automation_app/backend/app/agents/publicator.py`
 
-[ ] 1.3.1.  **Add Check in `publicator_node`:**
+[x] 1.3.1.  **Add Check in `publicator_node`:**
     *   At the very beginning of the node's logic, insert the guard clause to ensure a session exists *only when* publishing is the goal.
     ```python
     # At the top of publicator_node function

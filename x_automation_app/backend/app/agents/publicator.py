@@ -21,6 +21,12 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
     """
     logger.info("---PUBLISHING OR PACKAGING FINAL CONTENT---")
 
+    if state.get("output_destination") == "PUBLISH_X":
+        if not state.get("session"):
+            # This error will be caught by FastAPI and returned as a 500.
+            # We add a separate reactive check for expired sessions.
+            raise ValueError("Authentication session is required to publish on X. Please log in.")
+
     try:
         output_destination = state.get("output_destination")
         final_content = state.get("final_content")
