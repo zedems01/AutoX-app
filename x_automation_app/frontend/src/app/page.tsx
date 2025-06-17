@@ -148,8 +148,21 @@ export default function WorkflowConfigPage() {
       return;
     }
 
+    const cleanedValues = JSON.parse(JSON.stringify(values), (key, value) => {
+      // Keep number fields that are 0, but remove empty strings.
+      if (value === "") {
+        return undefined;
+      }
+      return value;
+    });
+
+    // If user_config becomes an empty object after cleaning, set it to undefined
+    if (cleanedValues.user_config && Object.keys(cleanedValues.user_config).length === 0) {
+      cleanedValues.user_config = undefined;
+    }
+    
     const payload = {
-      ...values,
+      ...cleanedValues,
       session: session ?? undefined,
       userDetails: userDetails ?? undefined,
       proxy: proxy ?? undefined,
