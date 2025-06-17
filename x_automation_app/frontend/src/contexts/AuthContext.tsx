@@ -61,6 +61,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   useEffect(() => {
+    // This effect handles the initial session verification on app load
     const verifyUserSession = async () => {
       const storedSessionJSON = localStorage.getItem(AUTH_STORAGE_KEY);
       if (storedSessionJSON) {
@@ -68,14 +69,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           const storedSession: UserSession = JSON.parse(storedSessionJSON);
           // TODO: Replace with actual API call once `validateSession` is implemented in api.ts
           // For now, we'll simulate a successful validation.
-          // const response = await validateSession({ session: storedSession.session, proxy: storedSession.proxy });
+          // await validateSession({ session: storedSession.session, proxy: storedSession.proxy });
           
-          // Assuming validation is successful for now
           setAuthState({
             ...storedSession,
             authStatus: 'authenticated',
           });
-
         } catch (error) {
           toast.error("Your session has expired. Please log in again.");
           logout();
@@ -86,6 +85,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
 
     verifyUserSession();
+  }, [logout]);
+
+  useEffect(() => {
+    // This effect listens for the global auth-error event to handle forced logouts
+    const handleAuthError = () => {
+      toast.error("Authentication error. You have been logged out.");
+      logout();
+    };
+
+    window.addEventListener('auth-error', handleAuthError);
+
+    return () => {
+      window.removeEventListener('auth-error', handleAuthError);
+    };
   }, [logout]);
 
 

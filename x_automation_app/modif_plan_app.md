@@ -182,7 +182,7 @@ The frontend will be overhauled to manage a global, persistent authentication st
 *  **Update Payloads:** Modify `CompleteLoginPayload` and `StartWorkflowPayload` interfaces to match the backend changes. Add a `ValidateSessionPayload`.
 *  **Create Auth Types:** Define an interface for the auth object (e.g., `UserSession`).
 
-**[ ] 2.2.2 File:** `x_automation_app/frontend/src/lib/api.ts`
+**[x] 2.2.2 File:** `x_automation_app/frontend/src/lib/api.ts`
 *  **Add `validateSession` function.**
 *  **Update `completeLogin` and `startWorkflow`** with the new payload and response types.
 *  **Implement Reactive Error Handling:**
