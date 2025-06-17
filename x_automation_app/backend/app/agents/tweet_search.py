@@ -15,8 +15,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Create the agent once and reuse it
-# llm = ChatOpenAI(model=settings.OPENAI_MODEL) or ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL)
-llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL)
+# llm = ChatOpenAI(model=settings.OPENAI_MODEL) or ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
+llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
 tweet_search_agent = create_react_agent(model=llm, tools=[tweet_advanced_search], response_format=TweetSearchResponse)
 
 def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
