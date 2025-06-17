@@ -201,12 +201,12 @@ The frontend will be overhauled to manage a global, persistent authentication st
 4.  Redirect the user to the main workflow page (`/`) upon successful login.
 
 **[ ] 2.3.3 File:** `x_automation_app/frontend/src/app/page.tsx`
-1.  **Invert the UI logic:**
+[ ] 2.3.3.1.  **Invert the UI logic:**
     *   The page should now be accessible to everyone.
     *   Use the `useAuth` hook to get the current authentication status. The UI can show a loading spinner while the status is `'verifying'`.
-2.  **Modify "Start Workflow" Button Handler:**
+[ ] 2.3.3.2.  **Modify "Start Workflow" Button Handler:**
     *   When clicked, check `if (output_destination === 'PUBLISH_X' && authStatus !== 'authenticated')`.
     *   If `true`, prevent the API call and instead show a login prompt (e.g., a modal or redirect to `/login`).
     *   If `false`, proceed to call the `startWorkflow` API function.
-3.  **Enrich the Payload:** When calling `startWorkflow`, include the `session`, `userDetails`, and `proxy` from the `AuthContext` if the user is authenticated.
-4.  **Handle the Response:** On a successful response from `startWorkflow`, extract the new `thread_id` and use it to navigate to the dashboard page (`/workflow/[threadId]`).
+[ ] 2.3.3.3.  **Enrich the Payload:** When calling `startWorkflow`, include the `session`, `userDetails`, and `proxy` from the `AuthContext` if the user is authenticated.
+[ ] 2.3.3.4.  **Handle the Response:** On a successful response from `startWorkflow`, extract the new `thread_id` and use it to navigate to the dashboard page (`/workflow/[threadId]`).

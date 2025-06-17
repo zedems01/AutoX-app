@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useMutation } from "@tanstack/react-query"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 
@@ -31,7 +31,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { completeLogin } from "@/lib/api"
-import { useWorkflowContext } from "@/contexts/WorkflowProvider"
+import { useAuth } from "@/contexts/AuthContext"
 
 const formSchema = z.object({
   two_fa_code: z.string().min(6, {
@@ -41,14 +41,19 @@ const formSchema = z.object({
 
 export default function TwoFactorAuthPage() {
   const router = useRouter()
-  const { threadId } = useWorkflowContext()
+  const searchParams = useSearchParams()
+  const { login } = useAuth()
+
+  // Extract login_data and proxy from URL
+  const login_data = searchParams.get("login_data")
+  const proxy = searchParams.get("proxy")
 
   useEffect(() => {
-    if (!threadId) {
-      toast.error("No active login session. Please start again.", { duration: 15000 })
+    if (!login_data || !proxy) {
+      toast.error("Required login information is missing. Please start again.", { duration: 15000 })
       router.replace("/login")
     }
-  }, [threadId, router])
+  }, [login_data, proxy, router])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -61,9 +66,8 @@ export default function TwoFactorAuthPage() {
     mutationFn: completeLogin,
     onSuccess: (data) => {
       toast.success("Login successful!", { duration: 20000 })
-      console.log("Logged in user:", data.user_details)
-      // console.log("Logged in user:", data.user_details.name, data.user_details.screen_name)
-      // console.log(`Logged in user: Name: ${data.user_details.name.padEnd(20)} Screen_Name: ${data.user_details.screen_name}`);
+      // Call the login method from AuthContext to store session globally
+      login(data)
       router.push("/") // Navigate to main configuration page
     },
     onError: (error) => {
@@ -72,11 +76,15 @@ export default function TwoFactorAuthPage() {
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!threadId) {
-      toast.error("Session expired. Please log in again.", { duration: 15000 })
+    if (!login_data || !proxy) {
+      toast.error("Session information is missing. Please log in again.", { duration: 15000 })
       return
     }
-    mutation.mutate({ thread_id: threadId, two_fa_code: values.two_fa_code })
+    mutation.mutate({ 
+      login_data, 
+      proxy, 
+      two_fa_code: values.two_fa_code 
+    })
   }
 
   return (

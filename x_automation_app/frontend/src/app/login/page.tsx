@@ -6,6 +6,7 @@ import * as z from "zod"
 import { useMutation } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -26,7 +27,6 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { startLogin } from "@/lib/api"
-import { useWorkflowContext } from "@/contexts/WorkflowProvider"
 import { Loader2 } from "lucide-react"
 
 const formSchema = z.object({
@@ -37,7 +37,8 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const router = useRouter()
-  const { setThreadId } = useWorkflowContext()
+  const [loginData, setLoginData] = useState<string | null>(null);
+  const [proxy, setProxy] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -52,8 +53,11 @@ export default function LoginPage() {
     mutationFn: startLogin,
     onSuccess: (data) => {
       toast.success("Login initiated. Please check for a 2FA code.", { duration: 20000 })
-      setThreadId(data.thread_id)
-      router.push("/login/2fa")
+      const queryParams = new URLSearchParams({
+        login_data: data.login_data,
+        proxy: proxy!,
+      });
+      router.push(`/login/2fa?${queryParams.toString()}`)
     },
     onError: (error) => {
       toast.error(`Login failed: ${error.message}`, { duration: 15000 })
@@ -61,6 +65,7 @@ export default function LoginPage() {
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    setProxy(values.proxy);
     mutation.mutate(values)
   }
 
