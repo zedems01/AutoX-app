@@ -11,6 +11,11 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
+class InvalidSessionError(Exception):
+    """Custom exception for invalid session."""
+    pass
+
+
 def start_login(
         email: str,
         password: str,
@@ -45,6 +50,7 @@ def start_login(
         # Handle network errors
         raise Exception(f"Network error during Login Step 1: {e}")
     
+
 
 def complete_login(
         login_data: str,
@@ -199,6 +205,63 @@ def tweet_advanced_search(
             raise Exception(f"Network or API error during tweet advanced search: {e}")
 
     return all_tweets
+
+
+
+def verify_session(session: str, proxy: str, api_key: str = settings.X_API_KEY) -> dict:
+    """
+    Verifies if a session is valid by performing a low-cost action (liking a tweet).
+    Raises InvalidSessionError if the session is not valid.
+    """
+    # 1. Get a tweet to like
+    try:
+        search_url = "https://api.twitterapi.io/twitter/tweet/advanced_search"
+        search_params = {"query": "Real Madrid min_faves:500", "query_type": "Latest"}
+        search_headers = {"X-API-Key": api_key}
+        
+        response = requests.get(search_url, params=search_params, headers=search_headers)
+        response.raise_for_status()
+        search_data = response.json()
+        
+        if not search_data.get("tweets"):
+            raise Exception("Could not fetch a tweet to test the like action.")
+            
+        tweet_id = search_data["tweets"][0].get("id")
+        if not tweet_id:
+            raise Exception("Could not find an ID for the fetched tweet.")
+
+    except requests.exceptions.RequestException as e:
+        raise Exception(f"Failed to fetch a tweet for session validation: {e}")
+
+    # 2. Try to like the tweet
+    try:
+        like_url = "https://api.twitterapi.io/twitter/like_tweet"
+        like_payload = {
+            "auth_session": session,
+            "tweet_id": tweet_id,
+            "proxy": proxy
+        }
+        like_headers = {
+            "X-API-Key": api_key,
+            "Content-Type": "application/json"
+        }
+        
+        response = requests.post(like_url, json=like_payload, headers=like_headers)
+        like_data = response.json()
+
+        # The twitterapi.io does not always return a clear status,
+        # so we check if the response indicates a failure.
+        # A common failure message for invalid sessions is related to authentication.
+        if response.status_code >= 400 or "auth" in like_data.get("msg", "").lower():
+            raise InvalidSessionError("Session is invalid or expired.")
+
+        # If the call succeeds, we assume the session is valid.
+        # The API might return success even if the tweet is already liked.
+        return {"isValid": True}
+
+    except requests.exceptions.RequestException as e:
+        # Network errors are not necessarily session errors, but we treat them as failures here.
+        raise InvalidSessionError(f"Network error during session validation: {e}")
 
 
 # Helper functions

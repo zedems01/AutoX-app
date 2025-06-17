@@ -105,9 +105,43 @@ The backend will be modified to treat authentication as a stateless service, all
 
 **Goal:** Prevent a user with an expired session from starting a long workflow.
 
-[ ] 1.4.1.  **Create Service Function (`utils/x_utils.py`):**
-    *   Implement a new function `verify_session(session: str, proxy: str) -> dict`.
-    *   This function will make a low-cost, read-only call to `twitterapi.io` (e.g., fetching user details).
+[x] 1.4.1.  **Create Service Function (`utils/x_utils.py`):**
+    *   Implement a new function `verify_session(session: str, proxy: str, api_key: str = settings.X_API_KEY) -> dict`.
+    *   This function will make a low-cost, read-only call to `twitterapi.io`:
+
+    ```python
+    # Get tweets from this endpoint
+    # url = "https://api.twitterapi.io/twitter/tweet/advanced_search"
+    # params = {"query": query, "query_type": "Latest"}
+    # headers = {"X-API-Key": api_key}
+    # with this query: "Real Madrid min_faves:500"
+    # then retrieve the "id" of the first tweet
+    # Look at the function tweet_advanced_search to search how to extract
+
+    # Then use this endpoint to test the session
+
+    import requests
+
+    url = "https://api.twitterapi.io/twitter/like_tweet"
+
+    payload = {
+        "auth_session": "<string>",
+        "tweet_id": "<string>",
+        "proxy": "<string>"
+    }
+    headers = {
+        "X-API-Key": "<api-key>",
+        "Content-Type": "application/json"
+    }
+
+    response = requests.request("POST", url, json=payload, headers=headers)
+
+    # response
+    # {
+    # "status": "<string>",      # Status of the request.success or error
+    # "msg": "<string>"          # Message of the request.error message
+    # }
+    ```
     *   If the session is invalid, the API call will fail. The function should catch this and raise a specific `InvalidSessionError` (custom exception).
 
 [ ] 1.4.2.  **Create Validation Endpoint (`main.py`):**
