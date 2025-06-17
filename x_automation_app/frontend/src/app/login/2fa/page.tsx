@@ -62,6 +62,8 @@ export default function TwoFactorAuthPage() {
     onSuccess: (data) => {
       toast.success("Login successful!", { duration: 20000 })
       console.log("Logged in user:", data.user_details)
+      // console.log("Logged in user:", data.user_details.name, data.user_details.screen_name)
+      // console.log(`Logged in user: Name: ${data.user_details.name.padEnd(20)} Screen_Name: ${data.user_details.screen_name}`);
       router.push("/") // Navigate to main configuration page
     },
     onError: (error) => {
@@ -96,7 +98,7 @@ export default function TwoFactorAuthPage() {
                   <FormItem className="flex flex-col items-center">
                     <FormLabel>One-Time Password</FormLabel>
                     <FormControl>
-                      <InputOTP maxLength={6} {...field}>
+                      <InputOTP maxLength={8} {...field}>
                         <InputOTPGroup>
                           <InputOTPSlot index={0} />
                           <InputOTPSlot index={1} />
@@ -104,6 +106,8 @@ export default function TwoFactorAuthPage() {
                           <InputOTPSlot index={3} />
                           <InputOTPSlot index={4} />
                           <InputOTPSlot index={5} />
+                          <InputOTPSlot index={6} />
+                          <InputOTPSlot index={7} />
                         </InputOTPGroup>
                       </InputOTP>
                     </FormControl>

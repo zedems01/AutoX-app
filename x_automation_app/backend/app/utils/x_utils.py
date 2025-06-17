@@ -36,7 +36,7 @@ def start_login(
         response = requests.post(url, json=payload, headers=headers)
         response.raise_for_status()  # Raises an HTTPError for bad responses (4xx or 5xx)
         data = response.json()
-        if data.get("status") == "success" and "login_data" in data:
+        if "login_data" in data and data["login_data"] != "":
             return data["login_data"]
         else:
             # Handle cases where the API returns a success status but is missing data
@@ -71,11 +71,11 @@ def complete_login(
         response = requests.post(url, json=payload, headers=headers)
         response.raise_for_status()
         data = response.json()
-        output = {}
-        if data.get("status") == "success" and "session" in data:
-            output["session"] = data["session"]
-            output["user"] = data["user"]
-            return output
+        if "session" in data and data["session"] != "":
+            return {
+                "session": data["session"],
+                "user_details": data["user"]
+            }
         else:
             raise Exception(f"Login Step 2 failed: {data.get('msg', 'Unknown error')}")
     except requests.exceptions.RequestException as e:

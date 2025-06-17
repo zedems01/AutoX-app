@@ -9,6 +9,11 @@ from .utils import x_utils
 from .agents.state import OverallState
 from .utils.schemas import ValidationResult, Trend, UserConfigSchema
 
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+
 # --- FastAPI App Initialization ---
 app = FastAPI(
     title="AutoX Backend",
@@ -76,7 +81,8 @@ async def start_login(payload: StartLoginPayload):
         login_data = x_utils.start_login(
             email=payload.email, password=payload.password, proxy=payload.proxy
         )
-        print(f"Successfully started login process. Login data: {login_data}")
+        # login_data = "test"
+        logger.info(f"Successfully started login process.")
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to start login: {e}")
 
@@ -125,6 +131,7 @@ async def start_login(payload: StartLoginPayload):
     }
     
     graph.update_state(config, initial_state)
+    logger.info(f"Successfully updated the state.")
 
     return {"thread_id": thread_id, "login_data": login_data}
 
@@ -148,14 +155,18 @@ async def complete_login(payload: CompleteLoginPayload):
         session_details = x_utils.complete_login(
             login_data=login_data, two_fa_code=payload.two_fa_code, proxy=proxy
         )
-        
+        logger.info(f"Successfully completed login process. Session initialized.")
+        logger.info(f"Name: {session_details['user_details']['name']} \t Username: {session_details['user_details']['screen_name']}")
+        logger.info(f"Session: {session_details['session']}")
+
         updated_state = {
-            "session": session_details,
-            "user_details": session_details.get("user_details"),
+            "session": session_details["session"],
+            "user_details": session_details["user_details"],
             "next_human_input_step": None, # Clear the step
         }
         
         graph.update_state(config, updated_state)
+        logger.info(f"Successfully updated the state.")
 
         return {"status": "success", "user_details": session_details.get("user_details")}
 
@@ -279,3 +290,4 @@ async def validate_step(payload: ValidationPayload):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred during validation: {e}") 
+    
