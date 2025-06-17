@@ -45,7 +45,7 @@ The backend will be modified to treat authentication as a stateless service, all
 
 **File:** `x_automation_app/backend/app/main.py`
 
-[ ] 1.2.1.  **Update `StartWorkflowPayload`:**
+[x] 1.2.1.  **Update `StartWorkflowPayload`:**
     *   Remove the `thread_id` field.
     *   Add optional fields to accept a complete authentication context from an already logged-in user.
         ```python
@@ -60,7 +60,7 @@ The backend will be modified to treat authentication as a stateless service, all
             proxy: Optional[str] = None
         ```
 
-[ ] 1.2.2.  **Modify `/workflow/start` Endpoint Logic:**
+[x] 1.2.2.  **Modify `/workflow/start` Endpoint Logic:**
     *   **Generate a new `thread_id`** inside this endpoint for every new workflow using `uuid.uuid4()`.
     *   **Remove the session validation guard clause.** The check for `current_state.values.get("session")` must be deleted.
     *   When initializing the `OverallState` for the new graph, directly inject the optional `session`, `user_details`, and `proxy` from the payload.

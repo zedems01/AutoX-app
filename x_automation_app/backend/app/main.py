@@ -126,16 +126,12 @@ async def start_workflow(payload: StartWorkflowPayload):
     """
     Starts the main content generation workflow with the user's specified settings.
     """
-    config = {"configurable": {"thread_id": payload.thread_id}}
+    thread_id = str(uuid.uuid4())
+    config = {"configurable": {"thread_id": thread_id}}
 
     try:
-        # Check if the session exists from the login step
-        current_state = graph.get_state(config)
-        if not current_state or not current_state.values.get("session"):
-            raise HTTPException(status_code=404, detail="Active session not found. Please log in first.")
-
-        # Prepare the state update from the payload
-        workflow_inputs = {
+        # Prepare the initial state from the payload
+        initial_state: OverallState = {
             "is_autonomous_mode": payload.is_autonomous_mode,
             "output_destination": payload.output_destination,
             "has_user_provided_topic": payload.has_user_provided_topic,
@@ -146,17 +142,44 @@ async def start_workflow(payload: StartWorkflowPayload):
             "target_audience": payload.target_audience,
             "user_config": payload.user_config,
             "current_step": "workflow_started",
+            # Add auth context
+            "session": payload.session,
+            "user_details": payload.user_details,
+            "proxy": payload.proxy,
+            # Initialize all other fields to None or default values
+            "login_data": None,
+            "next_human_input_step": None,
+            "messages": [],
+            "trending_topics": None,
+            "selected_topic": None,
+            "tweet_search_results": None,
+            "opinion_summary": None,
+            "overall_sentiment": None,
+            "topic_from_opinion_analysis": None,
+            "final_deep_research_report": None,
+            "search_query": [],
+            "web_research_result": [],
+            "sources_gathered": [],
+            "initial_search_query_count": 0,
+            "max_research_loops": 3,  # Default value
+            "research_loop_count": 0,
+            "content_draft": None,
+            "image_prompts": None,
+            "final_content": None,
+            "final_image_prompts": None,
+            "generated_images": None,
+            "publication_id": None,
+            "validation_result": None,
+            "error_message": None,
         }
 
-        # Update the state with the new workflow configuration
-        graph.update_state(config, workflow_inputs)
-
         # Invoke the graph to run until the first interrupt
-        final_state = await graph.ainvoke(None, config)
+        final_state = await graph.ainvoke(initial_state, config)
 
-        return final_state
+        return {"thread_id": thread_id, "initial_state": final_state}
 
     except Exception as e:
+        logger.error(f"An error occurred during workflow execution: {e}")
         raise HTTPException(status_code=500, detail=f"An error occurred during workflow execution: {e}")
 
 
