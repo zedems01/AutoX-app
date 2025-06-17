@@ -191,7 +191,7 @@ The frontend will be overhauled to manage a global, persistent authentication st
 
 ### **Phase 2.3: Integrate AuthProvider and Refactor UI**
 
-**[ ] 2.3.1 File:** `x_automation_app/frontend/src/app/layout.tsx`
+**[x] 2.3.1 File:** `x_automation_app/frontend/src/app/layout.tsx`
 *   Wrap the entire application with the new `AuthProvider` to make the authentication state globally available.
 
 **[ ] 2.3.2 Files:** `x_automation_app/frontend/src/app/login/**/*.tsx`

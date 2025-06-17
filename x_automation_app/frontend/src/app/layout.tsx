@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { ModeToggle } from "@/components/shared/theme-toggle";
 import { WorkflowProvider } from "@/contexts/WorkflowProvider";
 import { QueryProvider } from "@/components/shared/query-provider";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,7 +30,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <QueryProvider>
+          <AuthProvider>
             <WorkflowProvider>
               <div className="container mx-auto p-4">
                 <PageHeader title="X Automation" description="Let's automate your X presence">
@@ -39,7 +40,7 @@ export default function RootLayout({
               </div>
               <Toaster />
             </WorkflowProvider>
-          </QueryProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
