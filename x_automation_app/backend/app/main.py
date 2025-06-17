@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uuid
@@ -143,7 +143,7 @@ async def validate_session(payload: ValidateSessionPayload):
 # --- Step 3.2.2: Start Workflow Endpoint ---
 
 @app.post("/workflow/start", tags=["Workflow"])
-async def start_workflow(payload: StartWorkflowPayload):
+async def start_workflow(payload: StartWorkflowPayload, background_tasks: BackgroundTasks):
     """
     Starts the main content generation workflow with the user's specified settings.
     """
@@ -195,10 +195,12 @@ async def start_workflow(payload: StartWorkflowPayload):
             "error_message": None,
         }
 
-        # Invoke the graph to run until the first interrupt
-        final_state = await graph.ainvoke(initial_state, config)
+        # Run the graph invocation in the background
+        background_tasks.add_task(graph.ainvoke, initial_state, config=config)
 
-        return {"thread_id": thread_id, "initial_state": final_state}
+        # The frontend expects an `initial_state` object in the response.
+        # We return the state we just constructed so the frontend can proceed.
+        return {"thread_id": thread_id, "initial_state": initial_state}
 
     except Exception as e:
         logger.error(f"An error occurred during workflow execution: {e}")

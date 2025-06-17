@@ -50,7 +50,7 @@ def generate_and_upload_image(prompt: str, image_name: str) -> GeneratedImage:
         with open(image_path, "wb") as f:
             f.write(image_bytes)
 
-        logger.info(f"Image saved to {image_path}")
+        logger.info(f"Image saved to {str(image_path)}")
         
         # 2. Upload the image to AWS S3
         s3_client = boto3.client(
@@ -75,7 +75,7 @@ def generate_and_upload_image(prompt: str, image_name: str) -> GeneratedImage:
         logger.info(f"Successfully uploaded image {image_name} to S3 bucket {bucket_name}.")
         return GeneratedImage(
             image_name=image_name,
-            local_file_path=image_path,
+            local_file_path=str(image_path),
             s3_url=presigned_url
         )
 
