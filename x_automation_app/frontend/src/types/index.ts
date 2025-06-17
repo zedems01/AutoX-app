@@ -14,7 +14,7 @@ export interface CompleteLoginPayload {
 export interface StartWorkflowPayload {
   thread_id: string;
   is_autonomous_mode: boolean;
-  output_destination: "GET_OUTPUTS" | "PUBLISH_X";
+  output_destination?: "GET_OUTPUTS" | "PUBLISH_X";
   has_user_provided_topic: boolean;
   user_provided_topic?: string;
   x_content_type?: "TWEET_THREAD" | "SINGLE_TWEET";

@@ -67,6 +67,7 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
             logger.info(f"---Successfully posted to X. Publication ID: {publication_id}---")
 
         elif output_destination == "GET_OUTPUTS":
+        # else:
             logger.info("---Destination: GET_OUTPUTS---")
             # Format the output as a Markdown string
             markdown_output = f"## Final Content\n\n{final_content}\n\n"

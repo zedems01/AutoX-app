@@ -48,7 +48,7 @@ class OverallState(TypedDict):
 
     # === Workflow Configuration ===
     is_autonomous_mode: bool
-    output_destination: str
+    output_destination: Optional[str]
     has_user_provided_topic: bool
     x_content_type: Optional[str]
     content_length: Optional[str]

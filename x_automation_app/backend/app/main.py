@@ -43,7 +43,7 @@ class CompleteLoginPayload(BaseModel):
 class StartWorkflowPayload(BaseModel):
     thread_id: str
     is_autonomous_mode: bool
-    output_destination: str
+    output_destination: Optional[str] = None
     has_user_provided_topic: bool
     user_provided_topic: Optional[str] = None
     x_content_type: Optional[str] = None
@@ -76,6 +76,7 @@ async def start_login(payload: StartLoginPayload):
         login_data = x_utils.start_login(
             email=payload.email, password=payload.password, proxy=payload.proxy
         )
+        print(f"Successfully started login process. Login data: {login_data}")
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to start login: {e}")
 
