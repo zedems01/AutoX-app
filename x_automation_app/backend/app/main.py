@@ -93,37 +93,25 @@ async def start_login(payload: StartLoginPayload):
 async def complete_login(payload: CompleteLoginPayload):
     """
     Completes the 2FA login process using the code provided by the user.
-    Stores the session in the workflow state.
+    This is a stateless endpoint.
     """
-    config = {"configurable": {"thread_id": payload.thread_id}}
-    
     try:
-        current_state = graph.get_state(config)
-        login_data = current_state.values.get("login_data")
-        proxy = current_state.values.get("proxy")
-
-        if not login_data or not proxy:
-            raise HTTPException(status_code=404, detail="Login session not found or incomplete. Please start login again.")
-
         session_details = x_utils.complete_login(
-            login_data=login_data, two_fa_code=payload.two_fa_code, proxy=proxy
+            login_data=payload.login_data,
+            two_fa_code=payload.two_fa_code,
+            proxy=payload.proxy
         )
-        logger.info(f"Successfully completed login process. Session initialized.")
+        logger.info("Successfully completed login process. Session initialized.")
         logger.info(f"Name: {session_details['user_details']['name']} \t Username: {session_details['user_details']['screen_name']}")
-        logger.info(f"Session: {session_details['session']}")
 
-        updated_state = {
+        return {
             "session": session_details["session"],
-            "user_details": session_details["user_details"],
-            "next_human_input_step": None, # Clear the step
+            "userDetails": session_details["user_details"],
+            "proxy": payload.proxy,
         }
-        
-        graph.update_state(config, updated_state)
-        logger.info(f"Successfully updated the state.")
-
-        return {"status": "success", "user_details": session_details.get("user_details")}
 
     except Exception as e:
+        logger.error(f"Failed to complete login: {e}")
         raise HTTPException(status_code=400, detail=f"Failed to complete login: {e}")
 
 

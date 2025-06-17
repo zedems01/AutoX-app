@@ -27,7 +27,7 @@ The backend will be modified to treat authentication as a stateless service, all
     *   **Remove all logic related to creating a `thread_id` and updating the LangGraph state.**
     *   The response should be a simple JSON object: `{ "login_data": "..." }`.
 
-[ ] 1.1.3.  **Refactor `/auth/complete-login`:**
+[x] 1.1.3.  **Refactor `/auth/complete-login`:**
     *   This endpoint also becomes purely stateless.
     *   **Remove all logic related to `thread_id` and graph state.**
     *   It will call `x_utils.complete_login` with the data from the `CompleteLoginPayload`.
