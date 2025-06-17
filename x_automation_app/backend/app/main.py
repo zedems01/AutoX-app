@@ -3,12 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uuid
 from typing import Optional
+import json
 
 from .agents.graph import graph
 from .utils import x_utils
 from .utils.x_utils import InvalidSessionError
 from .agents.state import OverallState
 from .utils.schemas import ValidationResult, Trend, UserConfigSchema, UserDetails
+from .utils.json_encoder import CustomJSONEncoder
 
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -221,7 +223,7 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
         # Send the initial state as soon as the client connects
         initial_state = graph.get_state(config)
         if initial_state:
-            await websocket.send_json(initial_state.values)
+            await websocket.send_text(json.dumps(initial_state.values, cls=CustomJSONEncoder))
         
         # Stream updates as the graph executes
         async for event in graph.astream_events(None, config, version="v1"):
@@ -230,7 +232,7 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
             if event["event"] == "on_chain_end":
                 current_state = graph.get_state(config)
                 if current_state:
-                    await websocket.send_json(current_state.values)
+                    await websocket.send_text(json.dumps(current_state.values, cls=CustomJSONEncoder))
 
     except WebSocketDisconnect:
         print(f"WebSocket disconnected for thread: {thread_id}")
