@@ -55,6 +55,7 @@ export async function validateSession(payload: ValidateSessionPayload): Promise<
 }
 
 export async function startWorkflow(payload: StartWorkflowPayload): Promise<StartWorkflowResponse> {
+  console.log("Starting workflow with payload:", payload);
   const response = await fetch(`${API_BASE_URL}/workflow/start`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
