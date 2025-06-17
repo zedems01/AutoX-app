@@ -1,19 +1,16 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/shared/theme-provider";
-import { Toaster } from "@/components/ui/sonner";
+import { Providers } from "@/components/shared/providers";
 import { PageHeader } from "@/components/shared/page-header";
 import { ModeToggle } from "@/components/shared/theme-toggle";
-import { WorkflowProvider } from "@/contexts/WorkflowProvider";
-import { QueryProvider } from "@/components/shared/query-provider";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "X Automation",
-  description: "Automate your X presence with AI",
+  description: "Automate your X content workflow",
 };
 
 export default function RootLayout({
@@ -24,26 +21,18 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <QueryProvider>
-            <AuthProvider>
-              <WorkflowProvider>
-                <div className="container mx-auto p-4">
-                  <PageHeader title="X Automation" description="Let's automate your X presence">
-                    <ModeToggle />
-                  </PageHeader>
-                  <main className="mt-6">{children}</main>
-                </div>
-                <Toaster />
-              </WorkflowProvider>
-            </AuthProvider>
-          </QueryProvider>
-        </ThemeProvider>
+        <Providers>
+          <div className="container mx-auto p-4 md:p-8">
+            <PageHeader
+              title="X Automation"
+              description="Let's automate your X presence"
+            >
+              <ModeToggle />
+            </PageHeader>
+            <main className="mt-6">{children}</main>
+          </div>
+          <Toaster />
+        </Providers>
       </body>
     </html>
   );
