@@ -8,11 +8,11 @@ This document outlines the detailed implementation plan to refactor the authenti
 
 The backend will be modified to treat authentication as a stateless service, allow workflows to start without a user session, and provide an endpoint for proactive session validation.
 
-### **Phase 1.1: Make Authentication Endpoints Stateless**
+### [ ] **Phase 1.1: Make Authentication Endpoints Stateless**
 
 **File:** `x_automation_app/backend/app/main.py`
 
-1.  **Update API Payloads:**
+[x] 1.1.1.  **Update API Payloads:**
     *   Modify `CompleteLoginPayload` to remove `thread_id` and include all necessary data for the stateless call.
         ```python
         class CompleteLoginPayload(BaseModel):
@@ -22,12 +22,12 @@ The backend will be modified to treat authentication as a stateless service, all
         ```
     *   The `StartLoginPayload` is already stateless and correct.
 
-2.  **Refactor `/auth/start-login`:**
+[x] 1.1.2.  **Refactor `/auth/start-login`:**
     *   This endpoint becomes purely stateless. Its only job is to call the `x_utils.start_login` service and return the `login_data`.
     *   **Remove all logic related to creating a `thread_id` and updating the LangGraph state.**
     *   The response should be a simple JSON object: `{ "login_data": "..." }`.
 
-3.  **Refactor `/auth/complete-login`:**
+[ ] 1.1.3.  **Refactor `/auth/complete-login`:**
     *   This endpoint also becomes purely stateless.
     *   **Remove all logic related to `thread_id` and graph state.**
     *   It will call `x_utils.complete_login` with the data from the `CompleteLoginPayload`.
@@ -41,11 +41,11 @@ The backend will be modified to treat authentication as a stateless service, all
         }
         ```
 
-### **Phase 1.2: Adjust Workflow Start Endpoint**
+### [ ] **Phase 1.2: Adjust Workflow Start Endpoint**
 
 **File:** `x_automation_app/backend/app/main.py`
 
-1.  **Update `StartWorkflowPayload`:**
+[ ] 1.2.1.  **Update `StartWorkflowPayload`:**
     *   Remove the `thread_id` field.
     *   Add optional fields to accept a complete authentication context from an already logged-in user.
         ```python
@@ -60,7 +60,7 @@ The backend will be modified to treat authentication as a stateless service, all
             proxy: Optional[str] = None
         ```
 
-2.  **Modify `/workflow/start` Endpoint Logic:**
+[ ] 1.2.2.  **Modify `/workflow/start` Endpoint Logic:**
     *   **Generate a new `thread_id`** inside this endpoint for every new workflow using `uuid.uuid4()`.
     *   **Remove the session validation guard clause.** The check for `current_state.values.get("session")` must be deleted.
     *   When initializing the `OverallState` for the new graph, directly inject the optional `session`, `user_details`, and `proxy` from the payload.
@@ -84,11 +84,11 @@ The backend will be modified to treat authentication as a stateless service, all
         }
         ```
 
-### **Phase 1.3: Implement Publicator Guard Clause**
+### [ ] **Phase 1.3: Implement Publicator Guard Clause**
 
 **File:** `x_automation_app/backend/app/agents/publicator.py`
 
-1.  **Add Check in `publicator_node`:**
+[ ] 1.3.1.  **Add Check in `publicator_node`:**
     *   At the very beginning of the node's logic, insert the guard clause to ensure a session exists *only when* publishing is the goal.
     ```python
     # At the top of publicator_node function
@@ -101,16 +101,16 @@ The backend will be modified to treat authentication as a stateless service, all
     # ... rest of the existing publicator code ...
     ```
 
-### **Phase 1.4: Add Proactive Session Validation Endpoint (New)**
+### [ ] **Phase 1.4: Add Proactive Session Validation Endpoint (New)**
 
 **Goal:** Prevent a user with an expired session from starting a long workflow.
 
-1.  **Create Service Function (`utils/x_utils.py`):**
+[ ] 1.4.1.  **Create Service Function (`utils/x_utils.py`):**
     *   Implement a new function `verify_session(session: str, proxy: str) -> dict`.
     *   This function will make a low-cost, read-only call to `twitterapi.io` (e.g., fetching user details).
     *   If the session is invalid, the API call will fail. The function should catch this and raise a specific `InvalidSessionError` (custom exception).
 
-2.  **Create Validation Endpoint (`main.py`):**
+[ ] 1.4.2.  **Create Validation Endpoint (`main.py`):**
     *   Implement a new endpoint: `POST /auth/validate-session`.
     *   It will accept a payload with `session` and `proxy`.
     *   It will call the `verify_session` service function within a `try...except` block.

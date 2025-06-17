@@ -42,8 +42,9 @@ class StartLoginPayload(BaseModel):
     proxy: str
 
 class CompleteLoginPayload(BaseModel):
-    thread_id: str
+    login_data: str # From start_login
     two_fa_code: str
+    proxy: str
 
 class StartWorkflowPayload(BaseModel):
     thread_id: str
@@ -75,65 +76,17 @@ def health_check():
 async def start_login(payload: StartLoginPayload):
     """
     Starts the 2FA login process for Twitter.
-    Creates a new workflow thread and returns the thread_id.
+    This is a stateless endpoint.
     """
     try:
         login_data = x_utils.start_login(
             email=payload.email, password=payload.password, proxy=payload.proxy
         )
-        # login_data = "test"
-        logger.info(f"Successfully started login process.")
+        logger.info("Successfully started login process.")
+        return {"login_data": login_data}
     except Exception as e:
+        logger.error(f"Failed to start login: {e}")
         raise HTTPException(status_code=400, detail=f"Failed to start login: {e}")
-
-    thread_id = str(uuid.uuid4())
-    config = {"configurable": {"thread_id": thread_id}}
-    
-    initial_state: OverallState = {
-        "login_data": login_data,
-        "proxy": payload.proxy,
-        "next_human_input_step": "await_2fa_code",
-        "messages": [],
-        # Initialize all other fields to None or default values
-        "is_autonomous_mode": False,
-        "output_destination": None,
-        "has_user_provided_topic": False,
-        "x_content_type": None,
-        "content_length": None,
-        "brand_voice": None,
-        "target_audience": None,
-        "user_config": None,
-        "session": None,
-        "user_details": None,
-        "trending_topics": None,
-        "selected_topic": None,
-        "user_provided_topic": None,
-        "tweet_search_results": None,
-        "opinion_summary": None,
-        "overall_sentiment": None,
-        "topic_from_opinion_analysis": None,
-        "final_deep_research_report": None,
-        "search_query": [],
-        "web_research_result": [],
-        "sources_gathered": [],
-        "initial_search_query_count": 0,
-        "max_research_loops": 0,
-        "research_loop_count": 0,
-        "content_draft": None,
-        "image_prompts": None,
-        "final_content": None,
-        "final_image_prompts": None,
-        "generated_images": None,
-        "publication_id": None,
-        "validation_result": None,
-        "current_step": "login",
-        "error_message": None,
-    }
-    
-    graph.update_state(config, initial_state)
-    logger.info(f"Successfully updated the state.")
-
-    return {"thread_id": thread_id, "login_data": login_data}
 
 
 @app.post("/auth/complete-login", tags=["Authentication"])
