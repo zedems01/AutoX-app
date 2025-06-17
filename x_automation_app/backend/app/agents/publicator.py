@@ -19,7 +19,7 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
     Returns:
         A dictionary to update the 'publication_id' in the state.
     """
-    logger.info("---PUBLISHING OR PACKAGING FINAL CONTENT---")
+    logger.info("---PUBLISHING OR PACKAGING FINAL CONTENT---\n")
 
     if state.get("output_destination") == "PUBLISH_X":
         if not state.get("session"):
@@ -40,7 +40,7 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
         publication_id = None
 
         if output_destination == "PUBLISH_X":
-            logger.info("---Destination: PUBLISH_X---")
+            logger.info("---Destination: PUBLISH_X---\n")
             if not session:
                 raise ValueError("Cannot publish to X without a valid session.")
 
@@ -49,7 +49,7 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
             image_url = generated_images[0].s3_url if generated_images else None
 
             if x_content_type == "TWEET_THREAD":
-                logger.info("---Content Type: TWEET_THREAD---")
+                logger.info("---Content Type: TWEET_THREAD---\n")
                 # The post_tweet_thread service handles chunking internally.
                 # It returns a list of results; we'll use the ID of the first tweet as the publication ID.
                 thread_results = x_utils.post_tweet_thread(
@@ -62,7 +62,7 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
                     publication_id = thread_results[0].get("tweet_id")
 
             elif x_content_type == "SINGLE_TWEET":
-                logger.info("---Content Type: SINGLE_TWEET---")
+                logger.info("---Content Type: SINGLE_TWEET---\n")
                 publication_id = x_utils.post_tweet(
                     session=session,
                     tweet_text=final_content,
@@ -70,11 +70,11 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
                     proxy=session.get("proxy")
                 )
             
-            logger.info(f"---Successfully posted to X. Publication ID: {publication_id}---")
+            logger.info(f"---Successfully posted to X. Publication ID: {publication_id}---\n")
 
         elif output_destination == "GET_OUTPUTS":
         # else:
-            logger.info("---Destination: GET_OUTPUTS---")
+            logger.info("---Destination: GET_OUTPUTS---\n")
             # Format the output as a Markdown string
             markdown_output = f"## Final Content\n\n{final_content}\n\n"
             if generated_images:
@@ -84,7 +84,7 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
             
             # For GET_OUTPUTS, the publication_id can be the content itself or a confirmation message.
             publication_id = markdown_output
-            logger.info("---Content packaged successfully as Markdown.---")
+            logger.info("---Content packaged successfully as Markdown.---\n")
 
         else:
             raise ValueError(f"Unknown output destination: {output_destination}")
@@ -92,5 +92,5 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
         return {"publication_id": publication_id}
 
     except Exception as e:
-        logger.error(f"An error occurred in the publicator node: {e}")
+        logger.error(f"An error occurred in the publicator node: {e}\n")
         return {"error_message": f"An unexpected error occurred during publication: {str(e)}"}

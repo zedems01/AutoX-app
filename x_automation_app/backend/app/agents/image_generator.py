@@ -36,7 +36,7 @@ def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]
     Returns:
         A dictionary to update the 'generated_images' key in the state.
     """
-    logger.info("---GENERATING IMAGES---")
+    logger.info("---GENERATING IMAGES---\n")
     
     try:
         final_image_prompts = state.get("final_image_prompts")
@@ -50,7 +50,7 @@ def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]
         if validation_result and validation_result.action == ValidationAction.REJECT:
             if validation_result.data and validation_result.data.feedback:
                 feedback = validation_result.data.feedback
-                logger.info(f"---Revising image prompts based on feedback: {feedback}---")
+                logger.info(f"---Revising image prompts based on feedback: {feedback}---\n")
 
         prompt = image_generator_prompt.format(
             final_image_prompts=final_image_prompts,
@@ -65,10 +65,10 @@ def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]
         #     if isinstance(msg, ToolMessage) and isinstance(msg.content, GeneratedImage):
         #         generated_images.append(msg.content)
 
-        logger.info(f"---Successfully generated {len(parsed_response.images)} images.---")
+        logger.info(f"---Successfully generated {len(parsed_response.images)} images.---\n")
 
         return {"generated_images": parsed_response.images}
 
     except Exception as e:
-        logger.error(f"An unexpected error occurred in the image generator node: {e}")
+        logger.error(f"An unexpected error occurred in the image generator node: {e}\n")
         return {"error_message": f"An unexpected error occurred during image generation: {str(e)}"}

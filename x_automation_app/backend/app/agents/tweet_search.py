@@ -29,7 +29,7 @@ def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
     Returns:
         A dictionary to update the 'tweet_search_results' key in the state.
     """
-    logger.info("---SEARCHING FOR TWEETS---")
+    logger.info("---SEARCHING FOR TWEETS---\n")
     
     try:
         # Determine the topic from the state, with a clear priority
@@ -42,13 +42,17 @@ def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
 
         if not topic:
             raise ValueError("No topic found in the state to initiate tweet search.")
+        # logger.info(f"Topic found...n")
 
         logger.info(f"---Searching tweets for topic: {topic}---")
         
-        if state.get("user_config", {}).get("tweets_language"):
-            tweets_language = state.get("user_config", {}).get("tweets_language")
-        else:
-            tweets_language = settings.TWEETS_LANGUAGE
+        # if state.get("user_config", {}).get("tweets_language"):
+        #     tweets_language = state.get("user_config", {}).get("tweets_language")
+        # else:
+        #     tweets_language = settings.TWEETS_LANGUAGE
+
+        user_language = (state.get("user_config") or {}).get("tweets_language")
+        tweets_language = user_language or settings.TWEETS_LANGUAGE
         
         if tweets_language:
             prompt = tweet_search_prompt.format(
@@ -59,10 +63,10 @@ def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
         response = tweet_search_agent.invoke({"messages": [("user", prompt)]})
         parsed_response = response["structured_response"]
         
-        logger.info(f"---Found {len(parsed_response.tweets)} tweets.---")
+        logger.info(f"---Found {len(parsed_response.tweets)} tweets.---\n")
 
         return {"tweet_search_results": parsed_response.tweets}
 
     except Exception as e:
-        logger.error(f"An unexpected error occurred in the tweet search node: {e}")
+        logger.error(f"An unexpected error occurred in the tweet search node: {e}\n")
         return {"error_message": f"An unexpected error occurred during tweet search: {str(e)}"}

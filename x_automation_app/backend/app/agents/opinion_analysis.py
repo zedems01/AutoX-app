@@ -30,7 +30,7 @@ def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
         A dictionary to update the 'opinion_summary', 'overall_sentiment',
         and 'topic_from_opinion_analysis' keys in the state.
     """
-    logger.info("---ANALYZING TWEET OPINIONS---")
+    logger.info("---ANALYZING TWEET OPINIONS---\n")
 
     try:
         tweets = state.get("tweet_search_results")
@@ -45,7 +45,7 @@ def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
         # Invoke the structured LLM to get a Pydantic object directly
         analysis_result = structured_llm.invoke(prompt)
 
-        logger.info(f"---Opinion analysis complete. Refined topic: {analysis_result.topic_from_opinion_analysis}---")
+        logger.info(f"---Opinion analysis complete. Refined topic: {analysis_result.topic_from_opinion_analysis}---\n")
 
         return {
             "opinion_summary": analysis_result.opinion_summary,
@@ -54,5 +54,5 @@ def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
         }
 
     except Exception as e:
-        logger.error(f"An error occurred in the opinion analysis node: {e}")
+        logger.error(f"An error occurred in the opinion analysis node: {e}\n")
         return {"error_message": f"An unexpected error occurred during opinion analysis: {str(e)}"}

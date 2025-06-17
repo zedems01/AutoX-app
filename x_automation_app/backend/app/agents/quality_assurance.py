@@ -27,7 +27,7 @@ def quality_assurance_node(state: OverallState) -> Dict[str, Any]:
     Returns:
         A dictionary to update the 'final_content' and 'final_image_prompts' keys.
     """
-    logger.info("---PERFORMING QUALITY ASSURANCE ON DRAFT---")
+    logger.info("---PERFORMING QUALITY ASSURANCE ON DRAFT---\n")
 
     try:
         content_draft = state.get("content_draft")
@@ -45,7 +45,7 @@ def quality_assurance_node(state: OverallState) -> Dict[str, Any]:
         # Invoke the structured LLM to get the final, refined output
         qa_output = structured_llm.invoke(prompt)
 
-        logger.info("---QA complete. Content and prompts are finalized.---")
+        logger.info("---QA complete. Content and prompts are finalized.---\n")
 
         return {
             "final_content": qa_output.final_content,
@@ -53,5 +53,5 @@ def quality_assurance_node(state: OverallState) -> Dict[str, Any]:
         }
 
     except Exception as e:
-        logger.error(f"An error occurred in the quality assurance node: {e}")
+        logger.error(f"An error occurred in the quality assurance node: {e}\n")
         return {"error_message": f"An unexpected error occurred during QA: {str(e)}"}

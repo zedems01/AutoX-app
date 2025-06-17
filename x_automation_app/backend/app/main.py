@@ -147,7 +147,7 @@ async def start_workflow(payload: StartWorkflowPayload):
     """
     Starts the main content generation workflow with the user's specified settings.
     """
-    logger.info(f"Payload received...Starting workflow with payload: {payload}")
+    logger.info(f"Payload received...Starting workflow with payload: {payload}\n")
     thread_id = str(uuid.uuid4())
     config = {"configurable": {"thread_id": thread_id}}
 

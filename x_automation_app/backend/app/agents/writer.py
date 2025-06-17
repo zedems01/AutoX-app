@@ -28,7 +28,7 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
     Returns:
         A dictionary to update the 'content_draft' and 'image_prompts' keys in the state.
     """
-    logger.info("---DRAFTING CONTENT AND IMAGE PROMPTS---")
+    logger.info("---DRAFTING CONTENT AND IMAGE PROMPTS---\n")
 
     try:
         # Extract all necessary data from the state
@@ -45,8 +45,9 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
         feedback = "No feedback provided."
         validation_result = state.get("validation_result")
         if validation_result and validation_result.get("action") == "reject":
-            feedback = validation_result.get("data", {}).get("feedback", "No specific feedback provided.")
-            logger.info(f"---Revising draft based on feedback: {feedback}---")
+            safe_data = validation_result.get("data") or {}
+            feedback = safe_data.get("feedback", "No specific feedback provided.")
+            logger.info(f"---Revising draft based on feedback: {feedback}---\n")
 
         # Format the prompt
         prompt = writer_prompt.format(
@@ -64,7 +65,7 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
         # Invoke the structured LLM
         writer_output = structured_llm.invoke(prompt)
 
-        logger.info(f"---Draft content generated. {len(writer_output.image_prompts)} image prompts created.---")
+        logger.info(f"---Draft content generated. {len(writer_output.image_prompts)} image prompts created.---\n")
 
         return {
             "content_draft": writer_output.content_draft,
@@ -72,5 +73,5 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
         }
 
     except Exception as e:
-        logger.error(f"An error occurred in the writer node: {e}")
+        logger.error(f"An error occurred in the writer node: {e}\n")
         return {"error_message": f"An unexpected error occurred during content writing: {str(e)}"}
