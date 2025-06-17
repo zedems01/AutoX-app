@@ -47,7 +47,6 @@ class CompleteLoginPayload(BaseModel):
     proxy: str
 
 class StartWorkflowPayload(BaseModel):
-    thread_id: str
     is_autonomous_mode: bool
     output_destination: Optional[str] = None
     has_user_provided_topic: bool
@@ -57,6 +56,11 @@ class StartWorkflowPayload(BaseModel):
     brand_voice: Optional[str] = None
     target_audience: Optional[str] = None
     user_config: Optional[UserConfigSchema] = None
+
+    # New optional fields for auth context
+    session: Optional[str] = None
+    user_details: Optional[dict] = None
+    proxy: Optional[str] = None
 
 class ValidationPayload(BaseModel):
     thread_id: str
