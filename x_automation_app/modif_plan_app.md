@@ -178,7 +178,7 @@ The frontend will be overhauled to manage a global, persistent authentication st
 
 ### **Phase 2.2: Update Data Types and API Layer**
 
-**[ ] 2.2.1 File:** `x_automation_app/frontend/src/types/index.ts`
+**[x] 2.2.1 File:** `x_automation_app/frontend/src/types/index.ts`
 *  **Update Payloads:** Modify `CompleteLoginPayload` and `StartWorkflowPayload` interfaces to match the backend changes. Add a `ValidateSessionPayload`.
 *  **Create Auth Types:** Define an interface for the auth object (e.g., `UserSession`).
 

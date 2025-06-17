@@ -7,12 +7,12 @@ export interface StartLoginPayload {
 }
 
 export interface CompleteLoginPayload {
-  thread_id: string;
+  login_data: string;
   two_fa_code: string;
+  proxy: string;
 }
 
 export interface StartWorkflowPayload {
-  thread_id: string;
   is_autonomous_mode: boolean;
   output_destination?: "GET_OUTPUTS" | "PUBLISH_X";
   has_user_provided_topic: boolean;
@@ -22,6 +22,15 @@ export interface StartWorkflowPayload {
   brand_voice?: string;
   target_audience?: string;
   user_config?: UserConfigSchema;
+  // Optional auth context
+  session?: string;
+  user_details?: UserDetails;
+  proxy?: string;
+}
+
+export interface ValidateSessionPayload {
+  session: string;
+  proxy: string;
 }
 
 export interface ValidationPayload {
@@ -32,16 +41,29 @@ export interface ValidationPayload {
 // --- API Responses ---
 
 export interface StartLoginResponse {
-  thread_id: string;
-  login_data: any; // Opaque data object
+  login_data: string; 
 }
 
 export interface CompleteLoginResponse {
-  status: string;
-  user_details: any; // User details object
+  session: string;
+  userDetails: UserDetails;
+  proxy: string;
+}
+
+export interface StartWorkflowResponse {
+  thread_id: string;
+  initial_state: OverallState;
 }
 
 // --- Core State & Supporting Types ---
+
+export type UserDetails = any; // Can be refined later
+
+export interface UserSession {
+  session: string;
+  userDetails: UserDetails;
+  proxy: string;
+}
 
 export interface UserConfigSchema {
     gemini_base_model?: string;
@@ -97,7 +119,6 @@ export interface GeneratedImage {
   local_file_path: string;
   s3_url: string;
 }
-
 
 export interface OverallState {
   // From login
