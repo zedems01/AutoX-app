@@ -110,21 +110,21 @@ export default function WorkflowConfigPage() {
     defaultValues: {
       is_autonomous_mode: true,
       has_user_provided_topic: false,
-      user_provided_topic: undefined,
+      user_provided_topic: "",
       output_destination: "GET_OUTPUTS",
       x_content_type: "SINGLE_TWEET",
       content_length: "SHORT",
-      brand_voice: undefined,
-      target_audience: undefined,
+      brand_voice: "",
+      target_audience: "",
       user_config: {
-        gemini_base_model: undefined,
-        gemini_reasoning_model: undefined,
-        openai_model: undefined,
+        gemini_base_model: "",
+        gemini_reasoning_model: "",
+        openai_model: "",
         trends_count: undefined,
         trends_woeid: undefined,
         max_tweets_to_retrieve: undefined,
-        tweets_language: undefined,
-        content_language: undefined,
+        tweets_language: "",
+        content_language: "",
       },
     },
   })
@@ -380,22 +380,46 @@ export default function WorkflowConfigPage() {
                     <p className="text-sm text-muted-foreground">
                       Optional: Override default agent settings. Leave blank to use defaults.
                     </p>
-                    {userConfigFields.map((key) => (
-                      <FormField
-                        key={key}
-                        control={form.control}
-                        name={`user_config.${key}`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="capitalize">{key.replace(/_/g, " ")}</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    ))}
+                    {userConfigFields.map((key) => {
+                      const isNumberField = [
+                        "trends_count",
+                        "trends_woeid",
+                        "max_tweets_to_retrieve",
+                      ].includes(key)
+
+                      return (
+                        <FormField
+                          key={key}
+                          control={form.control}
+                          name={`user_config.${key}`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="capitalize">
+                                {key.replace(/_/g, " ")}
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  type={isNumberField ? "number" : "text"}
+                                  value={field.value ?? ""}
+                                  onChange={(e) => {
+                                    if (isNumberField) {
+                                      const value = e.target.value
+                                      field.onChange(
+                                        value === "" ? undefined : Number(value)
+                                      )
+                                    } else {
+                                      field.onChange(e)
+                                    }
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )
+                    })}
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
