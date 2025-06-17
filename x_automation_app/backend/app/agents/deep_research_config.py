@@ -18,14 +18,14 @@ class Configuration(BaseModel):
     )
 
     reasoning_model: str = Field(
-        default=os.getenv("GEMINI_REASONING_MODEL", "gemini-2.5-flash-preview-05-20"),
+        default=os.getenv("GEMINI_REASONING_MODEL", "gemini-2.5-flash-lite-preview-06-17"),
         metadata={
             "description": "The name of the language model to use for the agent's reasoning."
         },
     )
 
     number_of_initial_queries: int = Field(
-        default=3,
+        default=1,
         metadata={"description": "The number of initial search queries to generate."},
     )
 

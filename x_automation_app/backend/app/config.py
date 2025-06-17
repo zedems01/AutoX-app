@@ -37,7 +37,7 @@ class Settings:
     # Some default settings (Optional, as we first check for them in the graph state)
     # LLMs
     GEMINI_BASE_MODEL=os.getenv("GEMINI_BASE_MODEL", "gemini-2.0-flash")
-    GEMINI_REASONING_MODEL=os.getenv("GEMINI_REASONING_MODEL", "gemini-2.5-flash-preview-05-20") # for reflection during deep research
+    GEMINI_REASONING_MODEL=os.getenv("GEMINI_REASONING_MODEL", "gemini-2.5-flash-lite-preview-06-17") # for reflection during deep research
     OPENAI_MODEL=os.getenv("OPENAI_MODEL", "gpt-4o")
 
     # Trend Fetching Settings (Optional)
