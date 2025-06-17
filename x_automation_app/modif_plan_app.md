@@ -165,7 +165,7 @@ The frontend will be overhauled to manage a global, persistent authentication st
     *   Create a new React Context to manage `session`, `userDetails`, `proxy`, and an authentication status flag (`'verifying'`, `'authenticated'`, `'unauthenticated'`).
     *   The provider will contain the state and `login`/`logout` methods.
 
-[ ] 2.1.2.  **Implement Enhanced `localStorage` Persistence:**
+[x] 2.1.2.  **Implement Enhanced `localStorage` Persistence:**
     *   **On App Load:**
         *   The context will default to a `'verifying'` status.
         *   It will attempt to load the session object from `localStorage`.
