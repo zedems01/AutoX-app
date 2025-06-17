@@ -60,8 +60,8 @@ const formSchema = z
     content_length: z.enum(["SHORT", "MEDIUM", "LONG"], {
       required_error: "You need to select a content length.",
     }),
-    brand_voice: z.string().min(1, "Brand voice is required."),
-    target_audience: z.string().min(1, "Target audience is required."),
+    brand_voice: z.string().optional(),
+    target_audience: z.string().optional(),
     user_config: z
       .object({
         gemini_base_model: z.string().optional(),

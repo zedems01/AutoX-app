@@ -30,17 +30,19 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>
-            <WorkflowProvider>
-              <div className="container mx-auto p-4">
-                <PageHeader title="X Automation" description="Let's automate your X presence">
-                  <ModeToggle />
-                </PageHeader>
-                <main className="mt-6">{children}</main>
-              </div>
-              <Toaster />
-            </WorkflowProvider>
-          </AuthProvider>
+          <QueryProvider>
+            <AuthProvider>
+              <WorkflowProvider>
+                <div className="container mx-auto p-4">
+                  <PageHeader title="X Automation" description="Let's automate your X presence">
+                    <ModeToggle />
+                  </PageHeader>
+                  <main className="mt-6">{children}</main>
+                </div>
+                <Toaster />
+              </WorkflowProvider>
+            </AuthProvider>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>
