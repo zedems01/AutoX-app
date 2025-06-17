@@ -161,11 +161,11 @@ The frontend will be overhauled to manage a global, persistent authentication st
 
 **New File:** `x_automation_app/frontend/src/contexts/AuthContext.tsx`
 
-1.  **Define Context and Provider:**
+[x] 2.1.1.  **Define Context and Provider:**
     *   Create a new React Context to manage `session`, `userDetails`, `proxy`, and an authentication status flag (`'verifying'`, `'authenticated'`, `'unauthenticated'`).
     *   The provider will contain the state and `login`/`logout` methods.
 
-2.  **Implement Enhanced `localStorage` Persistence:**
+[ ] 2.1.2.  **Implement Enhanced `localStorage` Persistence:**
     *   **On App Load:**
         *   The context will default to a `'verifying'` status.
         *   It will attempt to load the session object from `localStorage`.
@@ -178,29 +178,29 @@ The frontend will be overhauled to manage a global, persistent authentication st
 
 ### **Phase 2.2: Update Data Types and API Layer**
 
-**File:** `x_automation_app/frontend/src/types/index.ts`
-1.  **Update Payloads:** Modify `CompleteLoginPayload` and `StartWorkflowPayload` interfaces to match the backend changes. Add a `ValidateSessionPayload`.
-2.  **Create Auth Types:** Define an interface for the auth object (e.g., `UserSession`).
+**[ ] 2.2.1 File:** `x_automation_app/frontend/src/types/index.ts`
+*  **Update Payloads:** Modify `CompleteLoginPayload` and `StartWorkflowPayload` interfaces to match the backend changes. Add a `ValidateSessionPayload`.
+*  **Create Auth Types:** Define an interface for the auth object (e.g., `UserSession`).
 
-**File:** `x_automation_app/frontend/src/lib/api.ts`
-1.  **Add `validateSession` function.**
-2.  **Update `completeLogin` and `startWorkflow`** with the new payload and response types.
-3.  **Implement Reactive Error Handling:**
+**[ ] 2.2.2 File:** `x_automation_app/frontend/src/lib/api.ts`
+*  **Add `validateSession` function.**
+*  **Update `completeLogin` and `startWorkflow`** with the new payload and response types.
+*  **Implement Reactive Error Handling:**
     *   Modify the `handleResponse` function or wrap `fetch` calls.
     *   If a response returns a `401 Unauthorized` or `403 Forbidden` status, it should programmatically trigger the `logout` function from the `AuthContext` to clear the invalid session and redirect the user.
 
 ### **Phase 2.3: Integrate AuthProvider and Refactor UI**
 
-**File:** `x_automation_app/frontend/src/app/layout.tsx`
-1.  Wrap the entire application with the new `AuthProvider` to make the authentication state globally available.
+**[ ] 2.3.1 File:** `x_automation_app/frontend/src/app/layout.tsx`
+*   Wrap the entire application with the new `AuthProvider` to make the authentication state globally available.
 
-**Files:** `x_automation_app/frontend/src/app/login/**/*.tsx`
+**[ ] 2.3.2 Files:** `x_automation_app/frontend/src/app/login/**/*.tsx`
 1.  **Remove `thread_id` logic.**
 2.  Refactor forms to call the new stateless API functions.
 3.  On successful login, call the `login` method from `AuthContext` with the data returned by the API.
 4.  Redirect the user to the main workflow page (`/`) upon successful login.
 
-**File:** `x_automation_app/frontend/src/app/page.tsx`
+**[ ] 2.3.3 File:** `x_automation_app/frontend/src/app/page.tsx`
 1.  **Invert the UI logic:**
     *   The page should now be accessible to everyone.
     *   Use the `useAuth` hook to get the current authentication status. The UI can show a loading spinner while the status is `'verifying'`.
