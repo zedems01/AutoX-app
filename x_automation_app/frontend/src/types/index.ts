@@ -57,7 +57,10 @@ export interface StartWorkflowResponse {
 
 // --- Core State & Supporting Types ---
 
-export type UserDetails = any; // Can be refined later
+export interface UserDetails {
+  name?: string;
+  username?: string;
+}
 
 export interface UserSession {
   session: string;

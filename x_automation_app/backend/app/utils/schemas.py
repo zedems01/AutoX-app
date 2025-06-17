@@ -2,6 +2,9 @@ from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
 from enum import Enum
 
+class UserDetails(BaseModel):
+    name: Optional[str] = None
+    username: Optional[str] = None
 
 class ValidationAction(str, Enum):
     """Enumeration for validation actions."""

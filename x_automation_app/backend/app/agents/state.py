@@ -8,7 +8,8 @@ from ..utils.schemas import (
     GeneratedImage,
     TweetSearched,
     ValidationResult,
-    UserConfigSchema
+    UserConfigSchema,
+    UserDetails
 )
 import operator
 from dataclasses import dataclass, field
@@ -59,7 +60,7 @@ class OverallState(TypedDict):
     # === Login & Session ===
     login_data: Optional[str]
     session: Optional[str]
-    user_details: Optional[dict]
+    user_details: Optional[UserDetails]
     proxy: Optional[str]
 
     # === Content Generation Data ===

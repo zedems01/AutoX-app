@@ -8,7 +8,7 @@ from .agents.graph import graph
 from .utils import x_utils
 from .utils.x_utils import InvalidSessionError
 from .agents.state import OverallState
-from .utils.schemas import ValidationResult, Trend, UserConfigSchema
+from .utils.schemas import ValidationResult, Trend, UserConfigSchema, UserDetails
 
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -60,7 +60,7 @@ class StartWorkflowPayload(BaseModel):
 
     # New optional fields for auth context
     session: Optional[str] = None
-    user_details: Optional[dict] = None
+    user_details: Optional[UserDetails] = None
     proxy: Optional[str] = None
 
 class ValidateSessionPayload(BaseModel):
