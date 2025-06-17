@@ -6,6 +6,7 @@ from typing import Optional
 
 from .agents.graph import graph
 from .utils import x_utils
+from .utils.x_utils import InvalidSessionError
 from .agents.state import OverallState
 from .utils.schemas import ValidationResult, Trend, UserConfigSchema
 
@@ -62,6 +63,10 @@ class StartWorkflowPayload(BaseModel):
     user_details: Optional[dict] = None
     proxy: Optional[str] = None
 
+class ValidateSessionPayload(BaseModel):
+    session: str
+    proxy: str
+
 class ValidationPayload(BaseModel):
     thread_id: str
     validation_result: ValidationResult
@@ -117,6 +122,22 @@ async def complete_login(payload: CompleteLoginPayload):
     except Exception as e:
         logger.error(f"Failed to complete login: {e}")
         raise HTTPException(status_code=400, detail=f"Failed to complete login: {e}")
+
+
+@app.post("/auth/validate-session", tags=["Authentication"])
+async def validate_session(payload: ValidateSessionPayload):
+    """
+    Validates if a user's session is still active.
+    """
+    try:
+        result = x_utils.verify_session(session=payload.session, proxy=payload.proxy)
+        return result
+    except InvalidSessionError as e:
+        logger.warning(f"Session validation failed: {e}")
+        raise HTTPException(status_code=401, detail=str(e))
+    except Exception as e:
+        logger.error(f"An unexpected error occurred during session validation: {e}")
+        raise HTTPException(status_code=500, detail="An unexpected error occurred.")
 
 
 # --- Step 3.2.2: Start Workflow Endpoint ---

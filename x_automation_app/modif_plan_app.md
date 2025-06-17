@@ -144,7 +144,7 @@ The backend will be modified to treat authentication as a stateless service, all
     ```
     *   If the session is invalid, the API call will fail. The function should catch this and raise a specific `InvalidSessionError` (custom exception).
 
-[ ] 1.4.2.  **Create Validation Endpoint (`main.py`):**
+[x] 1.4.2.  **Create Validation Endpoint (`main.py`):**
     *   Implement a new endpoint: `POST /auth/validate-session`.
     *   It will accept a payload with `session` and `proxy`.
     *   It will call the `verify_session` service function within a `try...except` block.
