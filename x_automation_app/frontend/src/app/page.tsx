@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -28,7 +28,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { startWorkflow } from "@/lib/api"
-import { useWorkflowContext } from "@/contexts/WorkflowProvider"
+import { useAuth } from "@/contexts/AuthContext"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -102,14 +102,8 @@ const userConfigFields: (keyof NonNullable<FormSchemaType['user_config']>)[] = [
 
 export default function WorkflowConfigPage() {
   const router = useRouter()
-  const { threadId, setWorkflowState } = useWorkflowContext()
-
-  useEffect(() => {
-    if (!threadId) {
-      toast.info("Please log in to start a workflow.", { duration: 20000 })
-      router.replace("/login")
-    }
-  }, [threadId, router])
+  const { authStatus, session, userDetails, proxy } = useAuth()
+  const [workflowThreadId, setWorkflowThreadId] = useState<string | null>(null)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -139,8 +133,7 @@ export default function WorkflowConfigPage() {
     mutationFn: startWorkflow,
     onSuccess: (data) => {
       toast.success("Workflow started successfully!", { duration: 20000 })
-      setWorkflowState(data)
-      router.push(`/workflow/${threadId}`)
+      router.push(`/workflow/${data.thread_id}`)
     },
     onError: (error) => {
       toast.error(`Workflow failed to start: ${error.message}`, { duration: 15000 })
@@ -148,19 +141,22 @@ export default function WorkflowConfigPage() {
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!threadId) {
-      toast.error("Session expired. Please log in again.", { duration: 15000 })
-      return
+    const payload = {
+      ...values,
+      session: session ?? undefined,
+      userDetails: userDetails ?? undefined,
+      proxy: proxy ?? undefined,
     }
-    mutation.mutate({ thread_id: threadId, ...values })
+    mutation.mutate(payload)
   }
 
   const hasUserProvidedTopic = form.watch("has_user_provided_topic")
 
-  if (!threadId) {
+  if (authStatus === 'verifying') {
     return (
       <div className="flex justify-center items-center pt-10">
         <Loader2 className="h-8 w-8 animate-spin" />
+        <p className="ml-2">Verifying session...</p>
       </div>
     )
   }
@@ -248,7 +244,7 @@ export default function WorkflowConfigPage() {
                         <FormDescription>
                           Do you want to provide your own topic or use trends?
                         </FormDescription>
-        </div>
+                      </div>
                       <FormControl>
                         <Switch
                           checked={field.value}

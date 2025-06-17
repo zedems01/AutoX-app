@@ -194,14 +194,14 @@ The frontend will be overhauled to manage a global, persistent authentication st
 **[x] 2.3.1 File:** `x_automation_app/frontend/src/app/layout.tsx`
 *   Wrap the entire application with the new `AuthProvider` to make the authentication state globally available.
 
-**[ ] 2.3.2 Files:** `x_automation_app/frontend/src/app/login/**/*.tsx`
+**[x] 2.3.2 Files:** `x_automation_app/frontend/src/app/login/**/*.tsx`
 1.  **Remove `thread_id` logic.**
 2.  Refactor forms to call the new stateless API functions.
 3.  On successful login, call the `login` method from `AuthContext` with the data returned by the API.
 4.  Redirect the user to the main workflow page (`/`) upon successful login.
 
 **[ ] 2.3.3 File:** `x_automation_app/frontend/src/app/page.tsx`
-[ ] 2.3.3.1.  **Invert the UI logic:**
+[x] 2.3.3.1.  **Invert the UI logic:**
     *   The page should now be accessible to everyone.
     *   Use the `useAuth` hook to get the current authentication status. The UI can show a loading spinner while the status is `'verifying'`.
 [ ] 2.3.3.2.  **Modify "Start Workflow" Button Handler:**
