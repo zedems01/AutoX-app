@@ -11,7 +11,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Initialize the base LLM and create a structured version for the writer
-llm = ChatOpenAI(model=settings.OPENAI_MODEL) or ChatGoogleGenerativeAI(model=settings.GEMINI_BASE_MODEL)
+# llm = ChatOpenAI(model=settings.OPENAI_MODEL) or ChatGoogleGenerativeAI(model=settings.GEMINI_BASE_MODEL)
+llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL)
 structured_llm = llm.with_structured_output(WriterOutput)
 
 def writer_node(state: OverallState) -> Dict[str, Any]:
