@@ -2,7 +2,8 @@ import json
 from pydantic import BaseModel
 from pathlib import Path
 from enum import Enum
-from langgraph.pregel.types import Send
+from langgraph.types import Send
+
 
 class CustomJSONEncoder(json.JSONEncoder):
     def default(self, obj):
