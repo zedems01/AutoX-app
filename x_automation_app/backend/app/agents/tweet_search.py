@@ -2,6 +2,7 @@ import json
 from langgraph.prebuilt import create_react_agent
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 from ..utils.prompts import tweet_search_prompt, get_current_date
 from typing import Dict, Any
 from .state import OverallState
@@ -16,7 +17,8 @@ logger = logging.getLogger(__name__)
 
 # Create the agent once and reuse it
 # llm = ChatOpenAI(model=settings.OPENAI_MODEL) or ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
-llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
+# llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
+llm = ChatGroq(model=settings.GROQ_MODEL)
 tweet_search_agent = create_react_agent(model=llm, tools=[tweet_advanced_search], response_format=TweetSearchResponse)
 
 def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:

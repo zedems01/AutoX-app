@@ -1,5 +1,6 @@
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 from ..utils.prompts import writer_prompt
 from typing import Dict, Any, Optional
 from .state import OverallState
@@ -12,7 +13,8 @@ logger = logging.getLogger(__name__)
 
 # Initialize the base LLM and create a structured version for the writer
 # llm = ChatOpenAI(model=settings.OPENAI_MODEL) or ChatGoogleGenerativeAI(model=settings.GEMINI_BASE_MODEL, google_api_key=settings.GEMINI_API_KEY)
-llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
+# llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
+llm = ChatGroq(model=settings.GROQ_MODEL)
 structured_llm = llm.with_structured_output(WriterOutput)
 
 def writer_node(state: OverallState) -> Dict[str, Any]:
