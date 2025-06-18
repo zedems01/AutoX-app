@@ -7,7 +7,7 @@ interface WorkflowContextType {
   threadId: string | null;
   setThreadId: (id: string | null) => void;
   workflowState: OverallState | null;
-  setWorkflowState: (state: OverallState | null) => void;
+  setWorkflowState: React.Dispatch<React.SetStateAction<OverallState | null>>;
 }
 
 const WorkflowContext = createContext<WorkflowContextType | undefined>(undefined);
