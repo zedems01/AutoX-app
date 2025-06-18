@@ -11,6 +11,7 @@ from .utils.x_utils import InvalidSessionError
 from .agents.state import OverallState
 from .utils.schemas import ValidationResult, Trend, UserConfigSchema, UserDetails
 from .utils.json_encoder import CustomJSONEncoder
+from langgraph.types import Send
 
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -227,12 +228,18 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
         
         # Stream all v2 events to the frontend
         async for event in graph.astream_events(None, config, version="v2"):
+            # Check if the event data contains a `Send` object, which is not serializable
+            # and not needed by the frontend.
+            data = event.get("data", {})
+            if isinstance(data.get("chunk"), Send) or isinstance(data.get("output"), Send):
+                continue  # Skip sending this event
+            
             await websocket.send_text(json.dumps(event, cls=CustomJSONEncoder))
 
     except WebSocketDisconnect:
-        print(f"WebSocket disconnected for thread: {thread_id}")
+        print(f"WebSocket disconnected for thread: {thread_id}\n")
     except Exception as e:
-        print(f"Error in WebSocket for thread {thread_id}: {e}")
+        print(f"Error in WebSocket for thread {thread_id}: {e}\n")
         await websocket.close(code=1011, reason=str(e))
 
 
