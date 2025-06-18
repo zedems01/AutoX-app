@@ -225,14 +225,9 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
         if initial_state:
             await websocket.send_text(json.dumps(initial_state.values, cls=CustomJSONEncoder))
         
-        # Stream updates as the graph executes
-        async for event in graph.astream_events(None, config, version="v1"):
-            # After any node finishes, the state is potentially updated.
-            # We'll get the latest state and send it to the client.
-            if event["event"] == "on_chain_end":
-                current_state = graph.get_state(config)
-                if current_state:
-                    await websocket.send_text(json.dumps(current_state.values, cls=CustomJSONEncoder))
+        # Stream all v2 events to the frontend
+        async for event in graph.astream_events(None, config, version="v2"):
+            await websocket.send_text(json.dumps(event, cls=CustomJSONEncoder))
 
     except WebSocketDisconnect:
         print(f"WebSocket disconnected for thread: {thread_id}")

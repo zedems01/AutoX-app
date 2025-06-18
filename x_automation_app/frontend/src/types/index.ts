@@ -55,6 +55,28 @@ export interface StartWorkflowResponse {
   initial_state: OverallState;
 }
 
+export interface StreamEvent {
+  event:
+    | "on_chain_start"
+    | "on_chain_end"
+    | "on_tool_start"
+    | "on_tool_end"
+    | "on_llm_start"
+    | "on_llm_stream"
+    | "on_llm_end"
+    | "on_retriever_start"
+    | "on_retriever_end";
+  name: string;
+  run_id: string;
+  tags: string[];
+  metadata: Record<string, any>;
+  data: {
+    input?: any;
+    output?: any;
+    chunk?: any;
+  };
+}
+
 // --- Core State & Supporting Types ---
 
 export interface UserDetails {
