@@ -255,22 +255,27 @@ async def validate_step(payload: ValidationPayload):
         if not next_step:
             raise HTTPException(status_code=400, detail="No human input is currently awaited for this workflow.")
 
-        # Prepare the state update
-        update_data = {"validation_result": payload.validation_result}
+        # Prepare the state update, converting Pydantic models to dicts
+        update_data = {
+            "validation_result": payload.validation_result.model_dump(exclude_unset=True)
+        }
+        print(f"Validation result:\n{payload.validation_result.model_dump(exclude_unset=True)}")
 
         # If the user is editing, overwrite the relevant part of the state
         if payload.validation_result.action == "edit":
-            edit_data = payload.validation_result.data.extra_data
-            if next_step == "await_topic_selection" and "selected_topic" in edit_data:
-                 # Ensure the topic is in the correct Pydantic model format
-                update_data["selected_topic"] = Trend(**edit_data["selected_topic"])
-            elif next_step == "await_content_validation":
-                if "final_content" in edit_data:
-                    update_data["final_content"] = edit_data["final_content"]
-                if "final_image_prompts" in edit_data:
-                    update_data["final_image_prompts"] = edit_data["final_image_prompts"]
-            # Add other edit cases as needed
+            if payload.validation_result.data and payload.validation_result.data.extra_data:
+                edit_data = payload.validation_result.data.extra_data
+                if next_step == "await_topic_selection" and "selected_topic" in edit_data:
+                    # The state for selected_topic expects a dict, not a Pydantic model
+                    topic_model = Trend(**edit_data["selected_topic"])
+                    update_data["selected_topic"] = topic_model.model_dump(exclude_unset=True)
+                elif next_step == "await_content_validation":
+                    if "final_content" in edit_data:
+                        update_data["final_content"] = edit_data["final_content"]
+                    if "final_image_prompts" in edit_data:
+                        update_data["final_image_prompts"] = edit_data["final_image_prompts"]
 
+        print(f"Trying to update the state...")
         # Update the state and resume the graph
         graph.update_state(config, update_data)
         final_state = await graph.ainvoke(None, config)
@@ -278,5 +283,6 @@ async def validate_step(payload: ValidationPayload):
         return final_state
 
     except Exception as e:
+        logger.error(f"Error during validation: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"An error occurred during validation: {e}") 
     

@@ -73,7 +73,7 @@ def route_after_image_generation(state: OverallState) -> str:
 
 def route_after_validation(state: OverallState) -> str:
     """Routes after a user validation step, potentially looping back for revisions."""
-    validation_result = state.get("validation_result", {})
+    validation_result = state.get("validation_result") or {}
     action = validation_result.get("action", "approve")
 
     if action == "reject":

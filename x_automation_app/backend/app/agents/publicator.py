@@ -84,6 +84,7 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
             
             # For GET_OUTPUTS, the publication_id can be the content itself or a confirmation message.
             publication_id = markdown_output
+            print(f"Publication:\n\n{publication_id}\n")
             logger.info("---Content packaged successfully as Markdown.---\n")
 
         else:
