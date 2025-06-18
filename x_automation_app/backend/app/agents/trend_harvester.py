@@ -1,7 +1,8 @@
 from langgraph.prebuilt import create_react_agent
-from langchain_openai import ChatOpenAI
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_groq import ChatGroq
+# from langchain_openai import ChatOpenAI
+# from langchain_google_genai import ChatGoogleGenerativeAI
+# from langchain_groq import ChatGroq
+from langchain_anthropic import ChatAnthropic
 from ..utils.prompts import trend_harvester_prompt
 from typing import Dict, Any, List
 from .state import OverallState
@@ -16,7 +17,8 @@ logger = logging.getLogger(__name__)
 # Create the agent once and reuse it
 # llm = ChatOpenAI(model=settings.OPENAI_MODEL) or ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
 # llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
-llm = ChatGroq(model=settings.GROQ_MODEL)
+# llm = ChatGroq(model=settings.GROQ_MODEL)
+llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
 trend_harvester_agent = create_react_agent(model=llm, tools=[get_trends], response_format=TrendResponse)
 
 def trend_harvester_node(state: OverallState) -> Dict[str, List[Trend]]:

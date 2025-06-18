@@ -2,6 +2,7 @@ import json
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_groq import ChatGroq
+from langchain_anthropic import ChatAnthropic
 from ..utils.prompts import opinion_analysis_prompt
 from typing import Dict, Any
 from .state import OverallState
