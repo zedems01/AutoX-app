@@ -196,6 +196,7 @@ async def start_workflow(payload: StartWorkflowPayload, background_tasks: Backgr
             "publication_id": None,
             "validation_result": None,
             "error_message": None,
+            "source_step": None,
         }
 
         # Run the graph invocation in the background
@@ -233,7 +234,7 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
             data = event.get("data", {})
             if isinstance(data.get("chunk"), Send) or isinstance(data.get("output"), Send):
                 continue  # Skip sending this event
-            
+            print(f"Sending event:\n{event}\n\n")
             await websocket.send_text(json.dumps(event, cls=CustomJSONEncoder))
 
     except WebSocketDisconnect:

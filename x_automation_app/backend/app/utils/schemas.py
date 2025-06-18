@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, TypedDict
 from pydantic import BaseModel, Field
 from enum import Enum
 
@@ -56,6 +56,9 @@ class GeneratedImage(BaseModel):
     image_name: str
     local_file_path: str
     s3_url: str
+
+    class Config:
+        arbitrary_types_allowed = True
 
 class ImageGeneratorOutput(BaseModel):
     """
@@ -163,4 +166,18 @@ class UserConfigSchema(BaseModel):
     max_tweets_to_retrieve: Optional[int] = Field(..., description="Maximum number of tweets to retrieve in search.")
     tweets_language: Optional[str] = Field(..., description="Language for tweet search results.")
     content_language: Optional[str] = Field(..., description="Language for generated content.")
+
+
+# class OverallState(TypedDict):
+#     # From login
+#     login_data: Optional[str]
+#     # State management
+#     messages: List
+#     validation_result: Optional[ValidationResult]
+#     current_step: str
+#     source_step: Optional[str]
+#     next_human_input_step: Optional[
+#         "await_2fa_code" | "await_topic_selection" | "await_content_validation" | "await_image_validation" | None
+#     ]
+#     error_message: Optional[str]
 

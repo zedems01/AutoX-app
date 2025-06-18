@@ -188,6 +188,7 @@ export interface OverallState {
   messages: any[];
   validation_result?: ValidationResult;
   current_step: string;
+  source_step?: string;
   next_human_input_step?: | "await_2fa_code" | "await_topic_selection" | "await_content_validation" | "await_image_validation" | null;
   error_message?: string;
 }
