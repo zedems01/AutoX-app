@@ -18,7 +18,7 @@ import { Loader2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
 export function WorkflowDashboard() {
-  const { threadId, workflowState } = useWorkflowContext()
+  const { threadId, workflowState, showDetails } = useWorkflowContext()
   const { isConnected, error } = useWorkflow(threadId)
 
   const renderHumanInTheLoopStep = () => {
@@ -97,7 +97,7 @@ export function WorkflowDashboard() {
       <CardContent className="space-y-6 pt-4">
         <WorkflowStatus />
         <div className="mt-6">{renderHumanInTheLoopStep()}</div>
-        <FinalOutput />
+        {!showDetails && <FinalOutput />}
       </CardContent>
     </Card>
   )
