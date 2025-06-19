@@ -84,6 +84,10 @@ export function useWorkflow(threadId: string | null) {
               const updatedFields = stateUpdater(event.data.output)
               Object.assign(newState, updatedFields)
             }
+            // If the publicator finishes, we can consider the workflow complete
+            if (event.name === "publicator") {
+              newState.current_step = "END"
+            }
           }
           return newState
         })
