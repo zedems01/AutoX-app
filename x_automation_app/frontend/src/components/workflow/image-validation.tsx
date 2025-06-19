@@ -100,11 +100,11 @@ export function ImageValidation() {
       <CardContent>
         {generatedImages.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {generatedImages.map((imageUrl, index) => (
+            {generatedImages.map((image, index) => (
               <div key={index} className="relative aspect-square rounded-lg overflow-hidden border">
                 <Image
-                  src={imageUrl}
-                  alt={`Generated Image ${index + 1}`}
+                  src={image.s3_url}
+                  alt={image.image_name || `Generated Image ${index + 1}`}
                   fill
                   className="object-cover"
                   sizes="(max-width: 640px) 100vw, 50vw"
