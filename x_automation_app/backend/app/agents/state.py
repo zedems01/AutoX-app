@@ -93,6 +93,7 @@ class OverallState(TypedDict):
     final_image_prompts: Optional[List[str]]
     generated_images: Optional[List[GeneratedImage]]
     publication_id: Optional[str]
+    final_markdown_content: Optional[str]
 
     # === HiTL & Meta-state ===
     next_human_input_step: Optional[str]

@@ -6,6 +6,7 @@ import { ContentValidation } from "@/components/workflow/content-validation"
 import { ImageValidation } from "@/components/workflow/image-validation"
 import { TopicSelection } from "@/components/workflow/topic-selection"
 import { WorkflowStatus } from "@/components/workflow/workflow-status"
+import { FinalOutput } from "@/components/workflow/FinalOutput"
 import {
   Card,
   CardContent,
@@ -96,6 +97,7 @@ export function WorkflowDashboard() {
       <CardContent className="space-y-6 pt-4">
         <WorkflowStatus />
         <div className="mt-6">{renderHumanInTheLoopStep()}</div>
+        <FinalOutput />
       </CardContent>
     </Card>
   )

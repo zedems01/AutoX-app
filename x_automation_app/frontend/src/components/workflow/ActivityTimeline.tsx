@@ -116,12 +116,16 @@ const getStepConfig = (event: StreamEvent) => {
       break
     case "publicator":
       icon = Send
-      title = "Publication"
+      title = "Publication & Formatting"
       if (status === "completed") {
         const id = event.data.output?.publication_id
-        description = id
-          ? `Content published with ID: ${id}.`
-          : "Publication details not available."
+        if (event.data.output?.final_markdown_content) {
+          description = "Final content has been generated and formatted."
+        } else if (id) {
+          description = `Content published with ID: ${id}.`
+        } else {
+          description = "Content processed and packaged."
+        }
       }
       break
     case "await_topic_selection":

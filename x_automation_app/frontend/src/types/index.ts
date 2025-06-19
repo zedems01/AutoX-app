@@ -183,6 +183,7 @@ export interface OverallState {
   final_image_prompts?: string[];
   generated_images?: GeneratedImage[]; // Assuming URLs or base64 strings
   publication_id?: string;
+  final_markdown_content?: string;
   
   // State management
   messages: any[];

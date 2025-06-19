@@ -233,4 +233,26 @@ Your primary goal is to call the `generate_and_upload_image` tool for each and e
 ```
 """
 
+markdown_formatter_prompt = """You are a formatting expert. Your task is to convert the given text content into a clean, well-structured, and visually appealing markdown document.
+
+**Content to Format:**
+```
+{content}
+```
+
+**Generated Images (if any):**
+- If there are images, you MUST embed them within the markdown.
+- Use the provided S3 URL for the image source.
+- The image name should be used as the alt text.
+```
+{images}
+```
+
+**Instructions:**
+1.  **Structure the Content**: Use markdown headers (`#`, `##`, etc.), lists (`-`, `*`, `1.`), bold (`**text**`), italics (`*text*`), and other elements to create a clear hierarchy and improve readability.
+2.  **Embed Images**: If images are provided, seamlessly integrate them into the document where they are most relevant to the content. If the relevance is not clear, place them at the end of the document.
+3.  **Code Blocks**: If any part of the content looks like code, format it using markdown code blocks (```).
+4.  **Clean Output**: Your output should ONLY be the final markdown string. Do not include any extra text, explanations, or comments before or after the markdown content.
+"""
+
 
