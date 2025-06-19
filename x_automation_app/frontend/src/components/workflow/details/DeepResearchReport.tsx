@@ -26,9 +26,9 @@ export function DeepResearchReport() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="prose prose-sm max-w-none dark:prose-invert">
-          <p>{report}</p>
-        </div>
+        <pre className="p-4 bg-muted rounded-md text-sm overflow-x-auto whitespace-pre-wrap break-words">
+          {report}
+        </pre>
       </CardContent>
     </Card>
   )

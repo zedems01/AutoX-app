@@ -11,11 +11,13 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Loader2 } from "lucide-react"
+import { Loader2, RefreshCw } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 
 export function WorkflowDashboard() {
   const { threadId, workflowState, showDetails } = useWorkflowContext()
@@ -85,10 +87,18 @@ export function WorkflowDashboard() {
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>Workflow Progress</span>
-          <Badge variant={getStatusVariant()} className="ml-2 text-sm">
-            {!isConnected && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {getStatusText()}
-          </Badge>
+          <div className="flex items-center gap-4">
+            <Badge variant={getStatusVariant()} className="ml-2 text-sm">
+              {!isConnected && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {getStatusText()}
+            </Badge>
+            {workflowState?.current_step === "END" && (
+              <Button onClick={() => window.location.reload()} size="sm">
+                <RefreshCw className="mr-2 h-4 w-4" />
+                New Workflow
+              </Button>
+            )}
+          </div>
         </CardTitle>
         <CardDescription>
           Tracking workflow: <code>{threadId}</code>
@@ -99,6 +109,14 @@ export function WorkflowDashboard() {
         <div className="mt-6">{renderHumanInTheLoopStep()}</div>
         {!showDetails && <FinalOutput />}
       </CardContent>
+      {workflowState?.current_step === "END" && (
+        <CardFooter className="flex justify-end pt-6">
+          <Button onClick={() => window.location.reload()}>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Start New Workflow
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   )
 } 

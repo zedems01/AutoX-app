@@ -10,7 +10,6 @@ interface WorkflowContextType {
   setWorkflowState: React.Dispatch<React.SetStateAction<OverallState | null>>;
   events: StreamEvent[];
   setEvents: React.Dispatch<React.SetStateAction<StreamEvent[]>>;
-  finalMarkdownContent: string | null;
   showDetails: boolean;
   setShowDetails: (show: boolean) => void;
 }
@@ -23,18 +22,6 @@ export const WorkflowProvider = ({ children }: { children: ReactNode }) => {
   const [events, setEvents] = useState<StreamEvent[]>([]);
   const [showDetails, setShowDetails] = useState(false);
 
-  const finalMarkdownContent = useMemo(() => {
-    if (workflowState?.final_markdown_content) {
-      return workflowState.final_markdown_content;
-    }
-    // As a fallback, check the last event if the direct state isn't populated yet
-    const lastEvent = events[events.length - 1];
-    if (lastEvent?.name === "publicator" && lastEvent.event === "on_chain_end") {
-      return lastEvent.data?.output?.final_markdown_content || null;
-    }
-    return null;
-  }, [workflowState, events]);
-
   return (
     <WorkflowContext.Provider
       value={{
@@ -44,7 +31,6 @@ export const WorkflowProvider = ({ children }: { children: ReactNode }) => {
         setWorkflowState,
         events,
         setEvents,
-        finalMarkdownContent,
         showDetails,
         setShowDetails,
       }}

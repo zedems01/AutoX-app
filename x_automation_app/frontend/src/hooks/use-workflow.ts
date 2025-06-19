@@ -37,7 +37,6 @@ const nodeStateMapping: Record<string, (data: any) => Partial<OverallState>> = {
   image_generator: (output) => ({ generated_images: output?.images }),
   publicator: (output) => ({ 
     publication_id: output?.publication_id,
-    final_markdown_content: output?.final_markdown_content,
   }),
 }
 
