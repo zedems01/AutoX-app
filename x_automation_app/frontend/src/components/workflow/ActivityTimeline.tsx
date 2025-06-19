@@ -65,7 +65,8 @@ const getStepConfig = (event: StreamEvent) => {
       title = "Web Research"
       if (status === "completed") {
         const sources = event.data.output?.sources_gathered || []
-        description = `Gathered ${sources.length} sources.`
+        const query = event.data.input?.search_query?.join(", ") || "the provided topic"
+        description = `Gathered ${sources.length} sources for query: "${query}".`
       }
       break
     case "reflection":
@@ -85,7 +86,14 @@ const getStepConfig = (event: StreamEvent) => {
     case "writer":
       icon = PenSquare
       title = "Content Writing"
-      description = "Drafted content and image prompts."
+      if (status === "completed") {
+        const voice = event.data.input?.brand_voice
+        const audience = event.data.input?.target_audience
+        let details = "Drafted content and image prompts."
+        if (voice) details += ` Voice: ${voice}.`
+        if (audience) details += ` Audience: ${audience}.`
+        description = details
+      }
       break
     case "quality_assurer":
       icon = ShieldCheck
@@ -97,7 +105,12 @@ const getStepConfig = (event: StreamEvent) => {
       title = "Image Generation"
       if (status === "completed") {
         const images = event.data.output?.images || []
-        description = `Generated ${images.length} images.`
+        if (images.length > 0) {
+          const imageNames = images.map((img: any) => img.image_name).join(", ")
+          description = `Generated ${images.length} images: ${imageNames}.`
+        } else {
+          description = "No images were generated."
+        }
       }
       break
     case "publicator":
