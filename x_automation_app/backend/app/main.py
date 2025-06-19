@@ -220,6 +220,14 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
     """
     await websocket.accept()
     config = {"configurable": {"thread_id": thread_id}}
+    ALLOWED_EVENTS = {"on_chain_start", "on_chain_end"}
+    ALLOWED_NAMES = {
+        "trend_harvester", "tweet_searcher", "opinion_analyzer", 
+        "query_generator", "web_research", "reflection", "finalize_answer", 
+        "writer", "quality_assurer", "image_generator", "publicator", 
+        "await_topic_selection", "await_content_validation",
+        "await_image_validation"
+}
 
     try:
         # Send the initial state as soon as the client connects
@@ -227,15 +235,22 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
         if initial_state:
             await websocket.send_text(json.dumps(initial_state.values, cls=CustomJSONEncoder))
         
-        # Stream all v2 events to the frontend
+        # Stream only the allowed v2 events to the frontend
         async for event in graph.astream_events(None, config, version="v2"):
             # Check if the event data contains a `Send` object, which is not serializable
             # and not needed by the frontend.
             data = event.get("data", {})
-            if isinstance(data.get("chunk"), Send) or isinstance(data.get("output"), Send):
+            if isinstance(data.get("input"), Send) or isinstance(data.get("output"), Send):
                 continue  # Skip sending this event
-            print(f"Sending event:\n{event}\n\n")
-            await websocket.send_text(json.dumps(event, cls=CustomJSONEncoder))
+            if event.get("event") in ALLOWED_EVENTS and event.get("name") in ALLOWED_NAMES:
+                # out={
+                #     "event": event.get("event"),
+                #     "name": event.get("name"),
+                #     # "metadata": event.get("metadata"),
+                # }
+                # print(f"Sending event:\n{out}\n\n")
+                await websocket.send_text(json.dumps(event, cls=CustomJSONEncoder))
+            # await websocket.send_text(json.dumps(event, cls=CustomJSONEncoder))
 
     except WebSocketDisconnect:
         print(f"WebSocket disconnected for thread: {thread_id}\n")
