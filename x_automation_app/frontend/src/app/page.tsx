@@ -51,6 +51,7 @@ import { WorkflowDashboard } from "@/components/workflow/workflow-dashboard"
 const formSchema = z
   .object({
     is_autonomous_mode: z.boolean(),
+    show_details: z.boolean(),
     output_destination: z.enum(["GET_OUTPUTS", "PUBLISH_X"], {
       required_error: "You need to select an output destination.",
     }),
@@ -111,6 +112,7 @@ export default function WorkflowConfigPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       is_autonomous_mode: true,
+      show_details: false,
       has_user_provided_topic: false,
       user_provided_topic: "",
       output_destination: "GET_OUTPUTS",
@@ -215,6 +217,28 @@ export default function WorkflowConfigPage() {
                           <FormDescription>
                             Enable to let the AI run without human validation
                             steps.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="show_details"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel>Show Detailed View</FormLabel>
+                          <FormDescription>
+                            Display a detailed breakdown of the workflow
+                            outputs.
                           </FormDescription>
                         </div>
                         <FormControl>
