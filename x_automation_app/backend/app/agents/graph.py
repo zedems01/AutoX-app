@@ -24,21 +24,18 @@ def await_topic_selection(state: OverallState) -> dict:
     """Node to await user selection of a topic."""
     return {
         "next_human_input_step": "await_topic_selection",
-        "source_step": "await_topic_selection",
     }
 
 def await_content_validation(state: OverallState) -> dict:
     """Node to await user validation of the generated content."""
     return {
         "next_human_input_step": "await_content_validation",
-        "source_step": "await_content_validation",
     }
 
 def await_image_validation(state: OverallState) -> dict:
     """Node to await user validation of the generated images."""
     return {
         "next_human_input_step": "await_image_validation",
-        "source_step": "await_image_validation",
     }
 
 def auto_select_topic(state: OverallState) -> dict:
@@ -83,29 +80,25 @@ def route_after_validation(state: OverallState) -> str:
     action = validation_result.get("action", "approve")
 
     if action == "reject":
-        # If rejected, route back to the source of the interruption for revision
-        source = state.get("source_step")
-        if source == "await_content_validation":
+        last_step = state.get("next_human_input_step")
+        if last_step == "await_content_validation":
             return "writer"
-        if source == "await_image_validation":
+        if last_step == "await_image_validation":
             return "image_generator"
-        # If no specific revision path, end the workflow
-        return END
-
-    # On 'approve' or 'edit', proceed based on the source step
-    source = state.get("source_step")
-    if source == "await_topic_selection":
+    
+    # Default to approve/edit and continue
+    current_step = state.get("current_step")
+    if current_step == "await_topic_selection":
         return "tweet_searcher"
-    if source == "await_content_validation":
-        # If there are image prompts, proceed to image generation, otherwise to publication
+    if current_step == "await_content_validation":
         if state.get("final_image_prompts"):
             return "image_generator"
         return "publicator"
-    if source == "await_image_validation":
+    if current_step == "await_image_validation":
         return "publicator"
 
-    # Fallback if the source is not recognized
-    return END
+    # Fallback
+    return "END"
 
 # def route_deep_research(state: OverallState) -> str:
 #     """Routes the deep research part of the workflow."""

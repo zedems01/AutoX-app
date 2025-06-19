@@ -23,6 +23,7 @@ pids
 # Next.js
 .next/
 out/
+fullstack-langgraph-example/
 
 # Build / Distribution
 build
@@ -68,6 +69,7 @@ Desktop.ini
 # Optional Log files
 logs/
 *.log
+
 
 # Python
 __pycache__/

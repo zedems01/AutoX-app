@@ -196,7 +196,6 @@ async def start_workflow(payload: StartWorkflowPayload, background_tasks: Backgr
             "publication_id": None,
             "validation_result": None,
             "error_message": None,
-            "source_step": None,
         }
 
         # Run the graph invocation in the background

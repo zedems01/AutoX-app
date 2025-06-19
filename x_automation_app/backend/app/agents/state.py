@@ -98,6 +98,5 @@ class OverallState(TypedDict):
     next_human_input_step: Optional[str]
     validation_result: Optional[ValidationResult]
     current_step: str
-    source_step: Optional[str]
     error_message: Optional[str]
     messages: Annotated[list, add_messages]
