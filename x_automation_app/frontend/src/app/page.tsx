@@ -106,7 +106,7 @@ const userConfigFields: (keyof NonNullable<FormSchemaType['user_config']>)[] = [
 export default function WorkflowConfigPage() {
   const router = useRouter()
   const { authStatus, session, userDetails, proxy } = useAuth()
-  const { setThreadId } = useWorkflowContext()
+  const { setThreadId, setShowDetails } = useWorkflowContext()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -168,6 +168,9 @@ export default function WorkflowConfigPage() {
       cleanedValues.user_config = undefined
     }
     
+    // Set the detail view state before starting the workflow
+    setShowDetails(cleanedValues.show_details)
+
     const payload = {
       ...cleanedValues,
       session: session ?? undefined,

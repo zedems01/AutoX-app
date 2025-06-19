@@ -11,6 +11,8 @@ interface WorkflowContextType {
   events: StreamEvent[];
   setEvents: React.Dispatch<React.SetStateAction<StreamEvent[]>>;
   finalMarkdownContent: string | null;
+  showDetails: boolean;
+  setShowDetails: (show: boolean) => void;
 }
 
 const WorkflowContext = createContext<WorkflowContextType | undefined>(undefined);
@@ -19,6 +21,7 @@ export const WorkflowProvider = ({ children }: { children: ReactNode }) => {
   const [threadId, setThreadId] = useState<string | null>(null);
   const [workflowState, setWorkflowState] = useState<OverallState | null>(null);
   const [events, setEvents] = useState<StreamEvent[]>([]);
+  const [showDetails, setShowDetails] = useState(false);
 
   const finalMarkdownContent = useMemo(() => {
     if (workflowState?.final_markdown_content) {
@@ -42,6 +45,8 @@ export const WorkflowProvider = ({ children }: { children: ReactNode }) => {
         events,
         setEvents,
         finalMarkdownContent,
+        showDetails,
+        setShowDetails,
       }}
     >
       {children}
