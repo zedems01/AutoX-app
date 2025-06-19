@@ -1,13 +1,15 @@
 "use client"
 
 import React, { createContext, useState, useContext, ReactNode } from "react"
-import { OverallState } from "@/types"
+import { OverallState, StreamEvent } from "@/types"
 
 interface WorkflowContextType {
   threadId: string | null;
   setThreadId: (id: string | null) => void;
   workflowState: OverallState | null;
   setWorkflowState: React.Dispatch<React.SetStateAction<OverallState | null>>;
+  events: StreamEvent[];
+  setEvents: React.Dispatch<React.SetStateAction<StreamEvent[]>>;
 }
 
 const WorkflowContext = createContext<WorkflowContextType | undefined>(undefined);
@@ -15,10 +17,18 @@ const WorkflowContext = createContext<WorkflowContextType | undefined>(undefined
 export const WorkflowProvider = ({ children }: { children: ReactNode }) => {
   const [threadId, setThreadId] = useState<string | null>(null);
   const [workflowState, setWorkflowState] = useState<OverallState | null>(null);
+  const [events, setEvents] = useState<StreamEvent[]>([]);
 
   return (
     <WorkflowContext.Provider
-      value={{ threadId, setThreadId, workflowState, setWorkflowState }}
+      value={{
+        threadId,
+        setThreadId,
+        workflowState,
+        setWorkflowState,
+        events,
+        setEvents,
+      }}
     >
       {children}
     </WorkflowContext.Provider>

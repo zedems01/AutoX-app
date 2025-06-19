@@ -14,6 +14,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Loader2 } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 
 export function WorkflowDashboard() {
   const { threadId, workflowState } = useWorkflowContext()
@@ -34,6 +35,23 @@ export function WorkflowDashboard() {
       default:
         return null
     }
+  }
+
+  const getStatusVariant = () => {
+    if (error) return "destructive"
+    if (!isConnected) return "secondary"
+    if (workflowState?.next_human_input_step) return "yellow"
+    if (workflowState?.current_step === "END") return "green"
+    return "default"
+  }
+
+  const getStatusText = () => {
+    if (error) return `Error: ${error}`
+    if (!isConnected) return "Connecting..."
+    if (workflowState?.next_human_input_step) return "Action Required"
+    if (workflowState?.current_step === "END") return "Completed"
+    if (workflowState) return "In Progress..."
+    return "Initializing..."
   }
 
   if (!threadId) {
@@ -64,13 +82,19 @@ export function WorkflowDashboard() {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Workflow Status</CardTitle>
+        <CardTitle className="flex items-center justify-between">
+          <span>Workflow Progress</span>
+          <Badge variant={getStatusVariant()} className="ml-2 text-sm">
+            {!isConnected && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {getStatusText()}
+          </Badge>
+        </CardTitle>
         <CardDescription>
           Tracking workflow: <code>{threadId}</code>
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <WorkflowStatus isConnected={isConnected} error={error} />
+      <CardContent className="space-y-6 pt-4">
+        <WorkflowStatus />
         <div className="mt-6">{renderHumanInTheLoopStep()}</div>
       </CardContent>
     </Card>

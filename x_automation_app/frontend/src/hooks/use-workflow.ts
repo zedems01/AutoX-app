@@ -27,7 +27,7 @@ const nodeStateMapping: Record<string, (data: any) => Partial<OverallState>> = {
     content_draft: output?.content_draft,
     image_prompts: output?.image_prompts,
   }),
-  quality_assurance: (output) => ({
+  quality_assurer: (output) => ({
     final_content: output?.final_content,
     final_image_prompts: output?.final_image_prompts,
   }),
@@ -38,7 +38,7 @@ const nodeStateMapping: Record<string, (data: any) => Partial<OverallState>> = {
 export function useWorkflow(threadId: string | null) {
   const [isConnected, setIsConnected] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { setWorkflowState } = useWorkflowContext()
+  const { setWorkflowState, setEvents } = useWorkflowContext()
 
   const socketUrl = threadId
     ? `${API_BASE_URL.replace(/^http/, "ws")}/workflow/ws/${threadId}`
@@ -65,6 +65,9 @@ export function useWorkflow(threadId: string | null) {
     if (lastJsonMessage) {
       if (isStreamEvent(lastJsonMessage)) {
         const event = lastJsonMessage
+        // Add every event to the raw event log
+        setEvents((prevEvents) => [...prevEvents, event])
+
         setWorkflowState((prevState) => {
           if (!prevState) return null
 
@@ -84,9 +87,11 @@ export function useWorkflow(threadId: string | null) {
       } else {
         // This is the initial, full state sent on connection
         setWorkflowState(lastJsonMessage as OverallState)
+        // Clear previous session events
+        setEvents([])
       }
     }
-  }, [lastJsonMessage, setWorkflowState])
+  }, [lastJsonMessage, setWorkflowState, setEvents])
 
   return { isConnected, error }
 }

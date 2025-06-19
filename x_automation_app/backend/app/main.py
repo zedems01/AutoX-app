@@ -224,7 +224,7 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
     ALLOWED_NAMES = {
         "trend_harvester", "tweet_searcher", "opinion_analyzer", 
         "query_generator", "web_research", "reflection", "finalize_answer", 
-        "writer", "quality_assurer", "image_generator", "publicator", 
+        "writer", "quality_assurer", "image_generator", "publicator",
         "await_topic_selection", "await_content_validation",
         "await_image_validation"
 }

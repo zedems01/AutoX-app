@@ -1,0 +1,231 @@
+"use client"
+
+import {
+  BrainCircuit,
+  FileCheck2,
+  Hand,
+  Image,
+  ListFilter,
+  Loader2,
+  PenSquare,
+  Search,
+  Send,
+  ShieldCheck,
+  TrendingUp,
+  Users,
+} from "lucide-react"
+
+import { useWorkflowContext } from "@/contexts/WorkflowProvider"
+import { StreamEvent } from "@/types"
+import { Badge } from "@/components/ui/badge"
+
+const getStepConfig = (event: StreamEvent) => {
+  let icon = Loader2
+  let title = "Processing..."
+  let description = `Running: ${event.name}`
+  const status: "running" | "completed" | "error" =
+    event.event === "on_chain_start" ? "running" : "completed"
+
+  switch (event.name) {
+    case "trend_harvester":
+      icon = TrendingUp
+      title = "Trend Harvesting"
+      if (status === "completed") {
+        const trends = event.data.output?.trends || []
+        description = `Gathered ${trends.length} trending topics.`
+      }
+      break
+    case "tweet_searcher":
+      icon = Search
+      title = "Tweet Searching"
+      if (status === "completed") {
+        const tweets = event.data.output?.tweets || []
+        const topic = event.data.input?.selected_topic?.name || "the selected topic"
+        description = `Found ${tweets.length} tweets for "${topic}".`
+      }
+      break
+    case "opinion_analyzer":
+      icon = Users
+      title = "Opinion Analysis"
+      if (status === "completed") {
+        const sentiment = event.data.output?.overall_sentiment || "N/A"
+        description = `Analyzed opinions. Overall sentiment: ${sentiment}.`
+      }
+      break
+    case "query_generator":
+      icon = ListFilter
+      title = "Generating Search Queries"
+      if (status === "completed") {
+        const queries = event.data.output?.search_query || []
+        description = `Generated queries: ${queries.join(", ")}`
+      }
+      break
+    case "web_research":
+      icon = Search
+      title = "Web Research"
+      if (status === "completed") {
+        const sources = event.data.output?.sources_gathered || []
+        description = `Gathered ${sources.length} sources.`
+      }
+      break
+    case "reflection":
+      icon = BrainCircuit
+      title = "Reflection"
+      if (status === "completed") {
+        const critique =
+          event.data.output?.critique || "No further information required."
+        description = `Critique: ${critique.substring(0, 200)}...`
+      }
+      break
+    case "finalize_answer":
+      icon = FileCheck2
+      title = "Finalizing Deep Research"
+      description = "Successfully finalized deep research report."
+      break
+    case "writer":
+      icon = PenSquare
+      title = "Content Writing"
+      description = "Drafted content and image prompts."
+      break
+    case "quality_assurer":
+      icon = ShieldCheck
+      title = "Quality Assurance"
+      description = "Finalized content and prompts after review."
+      break
+    case "image_generator":
+      icon = Image
+      title = "Image Generation"
+      if (status === "completed") {
+        const images = event.data.output?.images || []
+        description = `Generated ${images.length} images.`
+      }
+      break
+    case "publicator":
+      icon = Send
+      title = "Publication"
+      if (status === "completed") {
+        const id = event.data.output?.publication_id
+        description = id
+          ? `Content published with ID: ${id}.`
+          : "Publication details not available."
+      }
+      break
+    case "await_topic_selection":
+      icon = Hand
+      title = "Awaiting Topic Selection"
+      description = "Please select a topic to proceed."
+      break
+    case "await_content_validation":
+      icon = Hand
+      title = "Awaiting Content Validation"
+      description = "Please review and validate the content."
+      break
+    case "await_image_validation":
+      icon = Hand
+      title = "Awaiting Image Validation"
+      description = "Please review and validate the images."
+      break
+    default:
+      title = event.name.replace(/_/g, " ")
+      description = `Status: ${status}`
+  }
+
+  return {
+    icon: icon,
+    title,
+    description,
+    status,
+  }
+}
+
+function TimelineItem({ event }: { event: StreamEvent }) {
+  const { icon: Icon, title, description, status } = getStepConfig(event)
+  const isRunning = status === "running"
+
+  return (
+    <div className="flex items-start space-x-4">
+      <div className="flex flex-col items-center">
+        <div
+          className={`flex h-10 w-10 items-center justify-center rounded-full ${isRunning ? "bg-primary/20 text-primary" : "bg-muted"}`}
+        >
+          <Icon className={`h-5 w-5 ${isRunning ? "animate-spin" : ""}`} />
+        </div>
+        <div className="h-full w-px bg-muted"></div>
+      </div>
+      <div className="pt-2">
+        <h3 className="font-semibold">{title}</h3>
+        <p className="text-sm text-muted-foreground">{description}</p>
+      </div>
+    </div>
+  )
+}
+
+export function ActivityTimeline() {
+  const { events } = useWorkflowContext()
+
+  if (events.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center bg-muted rounded-lg">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <p className="mt-4 text-muted-foreground">
+          Waiting for workflow to start and send its first event...
+        </p>
+      </div>
+    )
+  }
+
+  // Create a map of run IDs to the latest event for that run
+  const latestEventsMap = new Map<string, StreamEvent>()
+  events.forEach((event) => {
+    // Only track our allowed events
+    if (getStepConfig(event).title !== "Processing...") {
+      latestEventsMap.set(event.run_id, event)
+    }
+  })
+
+  // Convert the map back to an array for rendering
+  const uniqueLatestEvents = Array.from(latestEventsMap.values())
+
+  return (
+    <div className="space-y-4 relative">
+      {uniqueLatestEvents.map((event, index) => (
+        <div key={`${event.run_id}-${index}`} className="relative">
+          <TimelineItem event={event} />
+          {index < uniqueLatestEvents.length - 1 && (
+            <div
+              className="absolute left-5 top-10 h-full border-l-2 border-border"
+              style={{ height: "calc(100% - 2.5rem)" }}
+            />
+          )}
+        </div>
+      ))}
+      <WorkflowCompletionStatus events={uniqueLatestEvents} />
+    </div>
+  )
+}
+
+function WorkflowCompletionStatus({ events }: { events: StreamEvent[] }) {
+  const { workflowState } = useWorkflowContext()
+  const lastEvent = events[events.length - 1]
+
+  if (workflowState?.current_step === "END") {
+    return (
+      <Badge variant="green" className="mt-4">
+        Workflow Completed
+      </Badge>
+    )
+  }
+
+  if (
+    lastEvent?.name.startsWith("await_") &&
+    lastEvent?.event === "on_chain_start"
+  ) {
+    return (
+      <Badge variant="yellow" className="mt-4">
+        Action Required
+      </Badge>
+    )
+  }
+
+  return null
+} 
