@@ -31,15 +31,16 @@ const getStepConfig = (event: StreamEvent) => {
       icon = TrendingUp
       title = "Trend Harvesting"
       if (status === "completed") {
-        const trends = event.data.output?.trends || []
-        description = `Gathered ${trends.length} trending topics.`
+        const trends = event.data.output?.trending_topics || []
+        const trendNames = trends.map((t: any) => t.name).join(", ")
+        description = `Gathered ${trends.length} trending topics: ${trendNames}.`
       }
       break
     case "tweet_searcher":
       icon = Search
       title = "Tweet Searching"
       if (status === "completed") {
-        const tweets = event.data.output?.tweets || []
+        const tweets = event.data.output?.tweet_search_results || []
         const topic = event.data.input?.selected_topic?.name || "the selected topic"
         description = `Found ${tweets.length} tweets for "${topic}".`
       }
@@ -56,7 +57,7 @@ const getStepConfig = (event: StreamEvent) => {
       icon = ListFilter
       title = "Generating Search Queries"
       if (status === "completed") {
-        const queries = event.data.output?.search_query || []
+        const queries = event.data.output?.query_list || []
         description = `Generated queries: ${queries.join(", ")}`
       }
       break
@@ -65,7 +66,7 @@ const getStepConfig = (event: StreamEvent) => {
       title = "Web Research"
       if (status === "completed") {
         const sources = event.data.output?.sources_gathered || []
-        const query = event.data.input?.search_query?.join(", ") || "the provided topic"
+        const query = event.data.input?.search_query || "the provided topic"
         description = `Gathered ${sources.length} sources for query: "${query}".`
       }
       break
