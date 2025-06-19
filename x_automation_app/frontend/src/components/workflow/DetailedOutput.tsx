@@ -19,7 +19,7 @@ export function DetailedOutput() {
       <h2 className="text-2xl font-bold text-center">Detailed Workflow Output</h2>
       <TrendingTopicsDetails />
       <OpinionAnalysisDetails />
-      <GeneratedQueriesDetails />
+      {/* <GeneratedQueriesDetails /> */}
       <DeepResearchReport />
       <FinalOutput />
     </div>

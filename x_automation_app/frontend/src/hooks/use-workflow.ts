@@ -13,14 +13,17 @@ function isStreamEvent(data: any): data is StreamEvent {
 
 // Mapping from agent/node names in the backend to state fields
 const nodeStateMapping: Record<string, (data: any) => Partial<OverallState>> = {
-  trend_harvester: (output) => ({ trending_topics: output?.trends }),
+  trend_harvester: (output) => ({ trending_topics: output?.trending_topics }),
   tweet_searcher: (output) => ({ tweet_search_results: output?.tweets }),
   opinion_analyzer: (output) => ({
     opinion_summary: output?.opinion_summary,
     overall_sentiment: output?.overall_sentiment,
     topic_from_opinion_analysis: output?.topic_from_opinion_analysis,
   }),
-  deep_researcher: (output) => ({
+  query_generator: (output) => ({
+    search_query: output?.query_list?.map((q: any) => q.query) || [],
+  }),
+  finalize_answer: (output) => ({
     final_deep_research_report: output?.final_deep_research_report,
   }),
   writer: (output) => ({
