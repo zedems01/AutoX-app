@@ -153,7 +153,7 @@ writer_prompt = """You are an expert content creator and copywriter. Your task i
     -   **Overall Sentiment**: {overall_sentiment}
 
 **Content Requirements:**
--   **Content-Type**: `{x_content_type}` (e.g., `TWEET_THREAD`, `SINGLE_TWEET`, `ARTICLE`)
+-   **Content-Type**: `{x_content_type}`
 -   **Length**: `{content_length}`
 -   **Brand Voice**: `{brand_voice}`
 -   **Target Audience**: `{target_audience}`
@@ -164,21 +164,23 @@ writer_prompt = """You are an expert content creator and copywriter. Your task i
     ```
     {feedback}
     ```
--   **CRITICAL**: MAKE SURE THE FINAL CONTENT IS WRITTEN IN THE LANGUAGE: `{content_language}`
+**CRITICAL**: MAKE SURE THE FINAL CONTENT IS WRITTEN IN THE LANGUAGE: `{content_language}`
 
 
 **Your Task:**
 1.  **Synthesize and Write**: Based on ALL the information above, write the `content_draft`. It must align with the specified content requirements.
-2.  **Generate Image Prompts**: Create a list of descriptive, detailed `image_prompts` for an AI image generator (like DALL-E or Midjourney) that would visually complement the content. The prompts should be creative and directly related to the key themes of the content. Generate at least one prompt, but more if the content warrants it.
+2.  **Generate Image Prompt**: Create a descriptive, detailed `image_prompt` (just one) for an AI image generator like Midjourney that would visually complement the content. The prompt should be creative and directly related to the key themes of the content.
 
 **Output Format:**
 -   Your final output must be a single JSON object that conforms to the `WriterOutput` schema. Do not include any other text.
 """
 
+#2.  **Generate Image Prompts**: Create a list of descriptive, detailed `image_prompts` for an AI image generator that would visually complement the content. The prompts should be creative and directly related to the key themes of the content. Generate at least one prompt, but more if the content warrants it.
+
 quality_assurance_prompt = """You are a meticulous Quality Assurance specialist and editor. Your job is to review and perfect a content draft and its associated image prompts before they are finalized.
 
 **Your Goal:**
-Review the provided `content_draft` and `image_prompts`, taking into account the full context it was created under. Your task is to refine, edit, and improve them to ensure the highest quality. You must perform changes only if necessary, to enhance clarity, engagement, and correctness.
+Review the provided `content_draft` and `image_prompt`, taking into account the full context it was created under. Your task is to refine, edit, and improve them to ensure the highest quality. You must perform changes only if necessary, to enhance clarity, engagement, and correctness.
 
 **Full Context for the Draft:**
 1.  **Original Requirements**:
@@ -196,7 +198,7 @@ Review the provided `content_draft` and `image_prompts`, taking into account the
     ```
     {content_draft}
     ```
-2.  **Image Prompts**:
+2.  **Image Prompt**:
     ```
     {image_prompts}
     ```
@@ -207,22 +209,22 @@ Review the provided `content_draft` and `image_prompts`, taking into account the
     -   Improve sentence structure and flow for better readability.
     -   Ensure the tone and content align with ALL the context provided above (requirements, research, feedback).
     -   Fact-check any claims if possible, though your primary role is editorial.
-2.  **Review the Image Prompts**:
+2.  **Review the Image Prompt**:
     -   Ensure the prompts are clear, descriptive, and likely to produce high-quality, relevant images that align with the refined content.
     -   Refine the prompts to be more evocative or specific if needed.
     -   Ensure the number and subject of the prompts are appropriate for the final content.
 3.  **Produce the Final Version**:
-    -   Your output will be the *final, perfected versions* of `final_content` and `final_image_prompts`. Do not just approve; make improvements.
+    -   Your output will be the *final, perfected versions* of `final_content` and `final_image_prompt`. Do not just approve; make improvements.
 4.  **CRITICAL**: MAKE SURE THE FINAL CONTENT IS WRITTEN IN THE LANGUAGE: `{content_language}`
 
 **Output Format:**
--   Your final output must be a single JSON object that conforms to the `QAOutput` schema, containing `final_content` and `final_image_prompts`. Do not include any other text or explanation.
+-   Your final output must be a single JSON object that conforms to the `QAOutput` schema, containing `final_content` and `final_image_prompt`. Do not include any other text or explanation.
 """
 
 image_generator_prompt = """You are an AI assistant responsible for creating images based on a list of prompts.
 
 **Your Goal:**
-Your primary goal is to call the `generate_and_upload_image` tool for each and every prompt provided in the list below.
+Your primary goal is to call the `generate_and_upload_image` tool for prompt (one or more) provided in the list below.
 
 **Instructions:**
 1.  **Analyze Feedback (If Provided)**:
@@ -245,27 +247,4 @@ Your primary goal is to call the `generate_and_upload_image` tool for each and e
 {feedback}
 ```
 """
-
-markdown_formatter_prompt = """You are a formatting expert. Your task is to convert the given text content into a clean, well-structured, and visually appealing markdown document.
-
-**Content to Format:**
-```
-{content}
-```
-
-**Generated Images (if any):**
-- If there are images, you MUST embed them within the markdown.
-- Use the provided S3 URL for the image source.
-- The image name should be used as the alt text.
-```
-{images}
-```
-
-**Instructions:**
-1.  **Structure the Content**: Use markdown headers (`#`, `##`, etc.), lists (`-`, `*`, `1.`), bold (`**text**`), italics (`*text*`), and other elements to create a clear hierarchy and improve readability.
-2.  **Embed Images**: If images are provided, seamlessly integrate them into the document where they are most relevant to the content. If the relevance is not clear, place them at the end of the document.
-3.  **Code Blocks**: If any part of the content looks like code, format it using markdown code blocks (```).
-4.  **Clean Output**: Your output should ONLY be the final markdown string. Do not include any extra text, explanations, or comments before or after the markdown content.
-"""
-
 
