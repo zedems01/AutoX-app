@@ -58,8 +58,8 @@ const formSchema = z
     }),
     has_user_provided_topic: z.boolean(),
     user_provided_topic: z.string().optional(),
-    x_content_type: z.enum(["TWEET_THREAD", "SINGLE_TWEET"], {
-      required_error: "You need to select a content type.",
+    x_content_type: z.string().min(1, {
+      message: "You need to select a content type.",
     }),
     content_length: z.enum(["SHORT", "MEDIUM", "LONG"], {
       required_error: "You need to select a content length.",
@@ -117,7 +117,7 @@ export default function WorkflowConfigPage() {
       has_user_provided_topic: false,
       user_provided_topic: "",
       output_destination: "GET_OUTPUTS",
-      x_content_type: "SINGLE_TWEET",
+      x_content_type: "Blog Post",
       content_length: "SHORT",
       brand_voice: "",
       target_audience: "",
@@ -182,6 +182,16 @@ export default function WorkflowConfigPage() {
   }
 
   const hasUserProvidedTopic = form.watch("has_user_provided_topic")
+  const outputDestination = form.watch("output_destination")
+
+  useEffect(() => {
+    // When switching to "Publish", if the current content type isn't valid for X, reset it.
+    if (outputDestination === 'PUBLISH_X') {
+      if (!['SINGLE_TWEET', 'TWEET_THREAD'].includes(form.getValues('x_content_type'))) {
+        form.setValue('x_content_type', 'SINGLE_TWEET');
+      }
+    }
+  }, [outputDestination, form]);
 
   if (authStatus === 'verifying') {
     return (
@@ -338,30 +348,80 @@ export default function WorkflowConfigPage() {
                       render={({ field }) => (
                         <FormItem className="space-y-3">
                           <FormLabel>Content Type</FormLabel>
-                          <FormControl>
-                            <RadioGroup
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                              className="flex flex-col space-y-1"
-                            >
-                              <FormItem className="flex items-center space-x-3 space-y-0">
+                          {outputDestination === 'PUBLISH_X' ? (
+                            <FormControl>
+                              <RadioGroup
+                                onValueChange={field.onChange}
+                                value={field.value}
+                                className="flex flex-col space-y-1"
+                              >
+                                <FormItem className="flex items-center space-x-3 space-y-0">
+                                  <FormControl>
+                                    <RadioGroupItem value="SINGLE_TWEET" />
+                                  </FormControl>
+                                  <FormLabel className="font-normal">
+                                    Single Tweet
+                                  </FormLabel>
+                                </FormItem>
+                                <FormItem className="flex items-center space-x-3 space-y-0">
+                                  <FormControl>
+                                    <RadioGroupItem value="TWEET_THREAD" />
+                                  </FormControl>
+                                  <FormLabel className="font-normal">
+                                    Tweet Thread
+                                  </FormLabel>
+                                </FormItem>
+                                
+                              </RadioGroup>
+                            </FormControl>
+                          ) : (
+                            <div>
+                              <FormControl>
+                                <RadioGroup
+                                  onValueChange={(value) => {
+                                    if (value !== 'OTHER') {
+                                      field.onChange(value);
+                                    } else {
+                                      field.onChange('');
+                                    }
+                                  }}
+                                  value={['SINGLE_TWEET', 'TWEET_THREAD', 'Blog Post', 'Social Media Post'].includes(field.value) ? field.value : 'OTHER'}
+                                  className="flex flex-col space-y-1"
+                                >
+                                  <FormItem className="flex items-center space-x-3 space-y-0">
+                                    <FormControl><RadioGroupItem value="Blog Post" /></FormControl>
+                                    <FormLabel className="font-normal">Blog Post</FormLabel>
+                                  </FormItem>
+                                  <FormItem className="flex items-center space-x-3 space-y-0">
+                                    <FormControl><RadioGroupItem value="Social Media Post" /></FormControl>
+                                    <FormLabel className="font-normal">Social Media Post</FormLabel>
+                                  </FormItem>
+                                  <FormItem className="flex items-center space-x-3 space-y-0">
+                                    <FormControl><RadioGroupItem value="SINGLE_TWEET" /></FormControl>
+                                    <FormLabel className="font-normal">Single Tweet</FormLabel>
+                                  </FormItem>
+                                  <FormItem className="flex items-center space-x-3 space-y-0">
+                                    <FormControl><RadioGroupItem value="TWEET_THREAD" /></FormControl>
+                                    <FormLabel className="font-normal">Tweet Thread</FormLabel>
+                                  </FormItem>
+                                  <FormItem className="flex items-center space-x-3 space-y-0">
+                                    <FormControl><RadioGroupItem value="OTHER" /></FormControl>
+                                    <FormLabel className="font-normal">Other...</FormLabel>
+                                  </FormItem>
+                                </RadioGroup>
+                              </FormControl>
+                              
+                              {!['SINGLE_TWEET', 'TWEET_THREAD', 'Blog Post', 'Social Media Post'].includes(field.value) && (
                                 <FormControl>
-                                  <RadioGroupItem value="TWEET_THREAD" />
+                                  <Input
+                                    placeholder="e.g., 'Newsletter'"
+                                    {...field}
+                                    className="mt-2"
+                                  />
                                 </FormControl>
-                                <FormLabel className="font-normal">
-                                  Tweet Thread
-                                </FormLabel>
-                              </FormItem>
-                              <FormItem className="flex items-center space-x-3 space-y-0">
-                                <FormControl>
-                                  <RadioGroupItem value="SINGLE_TWEET" />
-                                </FormControl>
-                                <FormLabel className="font-normal">
-                                  Single Tweet
-                                </FormLabel>
-                              </FormItem>
-                            </RadioGroup>
-                          </FormControl>
+                              )}
+                            </div>
+                          )}
                           <FormMessage />
                         </FormItem>
                       )}
