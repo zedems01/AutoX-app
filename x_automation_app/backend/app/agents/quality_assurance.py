@@ -35,16 +35,37 @@ def quality_assurance_node(state: OverallState) -> Dict[str, Any]:
     logger.info("---PERFORMING QUALITY ASSURANCE ON DRAFT---\n")
 
     try:
+        # Extract existing draft and prompts
         content_draft = state.get("content_draft")
         image_prompts = state.get("image_prompts")
-
         if not content_draft or not image_prompts:
             raise ValueError("Content draft or image prompts are missing for QA.")
 
-        # Format the prompt
+        # Extract the original writer's context for a more informed QA
+        final_deep_research_report = state.get("final_deep_research_report", "No deep research context provided.")
+        opinion_summary = state.get("opinion_summary", "No opinion summary provided.")
+        x_content_type = state.get("x_content_type", "Article")
+        brand_voice = state.get("brand_voice", "Professional")
+        target_audience = state.get("target_audience", "General audience")
+
+        # Handle feedback from the HiTL validation step (same as writer)
+        feedback = "No feedback provided."
+        validation_result = state.get("validation_result")
+        if validation_result and validation_result.get("action") == "reject":
+            if validation_result.get("data"):
+                feedback = validation_result.get("data").get("feedback", "No specific feedback provided.")
+
+
+        # Format the prompt with all the context
         prompt = quality_assurance_prompt.format(
             content_draft=content_draft,
             image_prompts=image_prompts,
+            final_deep_research_report=final_deep_research_report,
+            opinion_summary=opinion_summary,
+            x_content_type=x_content_type,
+            brand_voice=brand_voice,
+            target_audience=target_audience,
+            feedback=feedback,
         )
 
         # Invoke the structured LLM to get the final, refined output
