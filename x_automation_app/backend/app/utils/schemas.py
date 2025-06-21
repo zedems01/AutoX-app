@@ -143,7 +143,7 @@ class WriterOutput(BaseModel):
     Schema for the output of the writer agent.
     """
     content_draft: str = Field(..., description="The main content draft, written according to the specified parameters.")
-    image_prompts: list[str] = Field(..., description="A list of descriptive prompts for generating accompanying images.")
+    image_prompts: list[str] = Field(..., description="A list of one or more descriptive prompts for generating accompanying images.")
 
 
 class QAOutput(BaseModel):
