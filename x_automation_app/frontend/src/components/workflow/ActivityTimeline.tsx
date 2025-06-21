@@ -23,8 +23,13 @@ const getStepConfig = (event: StreamEvent) => {
   let icon = Loader2
   let title = "Processing..."
   let description = `Running: ${event.name}`
-  const status: "running" | "completed" | "error" =
+  let status: "running" | "completed" | "error" =
     event.event === "on_chain_start" ? "running" : "completed"
+
+  // Special handling for waiting steps to prevent eternal spinners
+  if (event.name.startsWith("await_")) {
+    status = "completed"
+  }
 
   switch (event.name) {
     case "trend_harvester":
