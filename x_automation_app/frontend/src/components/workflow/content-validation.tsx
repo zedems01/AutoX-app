@@ -49,7 +49,7 @@ const rejectionSchema = z.object({
 })
 
 export function ContentValidation() {
-  const { threadId, workflowState, setWorkflowState } = useWorkflowContext()
+  const { threadId, workflowState, setWorkflowState, forceReconnect } = useWorkflowContext()
   const [isRejectionDialogOpen, setRejectionDialogOpen] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -73,6 +73,10 @@ export function ContentValidation() {
       setWorkflowState(data)
       setRejectionDialogOpen(false)
       rejectionForm.reset()
+      // Force WebSocket reconnection to resume the workflow
+      if (forceReconnect) {
+        setTimeout(() => forceReconnect(), 100)
+      }
     },
     onError: (error) => {
       toast.error(`Validation failed: ${error.message}`, { duration: 15000 })

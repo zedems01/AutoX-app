@@ -12,6 +12,8 @@ interface WorkflowContextType {
   setEvents: React.Dispatch<React.SetStateAction<StreamEvent[]>>;
   showDetails: boolean;
   setShowDetails: (show: boolean) => void;
+  forceReconnect?: () => void;
+  setForceReconnect: (fn: () => void) => void;
 }
 
 const WorkflowContext = createContext<WorkflowContextType | undefined>(undefined);
@@ -21,6 +23,7 @@ export const WorkflowProvider = ({ children }: { children: ReactNode }) => {
   const [workflowState, setWorkflowState] = useState<OverallState | null>(null);
   const [events, setEvents] = useState<StreamEvent[]>([]);
   const [showDetails, setShowDetails] = useState(false);
+  const [forceReconnect, setForceReconnect] = useState<(() => void) | undefined>(undefined);
 
   return (
     <WorkflowContext.Provider
@@ -33,6 +36,8 @@ export const WorkflowProvider = ({ children }: { children: ReactNode }) => {
         setEvents,
         showDetails,
         setShowDetails,
+        forceReconnect,
+        setForceReconnect,
       }}
     >
       {children}

@@ -43,13 +43,14 @@ const nodeStateMapping: Record<string, (data: any) => Partial<OverallState>> = {
 export function useWorkflow(threadId: string | null) {
   const [isConnected, setIsConnected] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { setWorkflowState, setEvents } = useWorkflowContext()
+  const [reconnectKey, setReconnectKey] = useState(0)
+  const { setWorkflowState, setEvents, setForceReconnect } = useWorkflowContext()
 
   const socketUrl = threadId
-    ? `${API_BASE_URL.replace(/^http/, "ws")}/workflow/ws/${threadId}`
+    ? `${API_BASE_URL.replace(/^http/, "ws")}/workflow/ws/${threadId}?key=${reconnectKey}`
     : null
 
-  const { lastJsonMessage } = useWebSocket(socketUrl, {
+  const { lastJsonMessage, getWebSocket } = useWebSocket(socketUrl, {
     onOpen: () => {
       console.log("WebSocket connection established.")
       setIsConnected(true)
@@ -65,6 +66,16 @@ export function useWorkflow(threadId: string | null) {
     },
     shouldReconnect: (closeEvent) => true,
   })
+
+  const forceReconnect = () => {
+    console.log("Forcing WebSocket reconnection to resume workflow...")
+    setReconnectKey(prev => prev + 1)
+  }
+
+  // Register the forceReconnect function with the context
+  useEffect(() => {
+    setForceReconnect(() => forceReconnect)
+  }, [setForceReconnect])
 
   useEffect(() => {
     if (lastJsonMessage) {
@@ -102,5 +113,5 @@ export function useWorkflow(threadId: string | null) {
     }
   }, [lastJsonMessage, setWorkflowState, setEvents])
 
-  return { isConnected, error }
+  return { isConnected, error, forceReconnect }
 }

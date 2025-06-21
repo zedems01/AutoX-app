@@ -9,7 +9,7 @@ from .agents.graph import graph
 from .utils import x_utils
 from .utils.x_utils import InvalidSessionError
 from .agents.state import OverallState
-from .utils.schemas import ValidationResult, Trend, UserConfigSchema, UserDetails
+from .utils.schemas import ValidationResult, Trend, UserConfigSchema, UserDetails, ValidationAction
 from .utils.json_encoder import CustomJSONEncoder
 from langgraph.types import Send
 
@@ -229,12 +229,13 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
 }
 
     try:
-        # Send the initial state as soon as the client connects
-        initial_state = graph.get_state(config)
-        if initial_state:
-            await websocket.send_text(json.dumps(initial_state.values, cls=CustomJSONEncoder))
+        # Get the current state and send it to the client
+        current_state = graph.get_state(config)
+        if current_state:
+            await websocket.send_text(json.dumps(current_state.values, cls=CustomJSONEncoder))
         
         # Stream only the allowed v2 events to the frontend
+        # Always pass None for interrupted graphs - let LangGraph resume from interruption point
         async for event in graph.astream_events(None, config, version="v2"):
             # Check if the event data contains a `Send` object, which is not serializable
             # and not needed by the frontend.
@@ -267,7 +268,7 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
 # --- Step 3.2.4: Standardized Validation Endpoint ---
 
 @app.post("/workflow/validate", tags=["Workflow"])
-async def validate_step(payload: ValidationPayload, background_tasks: BackgroundTasks):
+async def validate_step(payload: ValidationPayload):
     """
     Receives user validation, updates the state, and resumes the workflow.
     """
@@ -289,13 +290,14 @@ async def validate_step(payload: ValidationPayload, background_tasks: Background
         }
         print(f"Validation result:\n{payload.validation_result.model_dump(exclude_unset=True)}")
 
-        # If the user is editing, overwrite the relevant part of the state
-        if payload.validation_result.action == "edit":
+        # If the user is approving with data or editing, overwrite the relevant part of the state
+        if payload.validation_result.action in [ValidationAction.APPROVE, ValidationAction.EDIT]:
             if payload.validation_result.data and payload.validation_result.data.extra_data:
                 edit_data = payload.validation_result.data.extra_data
                 if next_step == "await_topic_selection" and "selected_topic" in edit_data:
                     # The state for selected_topic expects a dict, not a Pydantic model
                     topic_model = Trend(**edit_data["selected_topic"])
+                    print(f"Topic model:\n{topic_model}\n")
                     update_data["selected_topic"] = topic_model.model_dump(exclude_unset=True)
                 elif next_step == "await_content_validation":
                     if "final_content" in edit_data:
@@ -303,15 +305,14 @@ async def validate_step(payload: ValidationPayload, background_tasks: Background
                     if "final_image_prompts" in edit_data:
                         update_data["final_image_prompts"] = edit_data["final_image_prompts"]
 
-        print(f"Trying to update the state...")
-        # Update the state and resume the graph by passing the update directly to ainvoke
-        background_tasks.add_task(graph.ainvoke, update_data, config)
+        print(f"Updating state with validation data: {update_data}")
+        # Update the state directly with the validation data
+        graph.update_state(config, update_data)
 
-        # To avoid confusing the frontend, we'll return the state as it is *after* validation,
-        # rather than waiting for the whole chain to finish.
-        # The frontend will receive further updates through the WebSocket.
-        current_state = graph.get_state(config)
-        return current_state.values
+        # Return the updated state so the frontend can re-render and open a new WebSocket
+        updated_state = graph.get_state(config)
+        print(f"Updated state:\n{updated_state.values}\n")
+        return updated_state.values
 
     except Exception as e:
         logger.error(f"Error during validation: {e}", exc_info=True)

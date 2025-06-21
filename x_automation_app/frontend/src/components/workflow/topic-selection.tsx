@@ -43,7 +43,7 @@ const formSchema = z.object({
 })
 
 export function TopicSelection() {
-  const { threadId, workflowState, setWorkflowState } = useWorkflowContext()
+  const { threadId, workflowState, setWorkflowState, forceReconnect } = useWorkflowContext()
   const trendingTopics = workflowState?.trending_topics ?? []
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -55,6 +55,10 @@ export function TopicSelection() {
     onSuccess: (data) => {
       toast.success("Topic selected! The workflow will now continue.", { duration: 20000 })
       setWorkflowState(data)
+      // Force WebSocket reconnection to resume the workflow
+      if (forceReconnect) {
+        setTimeout(() => forceReconnect(), 100)
+      }
     },
     onError: (error) => {
       toast.error(`Validation failed: ${error.message}`, { duration: 15000 })

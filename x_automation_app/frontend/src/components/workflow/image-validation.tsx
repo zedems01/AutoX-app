@@ -44,7 +44,7 @@ const rejectionSchema = z.object({
 })
 
 export function ImageValidation() {
-  const { threadId, workflowState, setWorkflowState } = useWorkflowContext()
+  const { threadId, workflowState, setWorkflowState, forceReconnect } = useWorkflowContext()
   const [isRejectionDialogOpen, setRejectionDialogOpen] = useState(false)
   const generatedImages = workflowState?.generated_images ?? []
 
@@ -62,6 +62,10 @@ export function ImageValidation() {
       setWorkflowState(data)
       setRejectionDialogOpen(false)
       rejectionForm.reset()
+      // Force WebSocket reconnection to resume the workflow
+      if (forceReconnect) {
+        setTimeout(() => forceReconnect(), 100)
+      }
     },
     onError: (error) => {
       toast.error(`Validation failed: ${error.message}`, { duration: 15000 })
