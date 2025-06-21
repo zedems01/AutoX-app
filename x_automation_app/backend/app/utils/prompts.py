@@ -157,7 +157,6 @@ writer_prompt = """You are an expert content creator and copywriter. Your task i
 -   **Length**: `{content_length}`
 -   **Brand Voice**: `{brand_voice}`
 -   **Target Audience**: `{target_audience}`
--   **Final Language**: `{content_language}`
 
 **Revision Feedback (if any):**
 -   If feedback is provided below, you MUST revise the content based on it.
@@ -165,6 +164,8 @@ writer_prompt = """You are an expert content creator and copywriter. Your task i
     ```
     {feedback}
     ```
+-   **CRITICAL**: MAKE SURE THE FINAL CONTENT IS WRITTEN IN THE LANGUAGE: `{content_language}`
+
 
 **Your Task:**
 1.  **Synthesize and Write**: Based on ALL the information above, write the `content_draft`. It must align with the specified content requirements.
@@ -212,6 +213,7 @@ Review the provided `content_draft` and `image_prompts`, taking into account the
     -   Ensure the number and subject of the prompts are appropriate for the final content.
 3.  **Produce the Final Version**:
     -   Your output will be the *final, perfected versions* of `final_content` and `final_image_prompts`. Do not just approve; make improvements.
+4.  **CRITICAL**: MAKE SURE THE FINAL CONTENT IS WRITTEN IN THE LANGUAGE: `{content_language}`
 
 **Output Format:**
 -   Your final output must be a single JSON object that conforms to the `QAOutput` schema, containing `final_content` and `final_image_prompts`. Do not include any other text or explanation.

@@ -44,7 +44,11 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
         content_length = state.get("content_length", "Medium")
         brand_voice = state.get("brand_voice", "Professional")
         target_audience = state.get("target_audience", "General audience")
-        content_language = state.get("content_language") or settings.CONTENT_LANGUAGE
+
+        user_config = state.get("user_config") or {}
+        content_language = (user_config.content_language if user_config and user_config.content_language is not None 
+            else settings.CONTENT_LANGUAGE
+        )
         
         # Handle feedback from the HiTL validation step
         feedback = "No feedback provided."

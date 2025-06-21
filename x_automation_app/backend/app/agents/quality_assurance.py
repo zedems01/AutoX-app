@@ -48,6 +48,11 @@ def quality_assurance_node(state: OverallState) -> Dict[str, Any]:
         brand_voice = state.get("brand_voice", "Professional")
         target_audience = state.get("target_audience", "General audience")
 
+        user_config = state.get("user_config") or {}
+        content_language = (user_config.content_language if user_config and user_config.content_language is not None 
+            else settings.CONTENT_LANGUAGE
+        )
+
         # Handle feedback from the HiTL validation step (same as writer)
         feedback = "No feedback provided."
         validation_result = state.get("validation_result")
@@ -66,6 +71,7 @@ def quality_assurance_node(state: OverallState) -> Dict[str, Any]:
             brand_voice=brand_voice,
             target_audience=target_audience,
             feedback=feedback,
+            content_language=content_language,
         )
 
         # Invoke the structured LLM to get the final, refined output
