@@ -99,7 +99,7 @@ const getStepConfig = (event: StreamEvent) => {
     case "quality_assurer":
       icon = ShieldCheck
       title = "Quality Assurance"
-      description = "Finalized content and prompts after review."
+      description = "Content and prompts reviewed for quality."
       break
     case "image_generator":
       icon = Image
@@ -119,12 +119,15 @@ const getStepConfig = (event: StreamEvent) => {
       title = "Publication & Formatting"
       if (status === "completed") {
         const id = event.data.output?.publication_id
-        if (event.data.output?.final_markdown_content) {
-          description = "Final content has been generated and formatted."
+        const destination = event.data.input?.output_destination
+
+        if (destination === "Download") {
+          description =
+            "Final content has been generated and formatted for download."
         } else if (id) {
           description = `Content published with ID: ${id}.`
         } else {
-          description = "Content processed and packaged."
+          description = "Content processed and packaged for publication."
         }
       }
       break
