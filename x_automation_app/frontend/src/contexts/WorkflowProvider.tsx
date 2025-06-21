@@ -14,6 +14,10 @@ interface WorkflowContextType {
   setShowDetails: (show: boolean) => void;
   forceReconnect?: () => void;
   setForceReconnect: (fn: () => void) => void;
+  isConnected: boolean;
+  setIsConnected: (isConnected: boolean) => void;
+  error: string | null;
+  setError: (error: string | null) => void;
 }
 
 const WorkflowContext = createContext<WorkflowContextType | undefined>(undefined);
@@ -24,6 +28,8 @@ export const WorkflowProvider = ({ children }: { children: ReactNode }) => {
   const [events, setEvents] = useState<StreamEvent[]>([]);
   const [showDetails, setShowDetails] = useState(false);
   const [forceReconnect, setForceReconnect] = useState<(() => void) | undefined>(undefined);
+  const [isConnected, setIsConnected] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   return (
     <WorkflowContext.Provider
@@ -38,6 +44,10 @@ export const WorkflowProvider = ({ children }: { children: ReactNode }) => {
         setShowDetails,
         forceReconnect,
         setForceReconnect,
+        isConnected,
+        setIsConnected,
+        error,
+        setError,
       }}
     >
       {children}

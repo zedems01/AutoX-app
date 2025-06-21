@@ -3,7 +3,7 @@
 import { useWorkflowContext } from "@/contexts/WorkflowProvider"
 import { Badge } from "@/components/ui/badge"
 import { Loader2 } from "lucide-react"
-import { ActivityTimeline } from "@/components/workflow/activity-timeline"
+import { ActivityTimeline } from "@/components/workflow/ActivityTimeline"
 
 export function WorkflowStatus() {
   const { isConnected, error, workflowState } = useWorkflowContext()
@@ -26,13 +26,9 @@ export function WorkflowStatus() {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-start">
-        <Badge variant={getStatusVariant()} className="text-sm">
-          {!isConnected && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {getStatusText()}
-        </Badge>
-      </div>
-    </div>
+    <Badge variant={getStatusVariant()} className="text-sm">
+      {!isConnected && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+      {getStatusText()}
+    </Badge>
   )
 } 
