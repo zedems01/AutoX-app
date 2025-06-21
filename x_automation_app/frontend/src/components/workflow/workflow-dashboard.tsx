@@ -43,10 +43,10 @@ export function WorkflowDashboard() {
   const renderConnectionStatus = () => {
     if (error) return <Badge variant="destructive">{error}</Badge>
     if (!isConnected) return <Badge variant="secondary">Connecting...</Badge>
-    if (workflowState?.next_human_input_step)
-      return <Badge variant="yellow">Action Required</Badge>
     if (workflowState?.current_step === "END")
       return <Badge variant="green">Completed</Badge>
+    if (workflowState?.next_human_input_step)
+      return <Badge variant="yellow">Action Required</Badge>
     if (workflowState) return <Badge variant="default">In Progress...</Badge>
     return <Badge variant="default">Initializing...</Badge>
   }

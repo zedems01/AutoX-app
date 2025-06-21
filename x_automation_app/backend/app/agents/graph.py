@@ -69,10 +69,13 @@ def route_after_qa(state: OverallState) -> str:
     return "publicator"
 
 def route_after_image_generation(state: OverallState) -> str:
-    """Routes after image generation based on automation mode."""
-    if not state.get("is_autonomous_mode"):
-        return "await_image_validation"
-    return "publicator"
+    """Routes after image generation based on automation mode and image availability."""
+    # In autonomous mode, or if no images were generated, go straight to publication.
+    if state.get("is_autonomous_mode") or not state.get("generated_images"):
+        return "publicator"
+    
+    # Otherwise, require human-in-the-loop validation for the images.
+    return "await_image_validation"
 
 def route_after_validation(state: OverallState) -> str:
     """Routes after a user validation step, potentially looping back for revisions."""
