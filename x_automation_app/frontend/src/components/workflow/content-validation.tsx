@@ -31,9 +31,11 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useWorkflowContext } from "@/contexts/WorkflowProvider"
 import { validateStep } from "@/lib/api"
+import { ValidationResult } from "@/types"
 
 const formSchema = z.object({
   final_content: z.string().min(1, "Content cannot be empty."),
+  final_image_prompts: z.string().optional(),
 })
 
 const rejectionSchema = z.object({
@@ -55,6 +57,8 @@ export function ContentValidation({ onSubmitted }: ContentValidationProps) {
     resolver: zodResolver(formSchema),
     values: {
       final_content: workflowState?.final_content ?? "",
+      final_image_prompts:
+        workflowState?.final_image_prompts?.join("\n") ?? "",
     },
   })
 
@@ -85,23 +89,34 @@ export function ContentValidation({ onSubmitted }: ContentValidationProps) {
 
   const handleValidation = (
     action: "approve" | "reject" | "edit",
-    data?: any
+    data?: { feedback: string } | { extra_data: any }
   ) => {
     if (!threadId) {
       toast.error("Session expired. Please start over.")
       return
     }
 
+    const validationResult: ValidationResult = { action }
+    if (data) {
+      validationResult.data = data
+    }
+
     mutation.mutate({
       thread_id: threadId,
-      validation_result: { action, data },
+      validation_result: validationResult,
     })
   }
 
   const onApprove = () => handleValidation("approve")
+
   const onEditAndApprove = (values: z.infer<typeof formSchema>) => {
     handleValidation("edit", {
-      extra_data: { final_content: values.final_content },
+      extra_data: {
+        final_content: values.final_content,
+        final_image_prompts: values.final_image_prompts
+          ?.split("\n")
+          .filter((p) => p.trim() !== ""),
+      },
     })
   }
   const onReject = (values: z.infer<typeof rejectionSchema>) => {
@@ -140,23 +155,24 @@ export function ContentValidation({ onSubmitted }: ContentValidationProps) {
                 </FormItem>
               )}
             />
-            <div className="space-y-2">
-              <Label>Generated Image Prompts</Label>
-              <div className="p-4 bg-muted rounded-lg space-y-2">
-                {workflowState?.final_image_prompts &&
-                workflowState.final_image_prompts.length > 0 ? (
-                  workflowState.final_image_prompts.map((prompt, index) => (
-                    <p key={index} className="font-mono text-sm">
-                      - {prompt}
-                    </p>
-                  ))
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    No image prompts were generated for this content.
-                  </p>
-                )}
-              </div>
-            </div>
+            <FormField
+              control={form.control}
+              name="final_image_prompts"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Generated Image Prompts</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      rows={5}
+                      className="font-mono text-sm"
+                      placeholder="No image prompts were generated for this content."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
           <DialogFooter className="flex justify-end space-x-2 pt-4">
             <Button

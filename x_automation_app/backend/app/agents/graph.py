@@ -148,7 +148,9 @@ workflow.add_conditional_edges("trend_harvester", route_after_trend_harvester)
 workflow.add_edge("auto_select_topic", "tweet_searcher")
 
 # This edge handles the continuation from the HiTL topic selection
-workflow.add_conditional_edges("await_topic_selection", route_after_validation)
+workflow.add_conditional_edges(
+    "await_topic_selection", route_after_validation, {"tweet_searcher": "tweet_searcher"}
+)
 
 workflow.add_edge("tweet_searcher", "opinion_analyzer")
 workflow.add_edge("opinion_analyzer", "query_generator")
@@ -169,12 +171,20 @@ workflow.add_edge("writer", "quality_assurer")
 workflow.add_conditional_edges("quality_assurer", route_after_qa)
 
 # This edge handles the continuation from the HiTL content validation
-workflow.add_conditional_edges("await_content_validation", route_after_validation)
+workflow.add_conditional_edges(
+    "await_content_validation",
+    route_after_validation,
+    {"writer": "writer", "image_generator": "image_generator", "publicator": "publicator"},
+)
 
 workflow.add_conditional_edges("image_generator", route_after_image_generation)
 
 # This edge handles the continuation from the HiTL image validation
-workflow.add_conditional_edges("await_image_validation", route_after_validation)
+workflow.add_conditional_edges(
+    "await_image_validation",
+    route_after_validation,
+    {"image_generator": "image_generator", "publicator": "publicator"},
+)
 
 workflow.add_edge("publicator", END)
 

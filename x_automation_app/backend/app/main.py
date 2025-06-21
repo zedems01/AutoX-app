@@ -305,13 +305,13 @@ async def validate_step(payload: ValidationPayload):
                     if "final_image_prompts" in edit_data:
                         update_data["final_image_prompts"] = edit_data["final_image_prompts"]
 
-        print(f"Updating state with validation data: {update_data}")
+        # print(f"Updating state with validation data: {update_data}")
         # Update the state directly with the validation data
         graph.update_state(config, update_data)
 
         # Return the updated state so the frontend can re-render and open a new WebSocket
         updated_state = graph.get_state(config)
-        print(f"Updated state:\n{updated_state.values}\n")
+        # print(f"Updated state:\n{updated_state.values}\n")
         return updated_state.values
 
     except Exception as e:

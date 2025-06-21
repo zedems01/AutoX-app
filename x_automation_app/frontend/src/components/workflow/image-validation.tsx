@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/form"
 import { useWorkflowContext } from "@/contexts/WorkflowProvider"
 import { validateStep } from "@/lib/api"
+import { ValidationResult } from "@/types"
 
 const rejectionSchema = z.object({
   feedback: z
@@ -81,9 +82,14 @@ export function ImageValidation({ onSubmitted }: ImageValidationProps) {
       return
     }
 
+    const validationResult: ValidationResult = { action }
+    if (data) {
+      validationResult.data = data
+    }
+
     mutation.mutate({
       thread_id: threadId,
-      validation_result: { action, data },
+      validation_result: validationResult,
     })
   }
 
