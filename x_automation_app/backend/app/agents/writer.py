@@ -50,8 +50,8 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
         feedback = "No feedback provided."
         validation_result = state.get("validation_result")
         if validation_result and validation_result.get("action") == "reject":
-            if validation_result.data:
-                feedback = validation_result.data.get("feedback", "No specific feedback provided.")
+            if validation_result.get("data"):
+                feedback = validation_result.get("data").get("feedback", "No specific feedback provided.")
             logger.info(f"---Revising draft based on feedback: {feedback}---\n")
 
         # Format the prompt

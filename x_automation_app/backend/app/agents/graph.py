@@ -83,6 +83,9 @@ def route_after_validation(state: OverallState) -> str:
     action = validation_result.get("action", "approve")
     last_step = state.get("next_human_input_step")
 
+    # Clear the human input step since we're processing the validation
+    state["next_human_input_step"] = None
+
     if action == "reject":
         if last_step == "await_content_validation":
             return "writer"
@@ -149,7 +152,9 @@ workflow.add_edge("auto_select_topic", "tweet_searcher")
 
 # This edge handles the continuation from the HiTL topic selection
 workflow.add_conditional_edges(
-    "await_topic_selection", route_after_validation, {"tweet_searcher": "tweet_searcher"}
+    "await_topic_selection", 
+    route_after_validation, 
+    {"tweet_searcher": "tweet_searcher"}
 )
 
 workflow.add_edge("tweet_searcher", "opinion_analyzer")

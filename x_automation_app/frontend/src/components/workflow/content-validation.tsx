@@ -24,7 +24,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
@@ -184,69 +183,14 @@ export function ContentValidation({ onSubmitted }: ContentValidationProps) {
               Approve
             </Button>
 
-            <Dialog
-              open={isRejectionDialogOpen}
-              onOpenChange={setRejectionDialogOpen}
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => setRejectionDialogOpen(true)}
+              disabled={mutation.isPending}
             >
-              <DialogTrigger asChild>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  disabled={mutation.isPending}
-                >
-                  Reject
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Provide Feedback for Rejection</DialogTitle>
-                  <DialogDescription>
-                    Please explain why you are rejecting this content so the AI
-                    can revise it effectively.
-                  </DialogDescription>
-                </DialogHeader>
-                <Form {...rejectionForm}>
-                  <form
-                    onSubmit={rejectionForm.handleSubmit(onReject)}
-                    className="space-y-4"
-                  >
-                    <FormField
-                      control={rejectionForm.control}
-                      name="feedback"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Textarea
-                              rows={5}
-                              placeholder="e.g., 'This content is too formal...'"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <DialogFooter>
-                      <DialogClose asChild>
-                        <Button type="button" variant="ghost">
-                          Cancel
-                        </Button>
-                      </DialogClose>
-                      <Button
-                        type="submit"
-                        variant="destructive"
-                        disabled={mutation.isPending}
-                      >
-                        {mutation.isPending && (
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        )}
-                        Submit Rejection
-                      </Button>
-                    </DialogFooter>
-                  </form>
-                </Form>
-              </DialogContent>
-            </Dialog>
+              Reject
+            </Button>
 
             <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending && (
@@ -257,6 +201,62 @@ export function ContentValidation({ onSubmitted }: ContentValidationProps) {
           </DialogFooter>
         </form>
       </Form>
+
+      {/* Rejection Dialog - Now OUTSIDE the main form */}
+      <Dialog
+        open={isRejectionDialogOpen}
+        onOpenChange={setRejectionDialogOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Provide Feedback for Rejection</DialogTitle>
+            <DialogDescription>
+              Please explain why you are rejecting this content so the AI
+              can revise it effectively.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...rejectionForm}>
+            <form
+              onSubmit={rejectionForm.handleSubmit(onReject)}
+              className="space-y-4"
+            >
+              <FormField
+                control={rejectionForm.control}
+                name="feedback"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Textarea
+                        rows={5}
+                        placeholder="e.g., 'This content is too formal...'"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button type="button" variant="ghost">
+                    Cancel
+                  </Button>
+                </DialogClose>
+                <Button
+                  type="submit"
+                  variant="destructive"
+                  disabled={mutation.isPending}
+                >
+                  {mutation.isPending && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Submit Rejection
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </>
   )
 } 

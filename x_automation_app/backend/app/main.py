@@ -272,6 +272,7 @@ async def validate_step(payload: ValidationPayload):
     """
     Receives user validation, updates the state, and resumes the workflow.
     """
+    print("Activating validation endpoint...")
     config = {"configurable": {"thread_id": payload.thread_id}}
 
     try:
@@ -285,6 +286,7 @@ async def validate_step(payload: ValidationPayload):
             raise HTTPException(status_code=400, detail="No human input is currently awaited for this workflow.")
 
         # Prepare the state update, converting Pydantic models to dicts
+        # Keep next_human_input_step for routing, but mark validation as complete
         update_data = {
             "validation_result": payload.validation_result.model_dump(exclude_unset=True)
         }
