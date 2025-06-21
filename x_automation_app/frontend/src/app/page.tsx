@@ -461,15 +461,15 @@ export default function WorkflowConfigPage() {
                                       type={isNumberField ? "number" : "text"}
                                       value={field.value ?? ""}
                                       onChange={(e) => {
+                                        const value = e.target.value
                                         if (isNumberField) {
-                                          const value = e.target.value
                                           field.onChange(
                                             value === ""
                                               ? undefined
-                                              : Number(value)
+                                              : parseInt(value, 10)
                                           )
                                         } else {
-                                          field.onChange(e)
+                                          field.onChange(value)
                                         }
                                       }}
                                     />

@@ -37,8 +37,12 @@ def trend_harvester_node(state: OverallState) -> Dict[str, List[Trend]]:
     #     # print(f"type state: {state}\n\n")
     #     safe_user_config = state.get("user_config") or {}
     #     prompt = trend_harvester_prompt.format(
-    #         woeid = safe_user_config.get("trends_woeid") or settings.TRENDS_WOEID,
-    #         count = safe_user_config.get("trends_count") or settings.TRENDS_COUNT
+    #         woeid = (safe_user_config.trends_woeid if safe_user_config and safe_user_config.trends_woeid is not None 
+    #             else settings.TRENDS_WOEID
+    #         ),
+    #         count = (safe_user_config.trends_count if safe_user_config and safe_user_config.trends_count is not None 
+    #             else settings.TRENDS_COUNT
+    #         )
     #     )
     #     response = trend_harvester_agent.invoke({"messages": [("user", prompt)]})
     #     parsed_response = response["structured_response"]

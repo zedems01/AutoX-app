@@ -221,7 +221,9 @@ def generate_query(state: OverallState, config: RunnableConfig) -> QueryGenerati
     configurable = Configuration.from_runnable_config(config)
     # query_generator_model = state.get("user_config", {}).get("gemini_base_model") or configurable.query_generator_model
     user_config = state.get("user_config") or {}
-    query_generator_model = user_config.get("gemini_base_model") or configurable.query_generator_model
+    query_generator_model = (user_config.gemini_base_model if user_config and user_config.gemini_base_model is not None 
+        else configurable.query_generator_model
+    )
 
     # Determine the topic from the state, prioritizing the analysis result
     topic = state.get("topic_from_opinion_analysis") or state.get("user_provided_topic")
@@ -270,7 +272,9 @@ def web_research(state: WebSearchState, config: RunnableConfig) -> OverallState:
     configurable = Configuration.from_runnable_config(config)
     # web_search_model = state.get("user_config", {}).get("gemini_base_model") or configurable.query_generator_model
     user_config = state.get("user_config") or {}
-    web_search_model = user_config.get("gemini_base_model") or configurable.query_generator_model
+    web_search_model = (user_config.gemini_base_model if user_config and user_config.gemini_base_model is not None 
+        else configurable.query_generator_model
+    )
     formatted_prompt = web_searcher_instructions.format(
         current_date=get_current_date(),
         research_topic=state["search_query"],
@@ -310,7 +314,9 @@ def reflection(state: OverallState, config: RunnableConfig) -> ReflectionState:
     state["research_loop_count"] = state.get("research_loop_count", 0) + 1
     # reasoning_model = state.get("user_config", {}).get("gemini_reasoning_model") or configurable.reasoning_model
     user_config = state.get("user_config") or {}
-    reasoning_model = user_config.get("gemini_reasoning_model") or configurable.reasoning_model
+    reasoning_model = (user_config.gemini_reasoning_model if user_config and user_config.gemini_reasoning_model is not None 
+        else configurable.reasoning_model
+    )
 
     # Determine the topic from the state for the prompt
     topic = state.get("topic_from_opinion_analysis") or state.get("user_provided_topic")
@@ -381,7 +387,9 @@ def finalize_answer(state: OverallState, config: RunnableConfig):
     configurable = Configuration.from_runnable_config(config)
     # reasoning_model = state.get("user_config", {}).get("gemini_reasoning_model") or configurable.reasoning_model
     user_config = state.get("user_config") or {}
-    reasoning_model = user_config.get("gemini_reasoning_model") or configurable.reasoning_model
+    reasoning_model = (user_config.gemini_reasoning_model if user_config and user_config.gemini_reasoning_model is not None 
+        else configurable.reasoning_model
+    )
 
     # Determine the topic from the state for the prompt
     topic = state.get("topic_from_opinion_analysis") or state.get("user_provided_topic")
