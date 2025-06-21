@@ -207,7 +207,11 @@ export function ContentValidation({ onSubmitted }: ContentValidationProps) {
         open={isRejectionDialogOpen}
         onOpenChange={setRejectionDialogOpen}
       >
-        <DialogContent>
+        <DialogContent
+          onPointerDownOutside={(e) => {
+            e.preventDefault()
+          }}
+        >
           <DialogHeader>
             <DialogTitle>Provide Feedback for Rejection</DialogTitle>
             <DialogDescription>

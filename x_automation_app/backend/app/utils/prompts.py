@@ -178,7 +178,7 @@ writer_prompt = """You are an expert content creator and copywriter. Your task i
 quality_assurance_prompt = """You are a meticulous Quality Assurance specialist and editor. Your job is to review and perfect a content draft and its associated image prompts before they are finalized.
 
 **Your Goal:**
-Review the provided `content_draft` and `image_prompts`, taking into account the full context it was created under. Your task is to refine, edit, and improve them to ensure the highest quality. You must perform changes if necessary to enhance clarity, engagement, and correctness, even if the draft is already good.
+Review the provided `content_draft` and `image_prompts`, taking into account the full context it was created under. Your task is to refine, edit, and improve them to ensure the highest quality. You must perform changes only if necessary, to enhance clarity, engagement, and correctness.
 
 **Full Context for the Draft:**
 1.  **Original Requirements**:

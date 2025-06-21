@@ -61,19 +61,34 @@ export function WorkflowDashboard() {
 
       {/* Modals for validation */}
       <Dialog open={isTopicModalOpen} onOpenChange={setTopicModalOpen}>
-        <DialogContent>
+        <DialogContent
+          className="max-w-4xl"
+          onPointerDownOutside={(e) => {
+            e.preventDefault()
+          }}
+        >
           <TopicSelection onSubmitted={() => setTopicModalOpen(false)} />
         </DialogContent>
       </Dialog>
 
       <Dialog open={isContentModalOpen} onOpenChange={setContentModalOpen}>
-        <DialogContent>
+        <DialogContent
+          className="max-w-4xl"
+          onPointerDownOutside={(e) => {
+            e.preventDefault()
+          }}
+        >
           <ContentValidation onSubmitted={() => setContentModalOpen(false)} />
         </DialogContent>
       </Dialog>
 
       <Dialog open={isImageModalOpen} onOpenChange={setImageModalOpen}>
-        <DialogContent>
+        <DialogContent
+          className="max-w-4xl"
+          onPointerDownOutside={(e) => {
+            e.preventDefault()
+          }}
+        >
           <ImageValidation onSubmitted={() => setImageModalOpen(false)} />
         </DialogContent>
       </Dialog>

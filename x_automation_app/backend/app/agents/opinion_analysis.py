@@ -65,6 +65,6 @@ def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
             "overall_sentiment": "negative",
             "topic_from_opinion_analysis": "US potential involvement in an Israel-Iran conflict",
             "has_user_provided_topic":False,
-            "is_autonomous_mode":True,
+            "is_autonomous_mode":False,
             "output_destination": "GET_OUTPUTS",
         }
