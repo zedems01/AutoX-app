@@ -44,7 +44,8 @@ export function useWorkflow(threadId: string | null) {
   const [isConnected, setIsConnected] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [reconnectKey, setReconnectKey] = useState(0)
-  const { setWorkflowState, setEvents, setForceReconnect } = useWorkflowContext()
+  const { workflowState, setWorkflowState, setEvents, setForceReconnect } =
+    useWorkflowContext()
 
   const socketUrl = threadId
     ? `${API_BASE_URL.replace(/^http/, "ws")}/workflow/ws/${threadId}?key=${reconnectKey}`
@@ -64,7 +65,15 @@ export function useWorkflow(threadId: string | null) {
       console.error("WebSocket error:", event)
       setError("Failed to connect to workflow status.")
     },
-    shouldReconnect: (closeEvent) => true,
+    shouldReconnect: (closeEvent) => {
+      // Do not reconnect if the workflow has successfully completed.
+      if (workflowState?.current_step === "END") {
+        console.log("Workflow has ended. Not reconnecting.")
+        return false
+      }
+      // Otherwise, allow reconnection as default behavior.
+      return true
+    },
   })
 
   const forceReconnect = () => {
