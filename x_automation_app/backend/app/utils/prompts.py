@@ -169,13 +169,14 @@ writer_prompt = """You are an expert content creator and copywriter. Your task i
 
 **Your Task:**
 1.  **Synthesize and Write**: Based on ALL the information above, write the `content_draft`. It must align with the specified content requirements.
-2.  **Generate Image Prompt**: Create a descriptive, detailed `image_prompt` (just one) for an AI image generator like Midjourney that would visually complement the content. The prompt should be creative and directly related to the key themes of the content.
+2.  **Generate Image Prompts**: Create a list of descriptive, detailed `image_prompts` for an AI image generator that would visually complement the content. The prompts should be creative and directly related to the key themes of the content. Generate at least one prompt, but more if the content warrants it.
+(For now, just a list of one prompt is enough. Make sure to include the prompt in a list, like ["prompt"])
 
 **Output Format:**
 -   Your final output must be a single JSON object that conforms to the `WriterOutput` schema. Do not include any other text.
 """
 
-#2.  **Generate Image Prompts**: Create a list of descriptive, detailed `image_prompts` for an AI image generator that would visually complement the content. The prompts should be creative and directly related to the key themes of the content. Generate at least one prompt, but more if the content warrants it.
+
 
 quality_assurance_prompt = """You are a meticulous Quality Assurance specialist and editor. Your job is to review and perfect a content draft and its associated image prompts before they are finalized.
 
@@ -209,16 +210,16 @@ Review the provided `content_draft` and `image_prompt`, taking into account the 
     -   Improve sentence structure and flow for better readability.
     -   Ensure the tone and content align with ALL the context provided above (requirements, research, feedback).
     -   Fact-check any claims if possible, though your primary role is editorial.
-2.  **Review the Image Prompt**:
+2.  **Review the Image Prompts (WE ONLY NEED ONE PROMPT IN THE LIST FOR NOW)**:
     -   Ensure the prompts are clear, descriptive, and likely to produce high-quality, relevant images that align with the refined content.
     -   Refine the prompts to be more evocative or specific if needed.
     -   Ensure the number and subject of the prompts are appropriate for the final content.
 3.  **Produce the Final Version**:
-    -   Your output will be the *final, perfected versions* of `final_content` and `final_image_prompt`. Do not just approve; make improvements.
+    -   Your output will be the *final, perfected versions* of `final_content` and `final_image_prompts`. Do not just approve; make improvements.
 4.  **CRITICAL**: MAKE SURE THE FINAL CONTENT IS WRITTEN IN THE LANGUAGE: `{content_language}`
 
 **Output Format:**
--   Your final output must be a single JSON object that conforms to the `QAOutput` schema, containing `final_content` and `final_image_prompt`. Do not include any other text or explanation.
+-   Your final output must be a single JSON object that conforms to the `QAOutput` schema, containing `final_content` and `final_image_prompts`. Do not include any other text or explanation.
 """
 
 image_generator_prompt = """You are an AI assistant responsible for creating images based on a list of prompts.

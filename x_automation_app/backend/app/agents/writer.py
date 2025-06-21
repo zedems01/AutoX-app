@@ -78,7 +78,7 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
 
         return {
             "content_draft": writer_output.content_draft,
-            "image_prompts": writer_output.image_prompts,
+            "image_prompts": writer_output.image_prompts if isinstance(writer_output.image_prompts, list) else [writer_output.image_prompts],
         }
 
     except Exception as e:
