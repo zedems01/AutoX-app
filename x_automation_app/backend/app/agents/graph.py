@@ -78,23 +78,22 @@ def route_after_validation(state: OverallState) -> str:
     """Routes after a user validation step, potentially looping back for revisions."""
     validation_result = state.get("validation_result") or {}
     action = validation_result.get("action", "approve")
+    last_step = state.get("next_human_input_step")
 
     if action == "reject":
-        last_step = state.get("next_human_input_step")
         if last_step == "await_content_validation":
             return "writer"
         if last_step == "await_image_validation":
             return "image_generator"
     
     # Default to approve/edit and continue
-    current_step = state.get("current_step")
-    if current_step == "await_topic_selection":
+    if last_step == "await_topic_selection":
         return "tweet_searcher"
-    if current_step == "await_content_validation":
+    if last_step == "await_content_validation":
         if state.get("final_image_prompts"):
             return "image_generator"
         return "publicator"
-    if current_step == "await_image_validation":
+    if last_step == "await_image_validation":
         return "publicator"
 
     # Fallback
@@ -134,8 +133,8 @@ workflow.add_node("await_image_validation", await_image_validation)
 # Add autonomous node
 workflow.add_node("auto_select_topic", auto_select_topic)
 
-# Set interrupt points for HiTL
-workflow.interrupt = ["await_topic_selection", "await_content_validation", "await_image_validation"]
+# Set interrupt points for HiTL - This is now done in the compile method
+# workflow.interrupt = ["await_topic_selection", "await_content_validation", "await_image_validation"]
 
 
 
@@ -177,7 +176,14 @@ workflow.add_conditional_edges("await_image_validation", route_after_validation)
 workflow.add_edge("publicator", END)
 
 # Compile the graph
-graph = workflow.compile(checkpointer=memory)
+graph = workflow.compile(
+    checkpointer=memory,
+    interrupt_after=[
+        "await_topic_selection",
+        "await_content_validation",
+        "await_image_validation",
+    ],
+)
 
 # (Optional) Utility to generate a Mermaid diagram of the graph
 try:

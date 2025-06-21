@@ -198,8 +198,8 @@ async def start_workflow(payload: StartWorkflowPayload, background_tasks: Backgr
             "error_message": None,
         }
 
-        # Run the graph invocation in the background
-        background_tasks.add_task(graph.ainvoke, initial_state, config=config)
+        # Save the initial state. The graph will be started by the first WebSocket connection.
+        graph.update_state(config, initial_state)
 
         # The frontend expects an `initial_state` object in the response.
         # We return the state we just constructed so the frontend can proceed.
@@ -251,6 +251,12 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
                 await websocket.send_text(json.dumps(event, cls=CustomJSONEncoder))
             # await websocket.send_text(json.dumps(event, cls=CustomJSONEncoder))
 
+        # After the stream is exhausted (due to interruption), send the final state.
+        # This ensures the client has all the data produced during the run.
+        final_state_of_run = graph.get_state(config)
+        if final_state_of_run:
+            await websocket.send_text(json.dumps(final_state_of_run.values, cls=CustomJSONEncoder))
+
     except WebSocketDisconnect:
         print(f"WebSocket disconnected for thread: {thread_id}\n")
     except Exception as e:
@@ -261,7 +267,7 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
 # --- Step 3.2.4: Standardized Validation Endpoint ---
 
 @app.post("/workflow/validate", tags=["Workflow"])
-async def validate_step(payload: ValidationPayload):
+async def validate_step(payload: ValidationPayload, background_tasks: BackgroundTasks):
     """
     Receives user validation, updates the state, and resumes the workflow.
     """
@@ -298,11 +304,14 @@ async def validate_step(payload: ValidationPayload):
                         update_data["final_image_prompts"] = edit_data["final_image_prompts"]
 
         print(f"Trying to update the state...")
-        # Update the state and resume the graph
-        graph.update_state(config, update_data)
-        final_state = await graph.ainvoke(None, config)
+        # Update the state and resume the graph by passing the update directly to ainvoke
+        background_tasks.add_task(graph.ainvoke, update_data, config)
 
-        return final_state
+        # To avoid confusing the frontend, we'll return the state as it is *after* validation,
+        # rather than waiting for the whole chain to finish.
+        # The frontend will receive further updates through the WebSocket.
+        current_state = graph.get_state(config)
+        return current_state.values
 
     except Exception as e:
         logger.error(f"Error during validation: {e}", exc_info=True)

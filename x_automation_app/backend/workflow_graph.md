@@ -17,9 +17,9 @@ graph TD;
 	quality_assurer(quality_assurer)
 	image_generator(image_generator)
 	publicator(publicator)
-	await_topic_selection(await_topic_selection)
-	await_content_validation(await_content_validation)
-	await_image_validation(await_image_validation)
+	await_topic_selection(await_topic_selection<hr/><small><em>__interrupt = after</em></small>)
+	await_content_validation(await_content_validation<hr/><small><em>__interrupt = after</em></small>)
+	await_image_validation(await_image_validation<hr/><small><em>__interrupt = after</em></small>)
 	auto_select_topic(auto_select_topic)
 	__end__(<p>__end__</p>)
 	__start__ -.-> __end__;
