@@ -35,6 +35,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useWorkflowContext } from "@/contexts/WorkflowProvider"
 import { validateStep } from "@/lib/api"
 import { Trend } from "@/types"
+import {
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
 
 const formSchema = z.object({
   selected_topic: z.string({
@@ -42,7 +48,11 @@ const formSchema = z.object({
   }),
 })
 
-export function TopicSelection() {
+interface TopicSelectionProps {
+  onSubmitted: () => void
+}
+
+export function TopicSelection({ onSubmitted }: TopicSelectionProps) {
   const { threadId, workflowState, setWorkflowState, forceReconnect } = useWorkflowContext()
   const trendingTopics = workflowState?.trending_topics ?? []
 
@@ -53,21 +63,23 @@ export function TopicSelection() {
   const mutation = useMutation({
     mutationFn: validateStep,
     onSuccess: (data) => {
-      toast.success("Topic selected! The workflow will now continue.", { duration: 20000 })
+      toast.success("Topic selected! The workflow will now continue.")
       setWorkflowState(data)
+      // The onSubmitted callback will close the modal immediately.
+      onSubmitted()
       // Force WebSocket reconnection to resume the workflow
       if (forceReconnect) {
         setTimeout(() => forceReconnect(), 100)
       }
     },
     onError: (error) => {
-      toast.error(`Validation failed: ${error.message}`, { duration: 15000 })
+      toast.error(`Validation failed: ${error.message}`)
     },
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     if (!threadId) {
-      toast.error("Session expired. Please start over.", { duration: 15000 })
+      toast.error("Session expired. Please start over.")
       return
     }
 
@@ -76,7 +88,7 @@ export function TopicSelection() {
     )
 
     if (!selectedTopic) {
-      toast.error("Invalid topic selected. Please try again.", { duration: 15000 })
+      toast.error("Invalid topic selected. Please try again.")
       return
     }
 
@@ -85,8 +97,6 @@ export function TopicSelection() {
       validation_result: {
         action: "approve",
         data: {
-          // The backend expects the selected topic here.
-          // Adjust if the backend expects a different structure.
           extra_data: { selected_topic: selectedTopic },
         },
       },
@@ -94,14 +104,14 @@ export function TopicSelection() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Action: Select a Trending Topic</CardTitle>
-        <CardDescription>
+    <>
+      <DialogHeader>
+        <DialogTitle>Action: Select a Trending Topic</DialogTitle>
+        <DialogDescription>
           Choose one of the current trending topics to generate content about.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+        </DialogDescription>
+      </DialogHeader>
+      <div className="py-4">
         {trendingTopics.length > 0 ? (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -110,7 +120,6 @@ export function TopicSelection() {
                 name="selected_topic"
                 render={({ field }) => (
                   <FormItem className="space-y-3">
-                    <FormLabel>Trending Topics</FormLabel>
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
@@ -149,12 +158,18 @@ export function TopicSelection() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={mutation.isPending}>
-                {mutation.isPending && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
-                Approve and Continue
-              </Button>
+              <DialogFooter>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={mutation.isPending}
+                >
+                  {mutation.isPending && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Approve and Continue
+                </Button>
+              </DialogFooter>
             </form>
           </Form>
         ) : (
@@ -163,7 +178,7 @@ export function TopicSelection() {
             <p>Loading trending topics...</p>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </>
   )
 } 

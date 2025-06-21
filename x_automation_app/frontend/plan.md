@@ -1,60 +1,110 @@
-# Implementation Plan: Detailed Workflow Output View
+# Frontend Refactoring Plan: Modal-Based Validation
 
-This plan outlines the steps to implement a new, optional detailed view for the workflow execution. This view will provide in-depth information about each major step of the process and will be enabled by a user-controlled setting on the main configuration page.
+## 1. Objective
 
----
+To refactor the user validation steps (topic selection, content validation, image validation) into non-disruptive modals. The main `ActivityTimeline` should remain visible in the background, and the validation modal should disappear immediately after the user submits their action, providing a smoother, more responsive user experience.
 
-### I. Configuration Page (`src/app/page.tsx`)
+## 2. Core Strategy
 
-1.  **Add "Show Details" Toggle:**
-    -   Introduce a new `Switch` component to the main form (`formSchema`). This will be labeled "Show Detailed View".
-    -   The corresponding form field will be `show_details: z.boolean()`, with a default value of `false`.
+The implementation will shift from a conditional-rendering-in-place model to a state-driven modal system.
 
-2.  **Pass Setting on Workflow Start:**
-    -   The value of this `show_details` switch will be captured when the "Launch Workflow" button is clicked.
-    -   This boolean value will be used to update a new state variable in our `WorkflowContext`, making the choice available to the entire application.
+1.  **Centralize Modal Logic:** The `WorkflowDashboard` component will become the single source of truth for displaying validation modals. It will manage the open/closed state of these modals.
+2.  **Decouple UI from Backend Wait:** The modals will be closed on the frontend immediately after the user's action is submitted, without waiting for the backend to process the request and send a new state. A toast notification will provide immediate feedback.
+3.  **Persistent Timeline:** The `ActivityTimeline` will always be rendered within the `WorkflowDashboard` as the primary view, with modals appearing as overlays.
 
----
+## 3. Detailed Implementation Steps
 
-### II. Workflow Context (`src/contexts/WorkflowProvider.tsx`)
+### 3.1. `x_automation_app/frontend/src/components/workflow/workflow-dashboard.tsx`
 
-1.  **Extend Context State:**
-    -   Add a new state variable to the `WorkflowContextType` to manage the visibility of the detailed view: `showDetails: boolean`.
-    -   Include the corresponding setter function: `setShowDetails: (show: boolean) => void;`.
+This component will be the centerpiece of the new logic.
 
-2.  **Update State on Workflow Start:**
-    -   Modify the `onSubmit` function in `page.tsx`. After a workflow is successfully initiated, it will call `setShowDetails` from the context and pass the value from the new "Show Details" toggle.
+-   3.1.1 **State Management:**
+    -   Introduce local state to manage the visibility of each modal.
+      ```typescript
+      const [isTopicModalOpen, setTopicModalOpen] = useState(false);
+      const [isContentModalOpen, setContentModalOpen] = useState(false);
+      const [isImageModalOpen, setImageModalOpen] = useState(false);
+      ```
 
----
+-   3.1.2 **Effect Hook for State Synchronization:**
+    -   Use `useEffect` to listen for changes in `workflowState.next_human_input_step`. This hook will be responsible for opening the correct modal.
+      ```typescript
+      useEffect(() => {
+        const nextStep = workflowState?.next_human_input_step;
+        setTopicModalOpen(nextStep === 'await_topic_selection');
+        setContentModalOpen(nextStep === 'await_content_validation');
+        setImageModalOpen(nextStep === 'await_image_validation');
+      }, [workflowState?.next_human_input_step]);
+      ```
 
-### III. New Detailed View Components
+-   3.1.3 **Component Rendering:**
+    -   The main return function will be simplified. It will **unconditionally** render `<ActivityTimeline />`.
+    -   The conditional logic that previously decided which component to show will be replaced by a series of `Dialog` components.
+    -   Each validation component (`TopicSelection`, `ContentValidation`, `ImageValidation`) will be wrapped in its own `Dialog` component from `shadcn/ui`.
+      ```jsx
+      <div>
+        <ActivityTimeline /> // Always visible
 
-1.  **Main Container (`src/components/workflow/DetailedOutput.tsx`):**
-    -   Create a new file for the main container component.
-    -   This component will consume `workflowState` and `showDetails` from `useWorkflowContext`.
-    -   It will only render if `showDetails` is `true`, acting as the parent for all the detailed information cards.
+        {/* Topic Selection Modal */}
+        <Dialog open={isTopicModalOpen} onOpenChange={setTopicModalOpen}>
+          <DialogContent>
+            <TopicSelection onSubmitted={() => setTopicModalOpen(false)} />
+          </DialogContent>
+        </Dialog>
 
-2.  **Sub-Components for Each Detail:**
-    -   Create several smaller, focused components, each responsible for displaying a specific piece of information. They will be logically organized, likely within a new `src/components/workflow/details/` directory.
-    -   **`TrendingTopicsDetails.tsx`**: Displays a formatted list of `trending_topics` from the `workflowState`. It will only render when the data is available.
-    -   **`OpinionAnalysisDetails.tsx`**: Displays the `opinion_summary` and `overall_sentiment`.
-    -   **`GeneratedQueriesDetails.tsx`**: Displays the list of generated `search_query` strings.
-    -   **`DeepResearchReport.tsx`**: Displays the `final_deep_research_report`.
-    -   Each of these components will be styled using the existing `Card` component for a consistent look and feel.
+        {/* Content Validation Modal */}
+        <Dialog open={isContentModalOpen} onOpenChange={setContentModalOpen}>
+          <DialogContent>
+            <ContentValidation onSubmitted={() => setContentModalOpen(false)} />
+          </DialogContent>
+        </Dialog>
 
----
+        {/* Image Validation Modal */}
+        <Dialog open={isImageModalOpen} onOpenChange={setImageModalOpen}>
+          <DialogContent>
+            <ImageValidation onSubmitted={() => setImageModalOpen(false)} />
+          </DialogContent>
+        </Dialog>
+      </div>
+      ```
 
-### IV. Layout and Integration
+### 3.2. `x_automation_app/frontend/src/components/workflow/topic-selection.tsx`
 
-1.  **Main Page Layout (`src/app/page.tsx`):**
-    -   Adjust the main page's grid layout. The top section will continue to hold the configuration form and the `WorkflowDashboard` side-by-side.
-    -   A new section will be added below this top grid to render the `<DetailedOutput />` component, which will span the full width of the container.
+This component, along with `content-validation.tsx` and `image-validation.tsx`, will be adapted to work inside a modal.
 
-2.  **Dashboard Component (`src/components/workflow/workflow-dashboard.tsx`):**
-    -   Modify the rendering of the `<FinalOutput />` component.
-    -   It will now be rendered conditionally based on the context: `{!showDetails && <FinalOutput />}`.
+-   **Props:**
+    -   Add a new prop: `onSubmitted: () => void;`.
 
-3.  **Detailed View Integration:**
-    -   Inside the new `DetailedOutput.tsx` component, the `<FinalOutput />` component will be included at the very end. This ensures it appears as the final step within the detailed view when that mode is active.
+-   **Component Structure:**
+    -   Wrap the component's content in modal-specific `shadcn/ui` components like `DialogHeader`, `DialogTitle`, `DialogDescription`, and `DialogFooter`.
+    -   The main form and logic will be placed inside the body of the dialog.
+    -   The submission button will be moved to the `DialogFooter`.
 
-This plan ensures a clean separation of concerns, reuses existing components where appropriate, and implements the requested functionality with minimal disruption to the existing application flow.
+-   **Submission Logic:**
+    -   In the `onSubmit` handler (or equivalent function that calls the `useMutation` hook), add a call to the new `onSubmitted()` prop after the mutation is triggered. This will signal the parent dashboard to close the modal immediately.
+      ```typescript
+      const { mutate } = useMutation({
+        // ... (mutation options)
+      });
+
+      function onSubmit(data) {
+        mutate(payload); // Send data to backend
+        onSubmitted(); // Immediately close the modal
+      }
+      ```
+-   Remove any local logic that conditionally renders the component, as this is now handled by the parent.
+
+### 3.3. `x_automation_app/frontend/src/components/workflow/content-validation.tsx` & `image-validation.tsx`
+
+-   Apply the **exact same pattern** as described for `topic-selection.tsx`:
+    1.  Accept the `onSubmitted: () => void;` prop.
+    2.  Restructure the JSX to fit within a `Dialog`'s structure (`DialogHeader`, `DialogFooter`, etc.).
+    3.  Call `onSubmitted()` after triggering the mutation in the submission handler.
+
+### 3.4. Final Review
+
+-   After implementation, verify that:
+    1.  The `ActivityTimeline` is always visible once the workflow starts.
+    2.  Validation steps correctly appear as modals.
+    3.  Clicking "Approve and Continue" (or similar) immediately closes the modal and shows a success toast.
+    4.  The workflow correctly resumes in the background, and the timeline updates as new events arrive.

@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { useWorkflowContext } from "@/contexts/WorkflowProvider"
 import { useWorkflow } from "@/hooks/use-workflow"
 import { ContentValidation } from "@/components/workflow/content-validation"
@@ -18,43 +19,30 @@ import {
 import { Loader2, RefreshCw } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { ActivityTimeline } from "@/components/workflow/ActivityTimeline"
 
 export function WorkflowDashboard() {
   const { threadId, workflowState, showDetails } = useWorkflowContext()
   const { isConnected, error } = useWorkflow(threadId)
+  const [isTopicModalOpen, setTopicModalOpen] = useState(false)
+  const [isContentModalOpen, setContentModalOpen] = useState(false)
+  const [isImageModalOpen, setImageModalOpen] = useState(false)
 
-  const renderHumanInTheLoopStep = () => {
-    if (!workflowState || !workflowState.next_human_input_step) {
-      return null
-    }
+  useEffect(() => {
+    const nextStep = workflowState?.next_human_input_step
+    setTopicModalOpen(nextStep === "await_topic_selection")
+    setContentModalOpen(nextStep === "await_content_validation")
+    setImageModalOpen(nextStep === "await_image_validation")
+  }, [workflowState?.next_human_input_step])
 
-    switch (workflowState.next_human_input_step) {
-      case "await_topic_selection":
-        return <TopicSelection />
-      case "await_content_validation":
-        return <ContentValidation />
-      case "await_image_validation":
-        return <ImageValidation />
-      default:
-        return null
-    }
-  }
-
-  const getStatusVariant = () => {
-    if (error) return "destructive"
-    if (!isConnected) return "secondary"
-    if (workflowState?.next_human_input_step) return "yellow"
-    if (workflowState?.current_step === "END") return "green"
-    return "default"
-  }
-
-  const getStatusText = () => {
-    if (error) return `Error: ${error}`
-    if (!isConnected) return "Connecting..."
-    if (workflowState?.next_human_input_step) return "Action Required"
-    if (workflowState?.current_step === "END") return "Completed"
-    if (workflowState) return "In Progress..."
-    return "Initializing..."
+  const renderConnectionStatus = () => {
+    if (error) return <Badge variant="destructive">{error}</Badge>
+    if (!isConnected) return <Badge variant="secondary">Connecting...</Badge>
+    if (workflowState?.next_human_input_step) return <Badge variant="yellow">Action Required</Badge>
+    if (workflowState?.current_step === "END") return <Badge variant="green">Completed</Badge>
+    if (workflowState) return <Badge variant="default">In Progress...</Badge>
+    return <Badge variant="default">Initializing...</Badge>
   }
 
   if (!threadId) {
@@ -88,10 +76,7 @@ export function WorkflowDashboard() {
         <CardTitle className="flex items-center justify-between">
           <span>Workflow Progress</span>
           <div className="flex items-center gap-4">
-            <Badge variant={getStatusVariant()} className="ml-2 text-sm">
-              {!isConnected && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {getStatusText()}
-            </Badge>
+            {renderConnectionStatus()}
             {workflowState?.current_step === "END" && (
               <Button onClick={() => window.location.reload()} size="sm">
                 <RefreshCw className="mr-2 h-4 w-4" />
@@ -105,8 +90,8 @@ export function WorkflowDashboard() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6 pt-4">
+        <ActivityTimeline />
         <WorkflowStatus />
-        <div className="mt-6">{renderHumanInTheLoopStep()}</div>
         {!showDetails && <FinalOutput />}
       </CardContent>
       {workflowState?.current_step === "END" && (
@@ -117,6 +102,24 @@ export function WorkflowDashboard() {
           </Button>
         </CardFooter>
       )}
+
+      <Dialog open={isTopicModalOpen} onOpenChange={setTopicModalOpen}>
+        <DialogContent>
+          <TopicSelection onSubmitted={() => setTopicModalOpen(false)} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isContentModalOpen} onOpenChange={setContentModalOpen}>
+        <DialogContent>
+          <ContentValidation onSubmitted={() => setContentModalOpen(false)} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isImageModalOpen} onOpenChange={setImageModalOpen}>
+        <DialogContent>
+          <ImageValidation onSubmitted={() => setImageModalOpen(false)} />
+        </DialogContent>
+      </Dialog>
     </Card>
   )
 } 

@@ -11,14 +11,6 @@ import { Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -40,11 +32,18 @@ import { useWorkflowContext } from "@/contexts/WorkflowProvider"
 import { validateStep } from "@/lib/api"
 
 const rejectionSchema = z.object({
-  feedback: z.string().min(10, "Please provide at least 10 characters of feedback."),
+  feedback: z
+    .string()
+    .min(10, "Please provide at least 10 characters of feedback."),
 })
 
-export function ImageValidation() {
-  const { threadId, workflowState, setWorkflowState, forceReconnect } = useWorkflowContext()
+interface ImageValidationProps {
+  onSubmitted: () => void
+}
+
+export function ImageValidation({ onSubmitted }: ImageValidationProps) {
+  const { threadId, workflowState, setWorkflowState, forceReconnect } =
+    useWorkflowContext()
   const [isRejectionDialogOpen, setRejectionDialogOpen] = useState(false)
   const generatedImages = workflowState?.generated_images ?? []
 
@@ -58,17 +57,18 @@ export function ImageValidation() {
   const mutation = useMutation({
     mutationFn: validateStep,
     onSuccess: (data) => {
-      toast.success("Validation submitted! The workflow will now continue.", { duration: 20000 })
+      toast.success("Validation submitted! The workflow will now continue.")
       setWorkflowState(data)
       setRejectionDialogOpen(false)
       rejectionForm.reset()
+      onSubmitted() // Close the main modal
       // Force WebSocket reconnection to resume the workflow
       if (forceReconnect) {
         setTimeout(() => forceReconnect(), 100)
       }
     },
     onError: (error) => {
-      toast.error(`Validation failed: ${error.message}`, { duration: 15000 })
+      toast.error(`Validation failed: ${error.message}`)
     },
   })
 
@@ -77,7 +77,7 @@ export function ImageValidation() {
     data?: { feedback: string }
   ) => {
     if (!threadId) {
-      toast.error("Session expired. Please start over.", { duration: 15000 })
+      toast.error("Session expired. Please start over.")
       return
     }
 
@@ -93,19 +93,22 @@ export function ImageValidation() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Action: Validate Generated Images</CardTitle>
-        <CardDescription>
+    <>
+      <DialogHeader>
+        <DialogTitle>Action: Validate Generated Images</DialogTitle>
+        <DialogDescription>
           Review the images generated for your content. Approve them to continue,
           or reject them with feedback to try again.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+        </DialogDescription>
+      </DialogHeader>
+      <div className="py-4">
         {generatedImages.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto pr-4">
             {generatedImages.map((image, index) => (
-              <div key={index} className="relative aspect-square rounded-lg overflow-hidden border">
+              <div
+                key={index}
+                className="relative aspect-square rounded-lg overflow-hidden border"
+              >
                 <Image
                   src={image.s3_url}
                   alt={image.image_name || `Generated Image ${index + 1}`}
@@ -122,11 +125,18 @@ export function ImageValidation() {
             <p>Loading generated images...</p>
           </div>
         )}
-      </CardContent>
-      <CardFooter className="flex justify-end space-x-4">
-        <Dialog open={isRejectionDialogOpen} onOpenChange={setRejectionDialogOpen}>
+      </div>
+      <DialogFooter className="flex justify-end space-x-2 pt-4">
+        <Dialog
+          open={isRejectionDialogOpen}
+          onOpenChange={setRejectionDialogOpen}
+        >
           <DialogTrigger asChild>
-            <Button variant="destructive" disabled={mutation.isPending}>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={mutation.isPending}
+            >
               Reject
             </Button>
           </DialogTrigger>
@@ -151,7 +161,7 @@ export function ImageValidation() {
                       <FormControl>
                         <Textarea
                           rows={5}
-                          placeholder="e.g., 'These images are too abstract. Please create something more photorealistic.'"
+                          placeholder="e.g., 'These images are too abstract...'"
                           {...field}
                         />
                       </FormControl>
@@ -161,7 +171,9 @@ export function ImageValidation() {
                 />
                 <DialogFooter>
                   <DialogClose asChild>
-                    <Button variant="ghost">Cancel</Button>
+                    <Button type="button" variant="ghost">
+                      Cancel
+                    </Button>
                   </DialogClose>
                   <Button
                     type="submit"
@@ -179,11 +191,17 @@ export function ImageValidation() {
           </DialogContent>
         </Dialog>
 
-        <Button onClick={onApprove} disabled={mutation.isPending}>
-          {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        <Button
+          type="button"
+          onClick={onApprove}
+          disabled={mutation.isPending}
+        >
+          {mutation.isPending && (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          )}
           Approve Images
         </Button>
-      </CardFooter>
-    </Card>
+      </DialogFooter>
+    </>
   )
 } 
