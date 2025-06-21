@@ -286,10 +286,13 @@ async def validate_step(payload: ValidationPayload):
             raise HTTPException(status_code=400, detail="No human input is currently awaited for this workflow.")
 
         # Prepare the state update, converting Pydantic models to dicts
-        # Keep next_human_input_step for routing, but mark validation as complete
+        # Store which step was validated in the result itself, then clear the
+        # human input step to signal to the frontend that the step is "in progress".
         update_data = {
             "validation_result": payload.validation_result.model_dump(exclude_unset=True)
         }
+        update_data["validation_result"]["validated_step"] = next_step
+        update_data["next_human_input_step"] = None
         print(f"Validation result:\n{payload.validation_result.model_dump(exclude_unset=True)}")
 
         # If the user is approving with data or editing, overwrite the relevant part of the state

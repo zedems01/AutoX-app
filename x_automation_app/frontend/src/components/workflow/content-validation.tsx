@@ -57,7 +57,7 @@ export function ContentValidation({ onSubmitted }: ContentValidationProps) {
     values: {
       final_content: workflowState?.final_content ?? "",
       final_image_prompts:
-        workflowState?.final_image_prompts?.join("\n") ?? "",
+        workflowState?.final_image_prompts?.join("\n\n") ?? "",
     },
   })
 

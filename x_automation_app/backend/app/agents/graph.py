@@ -81,10 +81,10 @@ def route_after_validation(state: OverallState) -> str:
     """Routes after a user validation step, potentially looping back for revisions."""
     validation_result = state.get("validation_result") or {}
     action = validation_result.get("action", "approve")
-    last_step = state.get("next_human_input_step")
+    # The step that was validated is now stored in the validation_result
+    last_step = validation_result.get("validated_step")
 
-    # Clear the human input step since we're processing the validation
-    state["next_human_input_step"] = None
+    # The human input step is already None, so no need to clear it again.
 
     if action == "reject":
         if last_step == "await_content_validation":
