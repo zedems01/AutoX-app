@@ -11,16 +11,16 @@ export function WorkflowStatus() {
   const getStatusVariant = () => {
     if (error) return "destructive"
     if (!isConnected) return "secondary"
-    if (workflowState?.next_human_input_step) return "yellow"
     if (workflowState?.current_step === "END") return "green"
+    if (workflowState?.next_human_input_step) return "yellow"
     return "default"
   }
 
   const getStatusText = () => {
     if (error) return `Error: ${error}`
     if (!isConnected) return "Connecting..."
-    if (workflowState?.next_human_input_step) return "Action Required"
     if (workflowState?.current_step === "END") return "Completed"
+    if (workflowState?.next_human_input_step) return "Action Required"
     if (workflowState) return "In Progress..."
     return "Initializing..."
   }
