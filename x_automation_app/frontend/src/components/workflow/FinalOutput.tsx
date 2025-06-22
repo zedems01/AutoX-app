@@ -9,11 +9,13 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { useWorkflowContext } from "@/contexts/WorkflowProvider"
+import { cn } from "@/lib/utils"
 
 export function FinalOutput() {
   const { workflowState } = useWorkflowContext()
   const finalContent = workflowState?.final_content
   const generatedImages = workflowState?.generated_images
+  const isSingleImage = generatedImages && generatedImages.length === 1
 
   if (!finalContent) {
     return null
@@ -34,11 +36,21 @@ export function FinalOutput() {
         {generatedImages && generatedImages.length > 0 && (
           <div className="mt-4">
             <h4 className="font-semibold mb-2">Generated Images:</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div
+              className={cn(
+                "gap-4",
+                isSingleImage
+                  ? "flex justify-center"
+                  : "grid grid-cols-1 sm:grid-cols-2"
+              )}
+            >
               {generatedImages.map((image, index) => (
                 <div
                   key={index}
-                  className="relative aspect-square rounded-lg overflow-hidden border"
+                  className={cn(
+                    "relative aspect-square rounded-lg overflow-hidden border",
+                    isSingleImage && "w-full sm:w-4/5"
+                  )}
                 >
                   <ImageWithFallback
                     src={image.s3_url}

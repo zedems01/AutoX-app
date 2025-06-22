@@ -31,6 +31,7 @@ import {
 import { useWorkflowContext } from "@/contexts/WorkflowProvider"
 import { validateStep } from "@/lib/api"
 import { ValidationResult } from "@/types"
+import { cn } from "@/lib/utils"
 
 const rejectionSchema = z.object({
   feedback: z
@@ -47,6 +48,7 @@ export function ImageValidation({ onSubmitted }: ImageValidationProps) {
     useWorkflowContext()
   const [isRejectionDialogOpen, setRejectionDialogOpen] = useState(false)
   const generatedImages = workflowState?.generated_images ?? []
+  const isSingleImage = generatedImages.length === 1
 
   const rejectionForm = useForm<z.infer<typeof rejectionSchema>>({
     resolver: zodResolver(rejectionSchema),
@@ -109,11 +111,21 @@ export function ImageValidation({ onSubmitted }: ImageValidationProps) {
       </DialogHeader>
       <div className="py-4">
         {generatedImages.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto pr-4">
+          <div
+            className={cn(
+              "gap-4 max-h-[60vh] overflow-y-auto pr-4",
+              isSingleImage
+                ? "flex justify-center"
+                : "grid grid-cols-1 sm:grid-cols-2"
+            )}
+          >
             {generatedImages.map((image, index) => (
               <div
                 key={index}
-                className="relative aspect-square rounded-lg overflow-hidden border"
+                className={cn(
+                  "relative aspect-square rounded-lg overflow-hidden border",
+                  isSingleImage && "w-full sm:w-4/5"
+                )}
               >
                 <ImageWithFallback
                   src={image.s3_url}
