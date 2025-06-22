@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import Image from "next/image"
+import { ImageWithFallback } from "@/components/shared/ImageWithFallback"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -115,8 +115,9 @@ export function ImageValidation({ onSubmitted }: ImageValidationProps) {
                 key={index}
                 className="relative aspect-square rounded-lg overflow-hidden border"
               >
-                <Image
+                <ImageWithFallback
                   src={image.s3_url}
+                  fallbackSrc={`/images/${image.image_name}`}
                   alt={image.image_name || `Generated Image ${index + 1}`}
                   fill
                   className="object-cover"
