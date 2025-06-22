@@ -30,8 +30,8 @@ export default function RootLayout({
               <ModeToggle />
             </PageHeader>
             <main className="mt-6">{children}</main>
+            <Toaster richColors />
           </div>
-          <Toaster />
         </Providers>
       </body>
     </html>

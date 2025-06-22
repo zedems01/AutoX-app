@@ -16,7 +16,6 @@ const Toaster = ({ ...props }: ToasterProps) => {
           toast:
             "var(--popover)",
           description: "var(--popover-foreground)",
-          button: "var(--border)",
         },
       }}
       style={
