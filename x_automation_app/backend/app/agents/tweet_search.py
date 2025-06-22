@@ -1,6 +1,6 @@
 import json
 from langgraph.prebuilt import create_react_agent
-# from langchain_openai import ChatOpenAI
+from langchain_openai import ChatOpenAI
 # from langchain_google_genai import ChatGoogleGenerativeAI
 # from langchain_groq import ChatGroq
 from langchain_anthropic import ChatAnthropic
@@ -17,10 +17,10 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Create the agent once and reuse it
-# llm = ChatOpenAI(model=settings.OPENAI_MODEL) or ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
+llm = ChatOpenAI(model=settings.OPENAI_MODEL)
 # llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
 # llm = ChatGroq(model=settings.GROQ_MODEL)
-llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
+# llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
 tweet_search_agent = create_react_agent(model=llm, tools=[tweet_advanced_search], response_format=TweetSearchResponse)
 
 def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
@@ -35,20 +35,20 @@ def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
         A dictionary to update the 'tweet_search_results' key in the state.
     """
     logger.info("---SEARCHING FOR TWEETS---\n")
-    return {
-        "tweet_search_results": [TweetSearched(text='Why would they have to ask? that’s weird. Israel said Donald Trump was involved in this operation from the beginning. I was told the only reason he was allowed to become president was to corral white kids into the army again and go to war with Iran.', source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='', lang='en', isReply=False, author=TweetAuthor(userName='', name='Dr. StormyWaters', isVerified=False, followers=0, following=0)),
-  TweetSearched(text='Two days ago, the idea that Israel might pull us into a war with Iran was "hysterical," "unfounded," "paranoid," etc. \n\nNow, it\'s a stated policy preference.', source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='', lang='en', isReply=False, author=TweetAuthor(userName='', name='Brandan P. Buck', isVerified=False, followers=0, following=0)),
-  TweetSearched(text='@RealAlexJones don’t forget the sadistic nature of netanyahu. He’s the type of guy to flee israel, deliberately cut off defense systems and cause mass casualties to force America into a war with iran', source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='', lang='en', isReply=False, author=TweetAuthor(userName='', name='westsidephilosophy', isVerified=False, followers=0, following=0)),
-  TweetSearched(text="-FDD/Israel: Bomb Iran so it doesn't get a bomb!\n\n*Israel bombs but fails to destroy the nuclear program*\n\n-FDD/Israel: America must bomb Iran now because, after Israel tried, Iran really wants to get a bomb\n\nSo the plan was all along: Israel starts a war TO PULL THE US INTO IT", source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='', lang='en', isReply=False, author=TweetAuthor(userName='', name='Trita Parsi', isVerified=False, followers=0, following=0)),
-  TweetSearched(text='🚨⚡️ Israel officially ‘ASKS’ US to ‘join’ war with Iran — Axios\n\nWill Trump agree or put ‘America first’? https://t.co/ooZuOA5bLp', source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='', lang='en', isReply=False, author=TweetAuthor(userName='', name='RussiaNews 🇷🇺', isVerified=False, followers=0, following=0))]
-        }
+#     return {
+#         "tweet_search_results": [TweetSearched(text='Why would they have to ask? that’s weird. Israel said Donald Trump was involved in this operation from the beginning. I was told the only reason he was allowed to become president was to corral white kids into the army again and go to war with Iran.', source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='', lang='en', isReply=False, author=TweetAuthor(userName='', name='Dr. StormyWaters', isVerified=False, followers=0, following=0)),
+#   TweetSearched(text='Two days ago, the idea that Israel might pull us into a war with Iran was "hysterical," "unfounded," "paranoid," etc. \n\nNow, it\'s a stated policy preference.', source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='', lang='en', isReply=False, author=TweetAuthor(userName='', name='Brandan P. Buck', isVerified=False, followers=0, following=0)),
+#   TweetSearched(text='@RealAlexJones don’t forget the sadistic nature of netanyahu. He’s the type of guy to flee israel, deliberately cut off defense systems and cause mass casualties to force America into a war with iran', source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='', lang='en', isReply=False, author=TweetAuthor(userName='', name='westsidephilosophy', isVerified=False, followers=0, following=0)),
+#   TweetSearched(text="-FDD/Israel: Bomb Iran so it doesn't get a bomb!\n\n*Israel bombs but fails to destroy the nuclear program*\n\n-FDD/Israel: America must bomb Iran now because, after Israel tried, Iran really wants to get a bomb\n\nSo the plan was all along: Israel starts a war TO PULL THE US INTO IT", source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='', lang='en', isReply=False, author=TweetAuthor(userName='', name='Trita Parsi', isVerified=False, followers=0, following=0)),
+#   TweetSearched(text='🚨⚡️ Israel officially ‘ASKS’ US to ‘join’ war with Iran — Axios\n\nWill Trump agree or put ‘America first’? https://t.co/ooZuOA5bLp', source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='', lang='en', isReply=False, author=TweetAuthor(userName='', name='RussiaNews 🇷🇺', isVerified=False, followers=0, following=0))]
+#         }
     
     try:
         # Determine the topic from the state, with a clear priority
         topic = ""
         selected_topic = state.get("selected_topic")
         if selected_topic:
-            topic = selected_topic.name
+            topic = selected_topic["name"] if isinstance(selected_topic, dict) else selected_topic.name
         elif state.get("user_provided_topic"):
             topic = state.get("user_provided_topic")
 
@@ -76,6 +76,7 @@ def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
             )        
         response = tweet_search_agent.invoke({"messages": [("user", prompt)]})
         parsed_response = response["structured_response"]
+        # print(f"parsed_response: {parsed_response}\n")
         
         logger.info(f"---Found {len(parsed_response.tweets)} tweets.---\n")
 

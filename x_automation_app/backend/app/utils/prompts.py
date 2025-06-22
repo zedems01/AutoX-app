@@ -117,6 +117,7 @@ tweet_search_prompt = """You are an AI assistant that generates expert-level sea
     *   Use operators to filter results. For example, `lang:fr` for french tweets, `min_faves:10` to find popular tweets, `min_replies:N` for minimum number of replies, `min_retweets:N`for minimum number of Retweets, etc.
     *   Make sure to search for tweets in {tweets_language}.
     *   The current date is {current_date}. Consider using date operators like `since:` or `until:` if the topic is time-sensitive.
+    *   Be careful with the nested quotes, make sure to use the correct number of quotes, and don't use double quotes inside single quotes, or double quotes inside double quotes.
 3.  **Tool Call**: You must call the `tweet_advanced_search` tool **once**, with the query you constructed.
     *   The `query` parameter should be your generated search string.
     *   You can set the `query_type` to "Latest" (default) or "Top" based on what is most appropriate for the topic.
