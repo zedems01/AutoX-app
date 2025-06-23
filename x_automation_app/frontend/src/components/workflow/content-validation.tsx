@@ -179,6 +179,7 @@ export function ContentValidation({ onSubmitted }: ContentValidationProps) {
               variant="outline"
               onClick={onApprove}
               disabled={mutation.isPending}
+              className="cursor-pointer"
             >
               Approve
             </Button>
@@ -188,11 +189,12 @@ export function ContentValidation({ onSubmitted }: ContentValidationProps) {
               variant="destructive"
               onClick={() => setRejectionDialogOpen(true)}
               disabled={mutation.isPending}
+              className="cursor-pointer"
             >
               Reject
             </Button>
 
-            <Button type="submit" disabled={mutation.isPending}>
+            <Button type="submit" disabled={mutation.isPending} className="cursor-pointer">
               {mutation.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}

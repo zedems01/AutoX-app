@@ -123,7 +123,7 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={mutation.isPending}>
+              <Button type="submit" className="w-full cursor-pointer" disabled={mutation.isPending}>
                 {mutation.isPending && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}

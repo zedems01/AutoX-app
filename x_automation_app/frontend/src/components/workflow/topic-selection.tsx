@@ -161,7 +161,7 @@ export function TopicSelection({ onSubmitted }: TopicSelectionProps) {
               <DialogFooter>
                 <Button
                   type="submit"
-                  className="w-full"
+                  className="w-full cursor-pointer"
                   disabled={mutation.isPending}
                 >
                   {mutation.isPending && (

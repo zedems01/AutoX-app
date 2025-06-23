@@ -155,6 +155,7 @@ export function ImageValidation({ onSubmitted }: ImageValidationProps) {
               type="button"
               variant="destructive"
               disabled={mutation.isPending}
+              className="cursor-pointer"
             >
               Reject
             </Button>
@@ -214,6 +215,7 @@ export function ImageValidation({ onSubmitted }: ImageValidationProps) {
           type="button"
           onClick={onApprove}
           disabled={mutation.isPending}
+          className="cursor-pointer"
         >
           {mutation.isPending && (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />

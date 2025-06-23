@@ -244,6 +244,7 @@ export default function WorkflowConfigPage() {
                             <Switch
                               checked={field.value}
                               onCheckedChange={field.onChange}
+                              className="cursor-pointer"
                             />
                           </FormControl>
                         </FormItem>
@@ -266,6 +267,7 @@ export default function WorkflowConfigPage() {
                             <Switch
                               checked={field.value}
                               onCheckedChange={field.onChange}
+                              className="cursor-pointer"
                             />
                           </FormControl>
                         </FormItem>
@@ -288,7 +290,7 @@ export default function WorkflowConfigPage() {
                             >
                               <FormItem className="flex items-center space-x-3 space-y-0">
                                 <FormControl>
-                                  <RadioGroupItem value="GET_OUTPUTS" />
+                                  <RadioGroupItem value="GET_OUTPUTS" className="cursor-pointer" />
                                 </FormControl>
                                 <FormLabel className="font-normal">
                                   Just get the generated content
@@ -296,7 +298,7 @@ export default function WorkflowConfigPage() {
                               </FormItem>
                               <FormItem className="flex items-center space-x-3 space-y-0">
                                 <FormControl>
-                                  <RadioGroupItem value="PUBLISH_X" />
+                                  <RadioGroupItem value="PUBLISH_X" className="cursor-pointer" />
                                 </FormControl>
                                 <FormLabel className="font-normal">
                                   Publish directly to X (Twitter)
@@ -327,6 +329,7 @@ export default function WorkflowConfigPage() {
                             <Switch
                               checked={field.value}
                               onCheckedChange={field.onChange}
+                              className="cursor-pointer"
                             />
                           </FormControl>
                         </FormItem>
@@ -496,7 +499,7 @@ export default function WorkflowConfigPage() {
                   {/* --- Advanced Configuration --- */}
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="item-1">
-                      <AccordionTrigger>Advanced Configuration</AccordionTrigger>
+                      <AccordionTrigger className="cursor-pointer">Advanced Configuration</AccordionTrigger>
                       <AccordionContent className="space-y-4 p-1">
                         <p className="text-sm text-muted-foreground">
                           Optional: Override default agent settings. Leave blank
@@ -550,7 +553,7 @@ export default function WorkflowConfigPage() {
 
                   <Button
                     type="submit"
-                    className="w-full"
+                    className="w-full cursor-pointer"
                     disabled={mutation.isPending}
                   >
                     {mutation.isPending && (

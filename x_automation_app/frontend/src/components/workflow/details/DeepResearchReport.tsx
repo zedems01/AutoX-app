@@ -57,7 +57,7 @@ export function DeepResearchReport() {
               variant="ghost"
               size="icon"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="rounded-full bg-background/50 backdrop-blur-sm"
+              className="rounded-full bg-background/50 backdrop-blur-sm cursor-pointer"
             >
               {isExpanded ? (
                 <ChevronUp className="h-4 w-4" />
