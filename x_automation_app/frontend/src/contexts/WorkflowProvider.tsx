@@ -31,6 +31,7 @@ export const WorkflowProvider = ({ children }: { children: ReactNode }) => {
   const [forceReconnect, setForceReconnect] = useState<(() => void) | undefined>(undefined);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isComplete, setIsComplete] = useState(false);
 
   const progress = useMemo(() => {
     const workflowSteps = [
@@ -51,8 +52,12 @@ export const WorkflowProvider = ({ children }: { children: ReactNode }) => {
       "publicator",
     ]
 
+    if (isComplete) return 100
     if (!workflowState?.current_step) return 0
-    if (workflowState.current_step === "END") return 100
+    if (workflowState.current_step === "END") {
+      setIsComplete(true)
+      return 100
+    }
 
     let stepForProgress = workflowState.current_step
 
@@ -68,7 +73,7 @@ export const WorkflowProvider = ({ children }: { children: ReactNode }) => {
     }
 
     return 0
-  }, [workflowState])
+  }, [workflowState, isComplete])
 
   return (
     <WorkflowContext.Provider
