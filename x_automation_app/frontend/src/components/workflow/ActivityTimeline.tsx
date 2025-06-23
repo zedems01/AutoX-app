@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   TrendingUp,
   Users,
+  CheckCircle,
 } from "lucide-react"
 
 import { useWorkflowContext } from "@/contexts/WorkflowProvider"
@@ -167,19 +168,31 @@ const getStepConfig = (event: StreamEvent) => {
 function TimelineItem({ event }: { event: StreamEvent }) {
   const { icon: Icon, title, description, status } = getStepConfig(event)
   const isRunning = status === "running"
+  const isCompleted = status === "completed"
 
   return (
     <div className="flex items-start space-x-4">
       <div className="flex flex-col items-center">
         <div
-          className={`flex h-10 w-10 items-center justify-center rounded-full ${isRunning ? "bg-primary/20 text-primary" : "bg-muted"}`}
+          className={`flex h-10 w-10 items-center justify-center rounded-full ${
+            isRunning
+              ? "bg-primary/20 text-primary"
+              : isCompleted
+                ? "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400"
+                : "bg-muted"
+          }`}
         >
           <Icon className={`h-5 w-5 ${isRunning ? "animate-spin" : ""}`} />
         </div>
         <div className="h-full w-px bg-muted"></div>
       </div>
       <div className="pt-2">
-        <h3 className="font-semibold">{title}</h3>
+        <h3 className="flex items-center gap-2 font-semibold">
+          {title}
+          {isCompleted && (
+            <CheckCircle className="h-5 w-5 text-green-500" />
+          )}
+        </h3>
         <p className="text-sm text-muted-foreground">{description}</p>
       </div>
     </div>
