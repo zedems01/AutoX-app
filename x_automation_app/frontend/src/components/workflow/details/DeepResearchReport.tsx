@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import {
   Card,
   CardContent,
@@ -7,16 +8,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { FileCheck2 } from "lucide-react"
+import { FileCheck2, ChevronDown, ChevronUp } from "lucide-react"
 import { useWorkflowContext } from "@/contexts/WorkflowProvider"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+
+const TRUNCATE_LENGTH = 500
 
 export function DeepResearchReport() {
   const { workflowState } = useWorkflowContext()
   const report = workflowState?.final_deep_research_report
+  const [isExpanded, setIsExpanded] = useState(false)
 
   if (!report) {
     return null
   }
+
+  const isLongReport = report.length > TRUNCATE_LENGTH
 
   return (
     <Card>
@@ -30,9 +38,35 @@ export function DeepResearchReport() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <pre className="p-4 bg-muted rounded-md text-sm overflow-x-auto whitespace-pre-wrap break-words">
-          {report}
-        </pre>
+        <div className="relative">
+          <pre
+            className={cn(
+              "p-4 bg-muted rounded-md text-sm whitespace-pre-wrap break-words transition-all duration-300",
+              isLongReport && !isExpanded ? "max-h-48 overflow-hidden" : ""
+            )}
+          >
+            {report}
+          </pre>
+          {isLongReport && !isExpanded && (
+            <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-background to-transparent" />
+          )}
+        </div>
+        {isLongReport && (
+          <div className="flex justify-center -mt-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="rounded-full bg-background/50 backdrop-blur-sm"
+            >
+              {isExpanded ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

@@ -175,11 +175,11 @@ function TimelineItem({ event }: { event: StreamEvent }) {
     <div className="flex items-start space-x-4">
       <div className="flex flex-col items-center">
         <div
-          className={`flex h-10 w-10 items-center justify-center rounded-full ${
+          className={`flex h-9 w-9 items-center justify-center rounded-full ${
             isRunning
               ? "bg-primary/20 text-primary"
               : isCompleted
-                ? "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400"
+                ? "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-500"
                 : "bg-muted"
           }`}
         >
