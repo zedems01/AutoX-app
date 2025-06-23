@@ -30,7 +30,7 @@ export function DeepResearchReport() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <FileCheck2 className="h-5 w-5 text-blue-500" />
+          <FileCheck2 className="h-5 w-5 text-green-500" />
           Deep Research Report
         </CardTitle>
         <CardDescription>

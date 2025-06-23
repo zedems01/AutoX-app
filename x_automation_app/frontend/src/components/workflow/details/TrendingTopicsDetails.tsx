@@ -34,15 +34,16 @@ export function TrendingTopicsDetails() {
           Trending Topics
         </CardTitle>
         <CardDescription>
-          The following trending topics were identified and analyzed.
+          {/* The following trending topics were identified and analyzed. */}
+          Some of the trending topics identified on X and analyzed.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Topic</TableHead>
-              <TableHead className="text-right">Tweet Count</TableHead>
+              <TableHead className="font-bold">Topic</TableHead>
+              <TableHead className="text-right font-bold">Tweet Count</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
