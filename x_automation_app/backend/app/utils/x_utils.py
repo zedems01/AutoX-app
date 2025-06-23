@@ -167,25 +167,25 @@ def tweet_advanced_search(
                 # Extract author details
                 author_data = tweet_data.get("author", {})
                 author = TweetAuthor(
-                    userName=author_data.get("user_name", ""),
+                    userName=author_data.get("userName", ""),
                     name=author_data.get("name", ""),
-                    isVerified=author_data.get("is_verified", False),
-                    followers=author_data.get("followers_count", 0),
-                    following=author_data.get("following_count", 0)
+                    isVerified=author_data.get("isVerified", False),
+                    followers=author_data.get("followers", 0),
+                    following=author_data.get("following", 0)
                 )
 
                 # Extract tweet details
                 tweet_obj = TweetSearched(
                     text=tweet_data.get("text", ""),
                     source=tweet_data.get("source", ""),
-                    retweetCount=tweet_data.get("retweet_count", 0),
-                    replyCount=tweet_data.get("reply_count", 0),
-                    likeCount=tweet_data.get("like_count", 0),
-                    quoteCount=tweet_data.get("quote_count", 0),
-                    viewCount=tweet_data.get("views", 0),
-                    createdAt=tweet_data.get("created_at", ""),
+                    retweetCount=tweet_data.get("retweetCount", 0),
+                    replyCount=tweet_data.get("replyCount", 0),
+                    likeCount=tweet_data.get("likeCount", 0),
+                    quoteCount=tweet_data.get("quoteCount", 0),
+                    viewCount=tweet_data.get("viewCount", 0),
+                    createdAt=tweet_data.get("createdAt", ""),
                     lang=tweet_data.get("lang", ""),
-                    isReply=tweet_data.get("is_reply", False),
+                    isReply=tweet_data.get("isReply", False),
                     author=author
                 )
                 all_tweets.append(tweet_obj)
