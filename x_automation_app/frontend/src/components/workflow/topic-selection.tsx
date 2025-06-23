@@ -132,7 +132,7 @@ export function TopicSelection({ onSubmitted }: TopicSelectionProps) {
                               <TableHead className="w-[50px]"></TableHead>
                               <TableHead>Topic</TableHead>
                               <TableHead className="text-right">
-                                Tweet Volume
+                                Tweet Count
                               </TableHead>
                             </TableRow>
                           </TableHeader>

@@ -38,7 +38,7 @@ export function TrendingTopicsDetails() {
           <TableHeader>
             <TableRow>
               <TableHead>Topic</TableHead>
-              <TableHead className="text-right">Tweet Volume</TableHead>
+              <TableHead className="text-right">Tweet Count</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

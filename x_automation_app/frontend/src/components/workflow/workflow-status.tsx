@@ -26,9 +26,9 @@ export function WorkflowStatus() {
   }
 
   return (
-    <Badge variant={getStatusVariant()} className="text-sm">
-      {!isConnected && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-      {getStatusText()}
-    </Badge>
+        <Badge variant={getStatusVariant()} className="text-sm">
+          {!isConnected && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {getStatusText()}
+        </Badge>
   )
 } 

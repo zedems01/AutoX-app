@@ -39,45 +39,45 @@ def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]
         A dictionary to update the 'generated_images' key in the state.
     """
     logger.info("---GENERATING IMAGES---\n")
-    # logger.info("No prompts found for image generation.")
-    # return {"generated_images": None}
+    logger.info("No prompts found for image generation.\n")
+    return {"generated_images": None}
     
-    try:
-        final_image_prompts = state.get("final_image_prompts")
-        if not final_image_prompts:
-            logger.info("No image prompts found. Skipping image generation.")
-            return {"generated_images": []}
+    # try:
+    #     final_image_prompts = state.get("final_image_prompts")
+    #     if not final_image_prompts:
+    #         logger.info("No image prompts found. Skipping image generation.")
+    #         return {"generated_images": []}
 
-        # Handle feedback from the HiTL validation step
-        feedback = "No feedback provided."
-        validation_result = state.get("validation_result")
+    #     # Handle feedback from the HiTL validation step
+    #     feedback = "No feedback provided."
+    #     validation_result = state.get("validation_result")
 
-        if isinstance(validation_result, dict) and validation_result.get("action") == ValidationAction.REJECT:
-            data = validation_result.get("data")
-            if isinstance(data, dict):
-                feedback_from_data = data.get("feedback")
-                if feedback_from_data:
-                    feedback = feedback_from_data
-                    logger.info(f"---Revising image prompts based on feedback: {feedback}---\n")
+    #     if isinstance(validation_result, dict) and validation_result.get("action") == ValidationAction.REJECT:
+    #         data = validation_result.get("data")
+    #         if isinstance(data, dict):
+    #             feedback_from_data = data.get("feedback")
+    #             if feedback_from_data:
+    #                 feedback = feedback_from_data
+    #                 logger.info(f"---Revising image prompts based on feedback: {feedback}---\n")
 
 
-        prompt = image_generator_prompt.format(
-            final_image_prompts=final_image_prompts,
-            feedback=feedback
-        )
+    #     prompt = image_generator_prompt.format(
+    #         final_image_prompts=final_image_prompts,
+    #         feedback=feedback
+    #     )
         
-        response = image_generating_agent.invoke({"messages": [("user", prompt)]})
-        parsed_response = response["structured_response"]
-        # Extract the GeneratedImage objects from the tool call responses
-        # generated_images = []
-        # for msg in response.get("messages", []):
-        #     if isinstance(msg, ToolMessage) and isinstance(msg.content, GeneratedImage):
-        #         generated_images.append(msg.content)
+    #     response = image_generating_agent.invoke({"messages": [("user", prompt)]})
+    #     parsed_response = response["structured_response"]
+    #     # Extract the GeneratedImage objects from the tool call responses
+    #     # generated_images = []
+    #     # for msg in response.get("messages", []):
+    #     #     if isinstance(msg, ToolMessage) and isinstance(msg.content, GeneratedImage):
+    #     #         generated_images.append(msg.content)
 
-        logger.info(f"---Successfully generated {len(parsed_response.images)} images.---\n")
+    #     logger.info(f"---Successfully generated {len(parsed_response.images)} images.---\n")
 
-        return {"generated_images": parsed_response.images}
+    #     return {"generated_images": parsed_response.images}
 
-    except Exception as e:
-        logger.error(f"An unexpected error occurred in the image generator node: {e}\n")
-        return {"error_message": f"An unexpected error occurred during image generation: {str(e)}"}
+    # except Exception as e:
+    #     logger.error(f"An unexpected error occurred in the image generator node: {e}\n")
+    #     return {"error_message": f"An unexpected error occurred during image generation: {str(e)}"}

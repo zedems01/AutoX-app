@@ -9,7 +9,7 @@ import { Toaster } from "@/components/ui/sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "X Automation",
+  title: "AutoX Content Creator",
   description: "Automate your X content workflow",
 };
 
@@ -24,7 +24,7 @@ export default function RootLayout({
         <Providers>
           <div className="container mx-auto p-4 md:p-8">
             <PageHeader
-              title="X Automation"
+              title="AutoX Content Creator"
               description="Let's automate your X presence"
             >
               <ModeToggle />
