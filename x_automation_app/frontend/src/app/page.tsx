@@ -563,11 +563,18 @@ export default function WorkflowConfigPage() {
             </CardContent>
           </Card>
         </div>
-        <div className="lg:col-span-3">
-          <WorkflowDashboard />
+        <div className="lg:col-span-3 space-y-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Workflow Timeline</CardTitle>
+            </CardHeader>
+            <CardContent className="max-h-[80vh] overflow-y-auto p-6">
+              <WorkflowDashboard />
+            </CardContent>
+          </Card>
+          <DetailedOutput />
         </div>
       </div>
-      <DetailedOutput />
     </div>
   )
 }
