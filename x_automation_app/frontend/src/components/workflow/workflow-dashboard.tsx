@@ -16,15 +16,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Loader2, RefreshCw } from "lucide-react"
+import { Loader2, RefreshCw, BarChart } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { ActivityTimeline } from "@/components/workflow/ActivityTimeline"
+import { Progress } from "@/components/ui/progress"
 
 export function WorkflowDashboard() {
-  const { threadId, workflowState, showDetails, isConnected, error } =
-    useWorkflowContext()
+  const {
+    threadId,
+    workflowState,
+    showDetails,
+    isConnected,
+    error,
+    progress,
+  } = useWorkflowContext()
   useWorkflow(threadId)
   const [isTopicModalOpen, setTopicModalOpen] = useState(false)
   const [isContentModalOpen, setContentModalOpen] = useState(false)
@@ -43,19 +50,27 @@ export function WorkflowDashboard() {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Workflow Progress</CardTitle>
-        <div className="flex items-center gap-4">
-          <WorkflowStatus />
-          {workflowState?.current_step === "END" && (
-            <Button onClick={() => window.location.reload()} size="sm">
-              Start New Workflow
-            </Button>
-          )}
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <BarChart className="h-6 w-6 text-green-500" />
+            <CardTitle>Workflow Timeline</CardTitle>
+          </div>
+          <div className="flex items-center gap-4">
+            <WorkflowStatus />
+            {workflowState?.current_step === "END" && (
+              <Button onClick={() => window.location.reload()} size="sm">
+                Start New Workflow
+              </Button>
+            )}
+          </div>
         </div>
+        <Progress value={progress} className="mt-4" />
       </CardHeader>
       <CardContent className="space-y-6 pt-4">
-        <ActivityTimeline />
+        <div className="max-h-[60vh] overflow-y-auto p-1">
+          <ActivityTimeline />
+        </div>
         {!showDetails && <FinalOutput />}
       </CardContent>
 

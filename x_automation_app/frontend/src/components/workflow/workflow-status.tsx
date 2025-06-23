@@ -13,7 +13,9 @@ export function WorkflowStatus() {
     if (!isConnected) return "secondary"
     if (workflowState?.current_step === "END") return "green"
     if (workflowState?.next_human_input_step) return "yellow"
-    return "default"
+    if (workflowState)
+      return "outline"
+    return "secondary"
   }
 
   const getStatusText = () => {
@@ -25,8 +27,17 @@ export function WorkflowStatus() {
     return "Initializing..."
   }
 
+  const statusVariant = getStatusVariant();
+
   return (
-        <Badge variant={getStatusVariant()} className="text-sm">
+        <Badge 
+          variant={getStatusVariant()} 
+          className={
+            statusVariant === "outline"
+            ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-400"
+            : "text-sm"
+          }
+        >
           {!isConnected && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {getStatusText()}
         </Badge>
