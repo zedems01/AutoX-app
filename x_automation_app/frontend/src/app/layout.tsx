@@ -22,16 +22,13 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <Providers>
-          <div className="container mx-auto p-4 md:p-8">
-            <PageHeader
-              title="AutoX Content Creator"
-              description="Let's automate your X presence"
-            >
-              <ModeToggle />
-            </PageHeader>
-            <main className="mt-6">{children}</main>
-            <Toaster richColors />
-          </div>
+          <PageHeader>
+            <ModeToggle />
+          </PageHeader>
+          <main className="container mx-auto p-4 pt-20 md:p-8 md:pt-24">
+            {children}
+          </main>
+          <Toaster richColors />
         </Providers>
       </body>
     </html>

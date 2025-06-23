@@ -1,23 +1,24 @@
-import { ModeToggle } from "./theme-toggle"
+import { Zap } from "lucide-react"
 
-interface PageHeaderProps {
-  title: string
-  description?: string
-  children?: React.ReactNode
-}
-
-export function PageHeader({ title, description, children }: PageHeaderProps) {
+export function PageHeader({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm">
-      <div className="grid gap-1">
-        <h1 className="font-heading text-lg font-semibold md:text-2xl">
-          {title}
-        </h1>
-        {description && (
-          <p className="text-sm text-muted-foreground">{description}</p>
-        )}
+    <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background/95 backdrop-blur-sm">
+      <div className="container mx-auto flex h-18 items-center justify-between px-8 py-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <Zap className="h-5 w-5" />
+          </div>
+          <div>
+            <h1 className="font-heading text-lg font-semibold">
+              AutoX Content Creator
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Let's automate your X presence
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center space-x-4">{children}</div>
       </div>
-      <div className="flex items-center space-x-4">{children}</div>
-    </div>
+    </header>
   )
-} 
+}
