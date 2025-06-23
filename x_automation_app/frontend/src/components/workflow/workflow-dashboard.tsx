@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { ActivityTimeline } from "@/components/workflow/ActivityTimeline"
 import { Progress } from "@/components/ui/progress"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 export function WorkflowDashboard() {
   const {
@@ -68,9 +69,9 @@ export function WorkflowDashboard() {
         <Progress value={progress} className="mt-4" />
       </CardHeader>
       <CardContent className="space-y-6 pt-4">
-        <div className="max-h-[60vh] overflow-y-auto p-1">
+        <ScrollArea className="h-[60vh] p-1">
           <ActivityTimeline />
-        </div>
+        </ScrollArea>
         {!showDetails && <FinalOutput />}
       </CardContent>
 
