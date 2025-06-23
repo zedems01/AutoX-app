@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useWorkflowContext } from "@/contexts/WorkflowProvider"
+import { TrendingUp } from "lucide-react"
 
 export function TrendingTopicsDetails() {
   const { workflowState } = useWorkflowContext()
@@ -28,7 +29,10 @@ export function TrendingTopicsDetails() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Trending Topics</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <TrendingUp className="h-5 w-5 text-orange-500" />
+          Trending Topics
+        </CardTitle>
         <CardDescription>
           The following trending topics were identified and analyzed.
         </CardDescription>

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card"
 import { useWorkflowContext } from "@/contexts/WorkflowProvider"
 import { cn } from "@/lib/utils"
+import { Send, Sparkles } from "lucide-react"
 
 export function FinalOutput() {
   const { workflowState } = useWorkflowContext()
@@ -24,7 +25,10 @@ export function FinalOutput() {
   return (
     <Card className="mt-6">
       <CardHeader>
-        <CardTitle>Final Output</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-yellow-500" />
+          <span>Final Output</span>
+        </CardTitle>
         <CardDescription>
           The generated content is ready for review.
         </CardDescription>
