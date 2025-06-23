@@ -48,6 +48,8 @@ import {
 import { useWorkflowContext } from "@/contexts/WorkflowProvider"
 import { WorkflowDashboard } from "@/components/workflow/workflow-dashboard"
 import { DetailedOutput } from "@/components/workflow/DetailedOutput"
+import { Settings } from "lucide-react"
+import { Separator } from "@/components/ui/separator"
 
 const formSchema = z
   .object({
@@ -183,6 +185,7 @@ export default function WorkflowConfigPage() {
 
   const hasUserProvidedTopic = form.watch("has_user_provided_topic")
   const outputDestination = form.watch("output_destination")
+  const contentType = form.watch("x_content_type")
 
   useEffect(() => {
     // When switching to "Publish", if the current content type isn't valid for X, reset it.
@@ -208,7 +211,10 @@ export default function WorkflowConfigPage() {
         <div className="lg:col-span-2">
           <Card className="w-full">
             <CardHeader>
-              <CardTitle>Configure Your Workflow</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Configure Your Workflow
+              </CardTitle>
               <CardDescription>
                 Fill out the details below to launch your automated content
                 workflow.
@@ -226,7 +232,7 @@ export default function WorkflowConfigPage() {
                       control={form.control}
                       name="is_autonomous_mode"
                       render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border bg-muted p-4">
                           <div className="space-y-0.5">
                             <FormLabel>Autonomous Mode</FormLabel>
                             <FormDescription>
@@ -248,7 +254,7 @@ export default function WorkflowConfigPage() {
                       control={form.control}
                       name="show_details"
                       render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <FormItem className="flex flex-row items-center justify-between">
                           <div className="space-y-0.5">
                             <FormLabel>Show Detailed View</FormLabel>
                             <FormDescription>
@@ -265,6 +271,8 @@ export default function WorkflowConfigPage() {
                         </FormItem>
                       )}
                     />
+
+                    <Separator />
 
                     <FormField
                       control={form.control}
@@ -346,82 +354,78 @@ export default function WorkflowConfigPage() {
                       control={form.control}
                       name="x_content_type"
                       render={({ field }) => (
-                        <FormItem className="space-y-3">
+                        <FormItem>
                           <FormLabel>Content Type</FormLabel>
-                          {outputDestination === 'PUBLISH_X' ? (
+                          <Select
+                            onValueChange={(value) => {
+                              if (value === "OTHER") {
+                                field.onChange("")
+                              } else {
+                                field.onChange(value)
+                              }
+                            }}
+                            value={
+                              field.value &&
+                              ![
+                                "Blog Post",
+                                "Social Media Post",
+                                "SINGLE_TWEET",
+                                "TWEET_THREAD",
+                              ].includes(field.value)
+                                ? "OTHER"
+                                : field.value
+                            }
+                          >
                             <FormControl>
-                              <RadioGroup
-                                onValueChange={field.onChange}
-                                value={field.value}
-                                className="flex flex-col space-y-1"
-                              >
-                                <FormItem className="flex items-center space-x-3 space-y-0">
-                                  <FormControl>
-                                    <RadioGroupItem value="SINGLE_TWEET" />
-                                  </FormControl>
-                                  <FormLabel className="font-normal">
-                                    Single Tweet
-                                  </FormLabel>
-                                </FormItem>
-                                <FormItem className="flex items-center space-x-3 space-y-0">
-                                  <FormControl>
-                                    <RadioGroupItem value="TWEET_THREAD" />
-                                  </FormControl>
-                                  <FormLabel className="font-normal">
-                                    Tweet Thread
-                                  </FormLabel>
-                                </FormItem>
-                                
-                              </RadioGroup>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a content type" />
+                              </SelectTrigger>
                             </FormControl>
-                          ) : (
-                            <div>
-                              <FormControl>
-                                <RadioGroup
-                                  onValueChange={(value) => {
-                                    if (value !== 'OTHER') {
-                                      field.onChange(value);
-                                    } else {
-                                      field.onChange('');
-                                    }
-                                  }}
-                                  value={['SINGLE_TWEET', 'TWEET_THREAD', 'Blog Post', 'Social Media Post'].includes(field.value) ? field.value : 'OTHER'}
-                                  className="flex flex-col space-y-1"
-                                >
-                                  <FormItem className="flex items-center space-x-3 space-y-0">
-                                    <FormControl><RadioGroupItem value="Blog Post" /></FormControl>
-                                    <FormLabel className="font-normal">Blog Post</FormLabel>
-                                  </FormItem>
-                                  <FormItem className="flex items-center space-x-3 space-y-0">
-                                    <FormControl><RadioGroupItem value="Social Media Post" /></FormControl>
-                                    <FormLabel className="font-normal">Social Media Post</FormLabel>
-                                  </FormItem>
-                                  <FormItem className="flex items-center space-x-3 space-y-0">
-                                    <FormControl><RadioGroupItem value="SINGLE_TWEET" /></FormControl>
-                                    <FormLabel className="font-normal">Single Tweet</FormLabel>
-                                  </FormItem>
-                                  <FormItem className="flex items-center space-x-3 space-y-0">
-                                    <FormControl><RadioGroupItem value="TWEET_THREAD" /></FormControl>
-                                    <FormLabel className="font-normal">Tweet Thread</FormLabel>
-                                  </FormItem>
-                                  <FormItem className="flex items-center space-x-3 space-y-0">
-                                    <FormControl><RadioGroupItem value="OTHER" /></FormControl>
-                                    <FormLabel className="font-normal">Other...</FormLabel>
-                                  </FormItem>
-                                </RadioGroup>
-                              </FormControl>
-                              
-                              {!['SINGLE_TWEET', 'TWEET_THREAD', 'Blog Post', 'Social Media Post'].includes(field.value) && (
-                                <FormControl>
-                                  <Input
-                                    placeholder="e.g., 'Newsletter'"
-                                    {...field}
-                                    className="mt-2"
-                                  />
-                                </FormControl>
+                            <SelectContent>
+                              {outputDestination === "PUBLISH_X" ? (
+                                <>
+                                  <SelectItem value="SINGLE_TWEET">
+                                    Single Tweet
+                                  </SelectItem>
+                                  <SelectItem value="TWEET_THREAD">
+                                    Tweet Thread
+                                  </SelectItem>
+                                </>
+                              ) : (
+                                <>
+                                  <SelectItem value="Blog Post">
+                                    Blog Post
+                                  </SelectItem>
+                                  <SelectItem value="Social Media Post">
+                                    Social Media Post
+                                  </SelectItem>
+                                  <SelectItem value="SINGLE_TWEET">
+                                    Single Tweet
+                                  </SelectItem>
+                                  <SelectItem value="TWEET_THREAD">
+                                    Tweet Thread
+                                  </SelectItem>
+                                  <SelectItem value="OTHER">Other...</SelectItem>
+                                </>
                               )}
-                            </div>
-                          )}
+                            </SelectContent>
+                          </Select>
+                          {contentType !== undefined &&
+                            outputDestination !== "PUBLISH_X" &&
+                            ![
+                              "Blog Post",
+                              "Social Media Post",
+                              "SINGLE_TWEET",
+                              "TWEET_THREAD",
+                            ].includes(contentType) && (
+                              <FormControl>
+                                <Input
+                                  placeholder="e.g., 'Newsletter'"
+                                  {...field}
+                                  className="mt-2"
+                                />
+                              </FormControl>
+                            )}
                           <FormMessage />
                         </FormItem>
                       )}
