@@ -71,7 +71,7 @@ export function ContentValidation({ onSubmitted }: ContentValidationProps) {
   const mutation = useMutation({
     mutationFn: validateStep,
     onSuccess: (data) => {
-      toast.success("Validation submitted! The workflow will now continue.")
+      toast.success("Validation submitted! The workflow will now continue.", { duration: 20000 })
       setWorkflowState(data)
       setRejectionDialogOpen(false)
       rejectionForm.reset()

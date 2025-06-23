@@ -63,7 +63,7 @@ export function TopicSelection({ onSubmitted }: TopicSelectionProps) {
   const mutation = useMutation({
     mutationFn: validateStep,
     onSuccess: (data) => {
-      toast.success("Topic selected! The workflow will now continue.")
+      toast.success("Topic selected! The workflow will now continue.", { duration: 20000 })
       setWorkflowState(data)
       // The onSubmitted callback will close the modal immediately.
       onSubmitted()
