@@ -18,6 +18,7 @@ interface WorkflowContextType {
   setIsConnected: (isConnected: boolean) => void;
   error: string | null;
   setError: (error: string | null) => void;
+  progress: number
 }
 
 const WorkflowContext = createContext<WorkflowContextType | undefined>(undefined);
@@ -30,6 +31,44 @@ export const WorkflowProvider = ({ children }: { children: ReactNode }) => {
   const [forceReconnect, setForceReconnect] = useState<(() => void) | undefined>(undefined);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const progress = useMemo(() => {
+    const workflowSteps = [
+      "trend_harvester",
+      "await_topic_selection",
+      "auto_select_topic",
+      "tweet_searcher",
+      "opinion_analyzer",
+      "query_generator",
+      "web_research",
+      "reflection",
+      "finalize_answer",
+      "writer",
+      "quality_assurer",
+      "await_content_validation",
+      "image_generator",
+      "await_image_validation",
+      "publicator",
+    ]
+
+    if (!workflowState?.current_step) return 0
+    if (workflowState.current_step === "END") return 100
+
+    let stepForProgress = workflowState.current_step
+
+    if (workflowState.next_human_input_step) {
+      stepForProgress = workflowState.next_human_input_step
+    }
+
+    const stepIndex = workflowSteps.indexOf(stepForProgress)
+
+    if (stepIndex !== -1) {
+      const totalSteps = workflowSteps.length + 1
+      return Math.round(((stepIndex + 1) / totalSteps) * 100)
+    }
+
+    return 0
+  }, [workflowState])
 
   return (
     <WorkflowContext.Provider
@@ -48,6 +87,7 @@ export const WorkflowProvider = ({ children }: { children: ReactNode }) => {
         setIsConnected,
         error,
         setError,
+        progress,
       }}
     >
       {children}

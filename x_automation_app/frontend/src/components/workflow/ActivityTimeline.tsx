@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useRef } from "react"
 import {
   BrainCircuit,
   FileCheck2,
@@ -200,7 +201,19 @@ function TimelineItem({ event }: { event: StreamEvent }) {
 }
 
 export function ActivityTimeline() {
-  const { events } = useWorkflowContext()
+  const { events, workflowState } = useWorkflowContext()
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (scrollRef.current && workflowState?.current_step !== "END") {
+      setTimeout(() => {
+        scrollRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "end",
+        })
+      }, 100)
+    }
+  }, [events.length, workflowState?.current_step])
 
   if (events.length === 0) {
     return (
@@ -239,6 +252,7 @@ export function ActivityTimeline() {
         </div>
       ))}
       <WorkflowCompletionStatus events={uniqueLatestEvents} />
+      <div ref={scrollRef} />
     </div>
   )
 }
