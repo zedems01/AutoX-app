@@ -140,7 +140,7 @@ export function TopicSelection({ onSubmitted }: TopicSelectionProps) {
                             {trendingTopics.map((topic: Trend) => (
                               <TableRow key={topic.name}>
                                 <TableCell>
-                                  <RadioGroupItem value={topic.name} />
+                                  <RadioGroupItem value={topic.name} className="cursor-pointer" />
                                 </TableCell>
                                 <TableCell className="font-medium">
                                   {topic.name}

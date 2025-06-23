@@ -62,7 +62,7 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
 
         elif output_destination == "GET_OUTPUTS":
             logger.info("---Destination: GET_OUTPUTS---\n")
-            publication_id = "Content processed and available for viewing."
+            publication_id = "Content processed and available for viewing"
             logger.info("---Content packaged successfully.---\n")
 
         else:
