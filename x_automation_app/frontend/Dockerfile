@@ -1,7 +1,7 @@
-# Multi-stage build to create a lean image using Next.js's standalone output feature.
-
+# Use an official Node.js runtime as a parent image
 FROM node:20-alpine AS base
 
+# Set the working directory
 WORKDIR /app
 
 # Install dependencies stage
@@ -15,8 +15,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Disable telemetry
-ENV NEXT_TELEMETRY_DISABLED=1
+# Set NEXT_TELEMETRY_DISABLED to 1 to disable telemetry
+ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN npm run build
 
@@ -24,23 +24,28 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV=production
+ENV NODE_ENV production
 
 # Create a non-root user for security
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Copy the public directory
 COPY --from=builder /app/public ./public
 
 # Copy the standalone output and static assets
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# Switch to the non-root user
 USER nextjs
 
+# Expose the port the app runs on
 EXPOSE 3000
 
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
+# Set environment variables for the server
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
 
+# The command to run the standalone server
 CMD ["node", "server.js"] 
