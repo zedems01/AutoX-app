@@ -9,7 +9,6 @@ COPY pyproject.toml uv.lock ./
 RUN uv pip install --system .
 
 COPY ./app ./app
-COPY ./.env ./.env
 
 EXPOSE 8000
 

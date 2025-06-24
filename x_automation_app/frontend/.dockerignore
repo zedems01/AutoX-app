@@ -15,4 +15,5 @@ node_modules
 # IDE
 .vscode
 
-# .env.local # Removed this line to allow .env.local to be copied 
+# Environment
+.env.local

@@ -7,11 +7,13 @@ Dockerfile
 .dockerignore
 
 # Environment
+.env
 .venv
 __pycache__
 *.pyc
 *.pyo
 *.pyd
+
 
 # IDE
 .idea
