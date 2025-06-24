@@ -40,7 +40,7 @@ def generate_and_upload_image(prompt: str, image_name: str) -> GeneratedImage:
 
         # Define the path to the frontend's public/images directory
         # This uses a relative path from the backend's location
-        images_dir = Path(__file__).resolve().parents[2] / "frontend" / "public" / "images"
+        images_dir = Path(__file__).resolve().parents[3] / "frontend" / "public" / "images"
         # Ensure the directory exists, create if not
         images_dir.mkdir(parents=True, exist_ok=True)
         # Define the full path for the image file
