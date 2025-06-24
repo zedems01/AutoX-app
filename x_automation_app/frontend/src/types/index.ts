@@ -22,7 +22,7 @@ export interface StartWorkflowPayload {
   brand_voice?: string;
   target_audience?: string;
   user_config?: UserConfigSchema;
-  // Optional auth context
+  
   session?: string;
   user_details?: UserDetails;
   proxy?: string;
@@ -181,7 +181,7 @@ export interface OverallState {
   image_prompts?: string[];
   final_content?: string;
   final_image_prompts?: string[];
-  generated_images?: GeneratedImage[]; // Assuming URLs or base64 strings
+  generated_images?: GeneratedImage[];
   publication_id?: string;
   
   // State management

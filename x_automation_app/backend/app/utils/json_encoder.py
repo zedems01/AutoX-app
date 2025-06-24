@@ -5,6 +5,7 @@ from enum import Enum
 
 
 class CustomJSONEncoder(json.JSONEncoder):
+    """Custom JSON encoder to handle models and objects during websocket communication"""
     def default(self, obj):
         if isinstance(obj, BaseModel):
             return obj.model_dump()

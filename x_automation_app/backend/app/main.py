@@ -18,19 +18,17 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-# --- FastAPI App Initialization ---
 app = FastAPI(
     title="AutoX Backend",
     description="Manages the agentic workflow for content generation and publishing.",
     version="1.0.0",
 )
 
-# Configure CORS
+# CORS Config
 origins = [
-    "http://localhost:3000",  # Allow the Next.js frontend
+    "http://localhost:3000",  # Next.js frontend
 ]
 
-# --- CORS Configuration ---
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -46,7 +44,7 @@ class StartLoginPayload(BaseModel):
     proxy: str
 
 class CompleteLoginPayload(BaseModel):
-    login_data: str # From start_login
+    login_data: str
     two_fa_code: str
     proxy: str
 
@@ -61,7 +59,6 @@ class StartWorkflowPayload(BaseModel):
     target_audience: Optional[str] = None
     user_config: Optional[UserConfigSchema] = None
 
-    # New optional fields for auth context
     session: Optional[str] = None
     user_details: Optional[UserDetails] = None
     proxy: Optional[str] = None
@@ -82,7 +79,7 @@ def health_check():
     """
     return {"status": "ok"}
 
-# --- Step 3.2.1: Authentication Endpoints ---
+# --- Authentication Endpoints ---
 
 @app.post("/auth/start-login", tags=["Authentication"])
 async def start_login(payload: StartLoginPayload):
@@ -143,10 +140,10 @@ async def validate_session(payload: ValidateSessionPayload):
         raise HTTPException(status_code=500, detail="An unexpected error occurred.")
 
 
-# --- Step 3.2.2: Start Workflow Endpoint ---
+# --- Start Workflow Endpoint ---
 
 @app.post("/workflow/start", tags=["Workflow"])
-async def start_workflow(payload: StartWorkflowPayload, background_tasks: BackgroundTasks):
+async def start_workflow(payload: StartWorkflowPayload):
     """
     Starts the main content generation workflow with the user's specified settings.
     """
@@ -167,7 +164,6 @@ async def start_workflow(payload: StartWorkflowPayload, background_tasks: Backgr
             "target_audience": payload.target_audience,
             "user_config": payload.user_config,
             "current_step": "workflow_started",
-            # Add auth context
             "session": payload.session,
             "user_details": payload.user_details,
             "proxy": payload.proxy,
@@ -186,7 +182,7 @@ async def start_workflow(payload: StartWorkflowPayload, background_tasks: Backgr
             "web_research_result": [],
             "sources_gathered": [],
             "initial_search_query_count": 0,
-            "max_research_loops": 3,  # Default value
+            "max_research_loops": 3,
             "research_loop_count": 0,
             "content_draft": None,
             "image_prompts": None,
@@ -198,11 +194,10 @@ async def start_workflow(payload: StartWorkflowPayload, background_tasks: Backgr
             "error_message": None,
         }
 
-        # Save the initial state. The graph will be started by the first WebSocket connection.
+        # Save the initial state and start the graph by the first WebSocket connection.
         graph.update_state(config, initial_state)
 
-        # The frontend expects an `initial_state` object in the response.
-        # We return the state we just constructed so the frontend can proceed.
+        # Returning the state just constructed so the frontend can proceed.
         return {"thread_id": thread_id, "initial_state": initial_state}
 
     except Exception as e:
@@ -210,7 +205,7 @@ async def start_workflow(payload: StartWorkflowPayload, background_tasks: Backgr
         raise HTTPException(status_code=500, detail=f"An error occurred during workflow execution: {e}")
 
 
-# --- Step 3.2.3: Real-time Status Updates with WebSockets ---
+# --- Real-time Status Updates with WebSockets ---
 
 @app.websocket("/workflow/ws/{thread_id}")
 async def workflow_ws(websocket: WebSocket, thread_id: str):
@@ -219,14 +214,14 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
     """
     await websocket.accept()
     config = {"configurable": {"thread_id": thread_id}}
-    ALLOWED_EVENTS = {"on_chain_start", "on_chain_end"}
-    ALLOWED_NAMES = {
+    ALLOWED_EVENTS = ["on_chain_start", "on_chain_end"]
+    ALLOWED_NAMES = [
         "trend_harvester", "tweet_searcher", "opinion_analyzer", 
         "query_generator", "web_research", "reflection", "finalize_answer", 
         "writer", "quality_assurer", "image_generator", "publicator",
         "await_topic_selection", "await_content_validation",
         "await_image_validation"
-}
+    ]
 
     try:
         # Get the current state and send it to the client
@@ -234,19 +229,15 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
         if current_state:
             await websocket.send_text(json.dumps(current_state.values, cls=CustomJSONEncoder))
         
-        # Stream only the allowed v2 events to the frontend
-        # Always pass None for interrupted graphs - let LangGraph resume from interruption point
+        # Streaming events to the frontend
         async for event in graph.astream_events(None, config, version="v2"):
-            # Check if the event data contains a `Send` object, which is not serializable
-            # and not needed by the frontend.
             data = event.get("data", {})
             if isinstance(data.get("input"), Send) or isinstance(data.get("output"), Send):
-                continue  # Skip sending this event
+                continue  # not sending this event
             if event.get("event") in ALLOWED_EVENTS and event.get("name") in ALLOWED_NAMES:
                 await websocket.send_text(json.dumps(event, cls=CustomJSONEncoder))
 
-        # After the stream is exhausted (due to interruption), send the final state.
-        # This ensures the client has all the data produced during the run.
+        # Sending the final state.
         final_state_of_run = graph.get_state(config)
         if final_state_of_run:
             await websocket.send_text(json.dumps(final_state_of_run.values, cls=CustomJSONEncoder))
@@ -258,7 +249,7 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
         await websocket.close(code=1011, reason=str(e))
 
 
-# --- Step 3.2.4: Standardized Validation Endpoint ---
+# --- Standardized HiTL Validation Endpoint ---
 
 @app.post("/workflow/validate", tags=["Workflow"])
 async def validate_step(payload: ValidationPayload):
@@ -273,13 +264,12 @@ async def validate_step(payload: ValidationPayload):
         if not current_state:
             raise HTTPException(status_code=404, detail="Workflow thread not found.")
 
-        # Get the specific step that is awaiting validation
+        # Specific step that is awaiting validation
         next_step = current_state.values.get("next_human_input_step")
         if not next_step:
             raise HTTPException(status_code=400, detail="No human input is currently awaited for this workflow.")
-
-        # Prepare the state update, converting Pydantic models to dicts
-        # Store which step was validated in the result itself, then clear the
+        
+        # Storing which step was validated in the result itself, then clearing the
         # human input step to signal to the frontend that the step is "in progress".
         update_data = {
             "validation_result": payload.validation_result.model_dump(exclude_unset=True)
@@ -287,7 +277,7 @@ async def validate_step(payload: ValidationPayload):
         update_data["validation_result"]["validated_step"] = next_step
         update_data["next_human_input_step"] = None
 
-        # If the user is approving with data or editing, overwrite the relevant part of the state
+        # Overwrite the relevant part of the state if editing or approving with data
         if payload.validation_result.action in [ValidationAction.APPROVE, ValidationAction.EDIT]:
             if payload.validation_result.data and payload.validation_result.data.extra_data:
                 edit_data = payload.validation_result.data.extra_data
@@ -301,7 +291,6 @@ async def validate_step(payload: ValidationPayload):
                     if "final_image_prompts" in edit_data:
                         update_data["final_image_prompts"] = edit_data["final_image_prompts"]
 
-        # Update the state directly with the validation data
         graph.update_state(config, update_data)
 
         # Return the updated state so the frontend can re-render and open a new WebSocket

@@ -21,14 +21,9 @@ from ..utils.prompts import (
     reflection_instructions,
     answer_instructions,
 )
-# from .utils import (
-#     get_citations,
-#     insert_citation_markers,
-#     resolve_urls,
-# )
+
 import logging
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -58,12 +53,11 @@ def resolve_urls(urls_to_resolve: List[Any], id: int) -> Dict[str, str]:
     Ensures each original URL gets a consistent shortened form while maintaining uniqueness.
     """
     prefix = f"https://vertexaisearch.cloud.google.com/id/"
-    # urls = [site.web.uri for site in urls_to_resolve]
     urls = [
         site.web.uri for site in urls_to_resolve if site is not None and hasattr(site, 'web') and site.web is not None and hasattr(site.web, 'uri') and site.web.uri is not None
     ]
 
-    # Create a dictionary that maps each unique URL to its first occurrence index
+    # Dictionary that maps each unique URL to its first occurrence index
     resolved_map = {}
     for idx, url in enumerate(urls):
         if url not in resolved_map:
@@ -219,7 +213,6 @@ def generate_query(state: OverallState, config: RunnableConfig) -> QueryGenerati
     """
     logger.info("----GENERATING DEEP RESEARCH QUERIES----\n")
     configurable = Configuration.from_runnable_config(config)
-    # query_generator_model = state.get("user_config", {}).get("gemini_base_model") or configurable.query_generator_model
     user_config = state.get("user_config") or {}
     query_generator_model = (user_config.gemini_base_model if user_config and user_config.gemini_base_model is not None 
         else configurable.query_generator_model
@@ -270,7 +263,6 @@ def web_research(state: WebSearchState, config: RunnableConfig) -> OverallState:
     """
     logger.info(f"----PERFORMING WEB RESEARCH FOR: {state['search_query']}----\n")
     configurable = Configuration.from_runnable_config(config)
-    # web_search_model = state.get("user_config", {}).get("gemini_base_model") or configurable.query_generator_model
     user_config = state.get("user_config") or {}
     web_search_model = (user_config.gemini_base_model if user_config and user_config.gemini_base_model is not None 
         else configurable.query_generator_model
@@ -312,7 +304,6 @@ def reflection(state: OverallState, config: RunnableConfig) -> ReflectionState:
     logger.info("----REFLECTING ON RESEARCH RESULTS----\n")
     configurable = Configuration.from_runnable_config(config)
     state["research_loop_count"] = state.get("research_loop_count", 0) + 1
-    # reasoning_model = state.get("user_config", {}).get("gemini_reasoning_model") or configurable.reasoning_model
     user_config = state.get("user_config") or {}
     reasoning_model = (user_config.gemini_reasoning_model if user_config and user_config.gemini_reasoning_model is not None 
         else configurable.reasoning_model
@@ -385,7 +376,6 @@ def finalize_answer(state: OverallState, config: RunnableConfig):
     """
     logger.info("----FINALIZING DEEP RESEARCH REPORT----\n")
     configurable = Configuration.from_runnable_config(config)
-    # reasoning_model = state.get("user_config", {}).get("gemini_reasoning_model") or configurable.reasoning_model
     user_config = state.get("user_config") or {}
     reasoning_model = (user_config.gemini_reasoning_model if user_config and user_config.gemini_reasoning_model is not None 
         else configurable.reasoning_model

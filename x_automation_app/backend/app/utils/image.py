@@ -26,7 +26,7 @@ def generate_and_upload_image(prompt: str, image_name: str) -> GeneratedImage:
         GeneratedImage: The generated image.
     """
     try:
-        # 1. Generate the image with OpenAI
+        # Generate the image with OpenAI
         client = OpenAI(api_key=settings.OPENAI_API_KEY)
         result = client.images.generate(
             model="gpt-image-1",
@@ -39,11 +39,8 @@ def generate_and_upload_image(prompt: str, image_name: str) -> GeneratedImage:
         image_key = f"images/{image_name}"
 
         # Define the path to the frontend's public/images directory
-        # This uses a relative path from the backend's location
         images_dir = Path(__file__).resolve().parents[3] / "frontend" / "public" / "images"
-        # Ensure the directory exists, create if not
         images_dir.mkdir(parents=True, exist_ok=True)
-        # Define the full path for the image file
         image_path = images_dir / image_name
 
         bucket_name = settings.BUCKET_NAME
@@ -53,7 +50,7 @@ def generate_and_upload_image(prompt: str, image_name: str) -> GeneratedImage:
 
         logger.info(f"Image saved to {str(image_path)}")
         
-        # 2. Upload the image to AWS S3
+        # Upload the image to AWS S3 to get a presigned URL
         s3_client = boto3.client(
             "s3",
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
@@ -66,7 +63,7 @@ def generate_and_upload_image(prompt: str, image_name: str) -> GeneratedImage:
             bucket_name,
             image_key
         )
-        # 3. Generate a presigned URL for the image
+        
         presigned_url = s3_client.generate_presigned_url(
             'get_object',
             Params={'Bucket': bucket_name, 'Key': image_key},

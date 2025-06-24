@@ -70,11 +70,9 @@ def route_after_qa(state: OverallState) -> str:
 
 def route_after_image_generation(state: OverallState) -> str:
     """Routes after image generation based on automation mode and image availability."""
-    # In autonomous mode, or if no images were generated, go straight to publication.
     if state.get("is_autonomous_mode") or not state.get("generated_images"):
         return "publicator"
     
-    # Otherwise, require human-in-the-loop validation for the images.
     return "await_image_validation"
 
 def route_after_validation(state: OverallState) -> str:
@@ -83,8 +81,6 @@ def route_after_validation(state: OverallState) -> str:
     action = validation_result.get("action", "approve")
     # The step that was validated is now stored in the validation_result
     last_step = validation_result.get("validated_step")
-
-    # The human input step is already None, so no need to clear it again.
 
     if action == "reject":
         if last_step == "await_content_validation":
@@ -102,55 +98,41 @@ def route_after_validation(state: OverallState) -> str:
     if last_step == "await_image_validation":
         return "publicator"
 
-    # Fallback
     return "END"
 
-# def route_deep_research(state: OverallState) -> str:
-#     """Routes the deep research part of the workflow."""
-#     # This is a simplified router based on the logic from the original deep researcher
-#     # It checks if the research is sufficient to continue or finalize.
-#     if evaluate_research(state, None) == "finalize_answer":
-#         return "finalize_answer"
-#     return "web_research"
 
-# Step 3.1.2: Initialize the StateGraph
+# Initialize the StateGraph
 workflow = StateGraph(OverallState)
 memory = MemorySaver()
 
-# Add nodes to the graph
 workflow.add_node("trend_harvester", trend_harvester_node)
 workflow.add_node("tweet_searcher", tweet_search_node)
 workflow.add_node("opinion_analyzer", opinion_analysis_node)
 workflow.add_node("query_generator", generate_query)
 workflow.add_node("web_research", web_research)
 workflow.add_node("reflection", reflection)
-# workflow.add_node("deep_research_evaluator", evaluate_research)
 workflow.add_node("finalize_answer", finalize_answer)
 workflow.add_node("writer", writer_node)
 workflow.add_node("quality_assurer", quality_assurance_node)
 workflow.add_node("image_generator", image_generator_node)
 workflow.add_node("publicator", publicator_node)
 
-# Add HiTL interrupt nodes
+# HiTL interrupt nodes
 workflow.add_node("await_topic_selection", await_topic_selection)
 workflow.add_node("await_content_validation", await_content_validation)
 workflow.add_node("await_image_validation", await_image_validation)
 
-# Add autonomous node
+# Autonomous node
 workflow.add_node("auto_select_topic", auto_select_topic)
 
-# Set interrupt points for HiTL - This is now done in the compile method
-# workflow.interrupt = ["await_topic_selection", "await_content_validation", "await_image_validation"]
 
-
-
-# Comprehensive Workflow Edges & Routing
+# Workflow Edges & Routing
 workflow.set_conditional_entry_point(initial_routing)
 
 workflow.add_conditional_edges("trend_harvester", route_after_trend_harvester)
 workflow.add_edge("auto_select_topic", "tweet_searcher")
 
-# This edge handles the continuation from the HiTL topic selection
+# Continuation from the HiTL topic selection
 workflow.add_conditional_edges(
     "await_topic_selection", 
     route_after_validation, 
@@ -175,7 +157,7 @@ workflow.add_edge("finalize_answer", "writer")
 workflow.add_edge("writer", "quality_assurer")
 workflow.add_conditional_edges("quality_assurer", route_after_qa)
 
-# This edge handles the continuation from the HiTL content validation
+# Continuation from the HiTL content validation
 workflow.add_conditional_edges(
     "await_content_validation",
     route_after_validation,
@@ -184,7 +166,7 @@ workflow.add_conditional_edges(
 
 workflow.add_conditional_edges("image_generator", route_after_image_generation)
 
-# This edge handles the continuation from the HiTL image validation
+# Continuation from the HiTL image validation
 workflow.add_conditional_edges(
     "await_image_validation",
     route_after_validation,
@@ -193,7 +175,7 @@ workflow.add_conditional_edges(
 
 workflow.add_edge("publicator", END)
 
-# Compile the graph
+
 graph = workflow.compile(
     checkpointer=memory,
     interrupt_after=[
@@ -203,13 +185,5 @@ graph = workflow.compile(
     ],
 )
 
-# (Optional) Utility to generate a Mermaid diagram of the graph
-try:
-    with open("workflow_graph.md", "w") as f:
-        f.write("```mermaid\n")
-        f.write(graph.get_graph().draw_mermaid())
-        f.write("\n```")
-except Exception as e:
-    print(f"Could not write mermaid graph: {e}")
 
 

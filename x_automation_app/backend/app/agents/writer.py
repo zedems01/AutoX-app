@@ -1,6 +1,5 @@
-# from langchain_openai import ChatOpenAI
-# from langchain_google_genai import ChatGoogleGenerativeAI
-# from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_anthropic import ChatAnthropic
 from ..utils.prompts import writer_prompt
 from typing import Dict, Any, Optional
@@ -12,11 +11,18 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Initialize the base LLM and create a structured version for the writer
-# llm = ChatOpenAI(model=settings.OPENAI_MODEL) or ChatGoogleGenerativeAI(model=settings.GEMINI_BASE_MODEL, google_api_key=settings.GEMINI_API_KEY)
-# llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
-# llm = ChatGroq(model=settings.GROQ_MODEL)
-llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
+
+try:
+    llm = ChatOpenAI(model=settings.OPENAI_MODEL)
+except Exception as e:
+    logger.error(f"Error initializing OpenAI model: {e}")
+    try:
+        llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
+    except Exception as e:
+        logger.error(f"Error initializing Google Generative AI model: {e}")
+        llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
+
+# llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
 structured_llm = llm.with_structured_output(WriterOutput)
 
 def writer_node(state: OverallState) -> Dict[str, Any]:
@@ -36,7 +42,6 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
     logger.info("----DRAFTING CONTENT AND IMAGE PROMPTS----\n")
 
     try:
-        # Extract all necessary data from the state
         final_deep_research_report = state.get("final_deep_research_report", "No deep research context provided.")
         opinion_summary = state.get("opinion_summary", "No opinion summary provided.")
         overall_sentiment = state.get("overall_sentiment", "Neutral")
@@ -58,7 +63,6 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
                 feedback = validation_result.get("data").get("feedback", "No specific feedback provided.")
             logger.info(f"----Revising draft based on feedback: {feedback}----\n")
 
-        # Format the prompt
         prompt = writer_prompt.format(
             final_deep_research_report=final_deep_research_report,
             opinion_summary=opinion_summary,
@@ -71,7 +75,6 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
             content_language=content_language
         )
         
-        # Invoke the structured LLM
         writer_output = structured_llm.invoke(prompt)
 
         logger.info(f"----Draft content generated. {len(writer_output.image_prompts)} image prompts created.----\n")

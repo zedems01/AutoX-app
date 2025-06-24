@@ -1,7 +1,6 @@
 import json
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_groq import ChatGroq
 from langchain_anthropic import ChatAnthropic
 from ..utils.prompts import opinion_analysis_prompt
 from typing import Dict, Any
@@ -13,10 +12,17 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Initialize the base LLM
-# llm = ChatOpenAI(model=settings.OPENAI_MODEL) or ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
-# llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
-llm = ChatGroq(model=settings.GROQ_MODEL)
+
+try:
+    llm = ChatOpenAI(model=settings.OPENAI_MODEL)
+except Exception as e:
+    logger.error(f"Error initializing OpenAI model: {e}")
+    try:
+        llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
+    except Exception as e:
+        logger.error(f"Error initializing Google Generative AI model: {e}")
+        llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
+
 structured_llm = llm.with_structured_output(OpinionAnalysisOutput)
 
 def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
@@ -41,12 +47,9 @@ def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
     #     if not tweets:
     #         raise ValueError("No tweets found in the state to analyze.")
 
-    #     # Serialize the list of tweet objects to a JSON string for the prompt
     #     tweets_json_string = json.dumps([tweet.model_dump() for tweet in tweets])
-
     #     prompt = opinion_analysis_prompt.format(tweets=tweets_json_string)
-        
-    #     # Invoke the structured LLM to get a Pydantic object directly
+
     #     analysis_result = structured_llm.invoke(prompt)
 
     #     logger.info(f"----Opinion analysis complete. Refined topic: {analysis_result.topic_from_opinion_analysis}----\n")

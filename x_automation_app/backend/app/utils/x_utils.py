@@ -39,18 +39,15 @@ def start_login(
 
     try:
         response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()  # Raises an HTTPError for bad responses (4xx or 5xx)
+        response.raise_for_status() # Raises HTTPError for bad responses (4xx or 5xx)
         data = response.json()
         if "login_data" in data and data["login_data"] != "":
             return data["login_data"]
         else:
-            # Handle cases where the API returns a success status but is missing data
             raise Exception(f"Login Step 1 failed: {data.get('msg', 'Unknown error')}")
     except requests.exceptions.RequestException as e:
-        # Handle network errors
         raise Exception(f"Network error during Login Step 1: {e}")
     
-
 
 def complete_login(
         login_data: str,
@@ -160,11 +157,10 @@ def tweet_advanced_search(
 
         try:
             response = requests.get(url, params=params, headers=headers)
-            response.raise_for_status() # Raises HTTPError for bad responses (4xx or 5xx)
+            response.raise_for_status()
             data = response.json()
 
             for tweet_data in data.get("tweets", []):
-                # Extract author details
                 author_data = tweet_data.get("author", {})
                 author = TweetAuthor(
                     userName=author_data.get("userName", ""),
@@ -174,7 +170,6 @@ def tweet_advanced_search(
                     following=author_data.get("following", 0)
                 )
 
-                # Extract tweet details
                 tweet_obj = TweetSearched(
                     text=tweet_data.get("text", ""),
                     source=tweet_data.get("source", ""),
@@ -199,7 +194,7 @@ def tweet_advanced_search(
             next_cursor = data.get("next_cursor", "")
 
             if not has_next_page or not next_cursor:
-                break # No more pages, exit loop
+                break
             current_cursor = next_cursor
             
         except requests.exceptions.RequestException as e:
@@ -214,7 +209,7 @@ def verify_session(session: str, proxy: str, api_key: str = settings.X_API_KEY) 
     Verifies if a session is valid by performing a low-cost action (liking a tweet).
     Raises InvalidSessionError if the session is not valid.
     """
-    # 1. Get a tweet to like
+    # Get a tweet to like
     try:
         search_url = "https://api.twitterapi.io/twitter/tweet/advanced_search"
         search_params = {"query": "Real Madrid min_faves:500", "query_type": "Latest"}
@@ -234,7 +229,7 @@ def verify_session(session: str, proxy: str, api_key: str = settings.X_API_KEY) 
     except requests.exceptions.RequestException as e:
         raise Exception(f"Failed to fetch a tweet for session validation: {e}")
 
-    # 2. Try to like the tweet
+    # Try to like the tweet
     try:
         like_url = "https://api.twitterapi.io/twitter/like_tweet"
         like_payload = {
@@ -250,18 +245,13 @@ def verify_session(session: str, proxy: str, api_key: str = settings.X_API_KEY) 
         response = requests.post(like_url, json=like_payload, headers=like_headers)
         like_data = response.json()
 
-        # The twitterapi.io does not always return a clear status,
-        # so we check if the response indicates a failure.
         # A common failure message for invalid sessions is related to authentication.
         if response.status_code >= 400 or "auth" in like_data.get("msg", "").lower():
             raise InvalidSessionError("Session is invalid or expired.")
 
-        # If the call succeeds, we assume the session is valid.
-        # The API might return success even if the tweet is already liked.
         return {"isValid": True}
 
     except requests.exceptions.RequestException as e:
-        # Network errors are not necessarily session errors, but we treat them as failures here.
         raise InvalidSessionError(f"Network error during session validation: {e}")
 
 
@@ -271,7 +261,6 @@ def upload_image(
     ) -> str:
     """
     Uploads media from a URL to Twitter and returns the media_id.
-    This is a helper method for post_tweet.
     """
 
     if not session:
@@ -292,6 +281,7 @@ def upload_image(
     except requests.exceptions.RequestException as e:
         raise Exception(f"Network error during media upload: {e}")
     
+#TODO: Use an agent for smart chunking of text and image integration
 def get_char_count(text: str) -> int:
     """
     Calculates the character count of a string for Twitter, where emojis count as 2 characters
@@ -359,6 +349,20 @@ def chunk_text(text: str, max_length: int = 270) -> list[str]:
 
     return chunks 
 
+def deep_get(data_dict, keys, default=None):
+    """
+    Accesses a value nested in a dictionary in a secure way.
+    """
+    current_level = data_dict
+    for key in keys:
+        if not isinstance(current_level, dict):
+            return default
+        current_level = current_level.get(key)
+        if current_level is None:
+            return default
+    return current_level
+
+
 def post_tweet(
         session: str,
         tweet_text: str,
@@ -400,19 +404,23 @@ def post_tweet(
         response = requests.post(url, json=payload, headers=headers)
         response.raise_for_status()
         data = response.json()
-        if data.get("status") == "success" and "data" in data:
-            # Attempt to extract the tweet ID
-            tweet_id = data.get("data", {}).get("create_tweet", {}).get("tweet_result", {}).get("result", {}).get("rest_id")
+
+        if data.get("status") == "success":
+            path_to_id = ["data", "create_tweet", "tweet_result", "result", "rest_id"]
+            tweet_id = deep_get(data, path_to_id)
+            
             if tweet_id:
                 return tweet_id
             else:
-                # Raise an error if tweet ID is not found, even if status is success
-                raise Exception("Tweet ID not found in API response.")
+                raise Exception("Tweet ID not found in a successful API response.")
         else:
             raise Exception(f"Failed to post tweet: {data.get('msg', 'Unknown error')}")
+
+    except requests.exceptions.JSONDecodeError:
+        raise Exception("Failed to decode API response as JSON.")
     except requests.exceptions.RequestException as e:
-        raise Exception(f"Network error during tweet posting: {e}")
-    
+        raise Exception(f"Network error during tweet posting: {e}") from e
+        
 def post_tweet_thread(
         session: str,
         tweet_text: str,
@@ -441,9 +449,8 @@ def post_tweet_thread(
     reply_to_id = None
 
     for i, chunk in enumerate(chunks):
-        # For now, we are not handling multiple images in threads.
+        # For now, no handling multiple images in threads.
         # If there is an image, it will be added to the first tweet.
-        # This can be extended to use media_ids_per_tweet.
         tweet_id = post_tweet(
             session=session,
             tweet_text=chunk,
@@ -455,9 +462,8 @@ def post_tweet_thread(
         
         if tweet_id:
             posted_tweets.append({"status": "success", "tweet_id": tweet_id})
-            reply_to_id = tweet_id  # The next tweet will reply to this one
+            reply_to_id = tweet_id
         else:
-            # If a tweet fails, we stop and report the failure.
             posted_tweets.append({"status": "error", "message": f"Failed to post chunk {i+1}"})
             break
             

@@ -1,8 +1,7 @@
 import json
 from langgraph.prebuilt import create_react_agent
 from langchain_openai import ChatOpenAI
-# from langchain_google_genai import ChatGoogleGenerativeAI
-# from langchain_groq import ChatGroq
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_anthropic import ChatAnthropic
 from ..utils.prompts import tweet_search_prompt, get_current_date
 from typing import Dict, Any
@@ -16,11 +15,17 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Create the agent once and reuse it
-llm = ChatOpenAI(model=settings.OPENAI_MODEL)
-# llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
-# llm = ChatGroq(model=settings.GROQ_MODEL)
-# llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
+
+try:
+    llm = ChatOpenAI(model=settings.OPENAI_MODEL)
+except Exception as e:
+    logger.error(f"Error initializing OpenAI model: {e}")
+    try:
+        llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
+    except Exception as e:
+        logger.error(f"Error initializing Google Generative AI model: {e}")
+        llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
+
 tweet_search_agent = create_react_agent(model=llm, tools=[tweet_advanced_search], response_format=TweetSearchResponse)
 
 def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
@@ -49,7 +54,6 @@ def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
         }
     
     # try:
-    #     # Determine the topic from the state, with a clear priority
     #     topic = ""
     #     selected_topic = state.get("selected_topic")
     #     if selected_topic:
@@ -59,14 +63,8 @@ def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
 
     #     if not topic:
     #         raise ValueError("No topic found in the state to initiate tweet search.")
-    #     # logger.info(f"Topic found...n")
 
     #     logger.info(f"----Searching tweets for topic: {topic}----")
-        
-    #     # if state.get("user_config", {}).get("tweets_language"):
-    #     #     tweets_language = state.get("user_config", {}).get("tweets_language")
-    #     # else:
-    #     #     tweets_language = settings.TWEETS_LANGUAGE
 
     #     user_config = state.get("user_config") or {}
     #     tweets_language = (user_config.tweets_language if user_config and user_config.tweets_language is not None 
@@ -81,7 +79,6 @@ def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
     #         )        
     #     response = tweet_search_agent.invoke({"messages": [("user", prompt)]})
     #     parsed_response = response["structured_response"]
-    #     # print(f"parsed_response: {parsed_response}\n")
         
     #     logger.info(f"----Found {len(parsed_response.tweets)} tweets.----\n")
 

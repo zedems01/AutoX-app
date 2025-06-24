@@ -17,7 +17,6 @@ class ValidationData(BaseModel):
     Data payload for validation, which can contain feedback or other information.
     """
     feedback: Optional[str] = None
-    # Allows for other potential data fields during validation
     extra_data: Optional[Dict[str, Any]] = None
 
 class ValidationResult(BaseModel):
@@ -167,17 +166,4 @@ class UserConfigSchema(BaseModel):
     tweets_language: Optional[str] = Field(None, description="Language for tweet search results.")
     content_language: Optional[str] = Field(None, description="Language for generated content.")
 
-
-# class OverallState(TypedDict):
-#     # From login
-#     login_data: Optional[str]
-#     # State management
-#     messages: List
-#     validation_result: Optional[ValidationResult]
-#     current_step: str
-#     source_step: Optional[str]
-#     next_human_input_step: Optional[
-#         "await_2fa_code" | "await_topic_selection" | "await_content_validation" | "await_image_validation" | None
-#     ]
-#     error_message: Optional[str]
 

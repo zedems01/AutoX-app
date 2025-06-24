@@ -11,7 +11,6 @@ class Settings:
     GEMINI_API_KEY=os.getenv("GEMINI_API_KEY")
     # OPENAI (Mainly used for agents inference)
     OPENAI_API_KEY=os.getenv("OPENAI_API_KEY")
-    GROQ_API_KEY=os.getenv("GROQ_API_KEY")
     ANTHROPIC_API_KEY=os.getenv("ANTHROPIC_API_KEY")
 
     # twitterapi.io API Credentials
@@ -41,7 +40,6 @@ class Settings:
     GEMINI_BASE_MODEL=os.getenv("GEMINI_BASE_MODEL", "gemini-2.0-flash")
     GEMINI_REASONING_MODEL=os.getenv("GEMINI_REASONING_MODEL", "gemini-2.5-flash-lite-preview-06-17") # for reflection during deep research
     OPENAI_MODEL=os.getenv("OPENAI_MODEL", "gpt-4o")
-    GROQ_MODEL=os.getenv("GROQ_MODEL", "meta-llama/llama-4-maverick-17b-128e-instruct")
     ANTHROPIC_MODEL=os.getenv("ANTHROPIC_MODEL")
 
     # Trend Fetching Settings (Optional)

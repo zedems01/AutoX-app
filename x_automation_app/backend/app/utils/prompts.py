@@ -1,7 +1,6 @@
 from datetime import datetime
 
 
-# Get current date in a readable format
 def get_current_date():
     return datetime.now().strftime("%B %d, %Y")
 
@@ -94,19 +93,13 @@ User Context:
 Summaries:
 {summaries}"""
 
-# - you MUST include all the citations from the summaries in the answer correctly.
 
-
-# no need to explicitly mention the json format when using `create_react_agent`,
-# it will be handled automatically 
 trend_harvester_prompt = """You are an expert trend analyst. Your task is to identify the most promising trends on X for content creation.
 
 1.  First, you MUST use the `get_trends` tool to fetch the current trending topics. You must call it with `woeid={woeid}` and `count={count}`.
 2.  After fetching the trends, analyze them to identify the top 5 most suitable for generating engaging content.
 3.  Filter out trends that are spam, purely promotional, or related to contests. Focus on topics with significant public interest and conversation that are suitable for creating insightful content.
 """
-# 4.  Your final answer must be ONLY a JSON-formatted list of objects that can be parsed into a list of `Trend` objects. Do not include any other text, explanations, or markdown formatting.
-# """
 
 tweet_search_prompt = """You are an AI assistant that generates expert-level search queries for X. Your goal is to find the most relevant and recent tweets on a given topic.
 
@@ -176,8 +169,6 @@ writer_prompt = """You are an expert content creator and copywriter. Your task i
 **Output Format:**
 -   Your final output must be a single JSON object that conforms to the `WriterOutput` schema. Do not include any other text.
 """
-
-
 
 quality_assurance_prompt = """You are a meticulous Quality Assurance specialist and editor. Your job is to review and perfect a content draft and its associated image prompts before they are finalized.
 

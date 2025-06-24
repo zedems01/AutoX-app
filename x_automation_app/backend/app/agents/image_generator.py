@@ -2,7 +2,6 @@ from langgraph.prebuilt import create_react_agent
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_anthropic import ChatAnthropic
-from langchain_core.messages import ToolMessage
 from ..utils.prompts import image_generator_prompt
 from typing import Dict, Any, List
 from .state import OverallState
@@ -20,8 +19,17 @@ logger = logging.getLogger(__name__)
 
 
 
-# llm = ChatOpenAI(model=settings.OPENAI_MODEL) or ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
-llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
+try:
+    llm = ChatOpenAI(model=settings.OPENAI_MODEL)
+except Exception as e:
+    logger.error(f"Error initializing OpenAI model: {e}")
+    try:
+        llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
+    except Exception as e:
+        logger.error(f"Error initializing Google Generative AI model: {e}")
+        llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
+
+# llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
 image_generating_agent = create_react_agent(model=llm, tools=[generate_and_upload_image], response_format=ImageGeneratorOutput)
 
 def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]:
@@ -68,11 +76,6 @@ def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]
         
     #     response = image_generating_agent.invoke({"messages": [("user", prompt)]})
     #     parsed_response = response["structured_response"]
-    #     # Extract the GeneratedImage objects from the tool call responses
-    #     # generated_images = []
-    #     # for msg in response.get("messages", []):
-    #     #     if isinstance(msg, ToolMessage) and isinstance(msg.content, GeneratedImage):
-    #     #         generated_images.append(msg.content)
 
     #     logger.info(f"----Successfully generated {len(parsed_response.images)} images.----\n")
 
