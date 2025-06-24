@@ -13,7 +13,7 @@ export function PageHeader({ children }: { children: React.ReactNode }) {
               AutoX Content Creator
             </h1>
             <p className="text-sm text-muted-foreground">
-              Let's automate your X presence
+              Automated content creation with real-time trends and news.
             </p>
           </div>
         </div>

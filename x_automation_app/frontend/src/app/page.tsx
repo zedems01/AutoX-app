@@ -213,10 +213,10 @@ export default function WorkflowConfigPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Settings className="h-5 w-5" />
-                Configure Your Workflow
+                Workflow Configuration
               </CardTitle>
               <CardDescription className="text-sm mt-1">
-                Fill out the details below to launch your automated content
+                Fill out the details below to launch the automated content
                 workflow.
               </CardDescription>
             </CardHeader>
@@ -260,7 +260,7 @@ export default function WorkflowConfigPage() {
                             <FormLabel>Show Detailed View</FormLabel>
                             <FormDescription className="text-xs mt-1">
                               Display a detailed breakdown of the workflow
-                              outputs.
+                              steps.
                             </FormDescription>
                           </div>
                           <FormControl>
@@ -322,7 +322,7 @@ export default function WorkflowConfigPage() {
                           <div className="space-y-0.5">
                             <FormLabel>Provide Specific Topic</FormLabel>
                             <FormDescription className="text-xs mt-1">
-                              Do you want to provide your own topic or use trends?
+                              Enable to provide your own topic, otherwise the workflow will use current X trends.
                             </FormDescription>
                           </div>
                           <FormControl>
@@ -486,7 +486,7 @@ export default function WorkflowConfigPage() {
                           <FormLabel>Target Audience</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="e.g., 'Tech enthusiasts and AI developers'"
+                              placeholder="e.g., 'General audience, Tech enthusiasts'"
                               {...field}
                             />
                           </FormControl>
