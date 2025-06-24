@@ -1,0 +1,18 @@
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Dependencies
+node_modules
+
+# Next.js build outputs
+.next
+
+# IDE
+.vscode
+
+# .env.local # Removed this line to allow .env.local to be copied 
