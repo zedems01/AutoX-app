@@ -194,7 +194,7 @@ function TimelineItem({ event }: { event: StreamEvent }) {
             <CheckCircle className="h-5 w-5 text-green-500" />
           )}
         </h3>
-        <p className="text-sm text-muted-foreground">{description}</p>
+        <p className="text-xs text-muted-foreground">{description}</p>
       </div>
     </div>
   )

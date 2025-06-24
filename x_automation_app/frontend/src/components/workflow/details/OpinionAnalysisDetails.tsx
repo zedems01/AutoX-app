@@ -56,7 +56,7 @@ export function OpinionAnalysisDetails() {
         )}
         <div>
           <h4 className="font-semibold mb-2">Analysis Summary:</h4>
-          <p className="text-sm text-muted-foreground">{opinion_summary}</p>
+          <p className="text-sm text-muted-foreground leading-relaxed">{opinion_summary}</p>
         </div>
       </CardContent>
     </Card>

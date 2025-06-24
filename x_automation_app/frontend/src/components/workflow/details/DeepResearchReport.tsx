@@ -30,7 +30,7 @@ export function DeepResearchReport() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <FileCheck2 className="h-5 w-5 text-green-500" />
+          <FileCheck2 className="h-5 w-5 text-blue-500" />
           Deep Research Report
         </CardTitle>
         <CardDescription>
@@ -41,7 +41,7 @@ export function DeepResearchReport() {
         <div className="relative">
           <pre
             className={cn(
-              "p-4 bg-muted rounded-md text-sm whitespace-pre-wrap break-words transition-all duration-300",
+              "p-4 bg-muted rounded-md text-sm whitespace-pre-wrap break-words transition-all duration-300 leading-relaxed",
               isLongReport && !isExpanded ? "max-h-48 overflow-hidden" : ""
             )}
           >

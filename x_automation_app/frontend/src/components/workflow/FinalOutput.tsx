@@ -34,7 +34,7 @@ export function FinalOutput() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <pre className="p-4 bg-muted rounded-md text-sm overflow-x-auto whitespace-pre-wrap break-words">
+        <pre className="p-4 bg-muted rounded-md text-sm overflow-x-auto whitespace-pre-wrap break-words leading-relaxed">
           {finalContent}
         </pre>
         {generatedImages && generatedImages.length > 0 && (

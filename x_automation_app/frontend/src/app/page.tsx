@@ -207,15 +207,15 @@ export default function WorkflowConfigPage() {
 
   return (
     <div>
-      <div className="grid grid-cols-1 gap-12 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-5 mt-8 mb-8 mr-20 ml-20">
         <div className="lg:col-span-2">
-          <Card className="w-full">
+          <Card className="w-full pl-2 pr-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Settings className="h-5 w-5" />
                 Configure Your Workflow
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sm mt-1">
                 Fill out the details below to launch your automated content
                 workflow.
               </CardDescription>
@@ -235,7 +235,7 @@ export default function WorkflowConfigPage() {
                         <FormItem className="flex flex-row items-center justify-between rounded-lg border bg-muted p-4">
                           <div className="space-y-0.5">
                             <FormLabel>Autonomous Mode</FormLabel>
-                            <FormDescription>
+                            <FormDescription className="text-xs mt-1">
                               Enable to let the AI run without human validation
                               steps.
                             </FormDescription>
@@ -258,7 +258,7 @@ export default function WorkflowConfigPage() {
                         <FormItem className="flex flex-row items-center justify-between">
                           <div className="space-y-0.5">
                             <FormLabel>Show Detailed View</FormLabel>
-                            <FormDescription>
+                            <FormDescription className="text-xs mt-1">
                               Display a detailed breakdown of the workflow
                               outputs.
                             </FormDescription>
@@ -321,7 +321,7 @@ export default function WorkflowConfigPage() {
                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                           <div className="space-y-0.5">
                             <FormLabel>Provide Specific Topic</FormLabel>
-                            <FormDescription>
+                            <FormDescription className="text-xs mt-1">
                               Do you want to provide your own topic or use trends?
                             </FormDescription>
                           </div>
