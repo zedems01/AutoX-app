@@ -117,7 +117,7 @@ export default function LoginPage() {
                       <Input placeholder="http://user:pass@ip:port" {...field} />
                     </FormControl>
                     <FormDescription>
-                      Your proxy for the Twitter connection.
+                      Your proxy for the X connection.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
