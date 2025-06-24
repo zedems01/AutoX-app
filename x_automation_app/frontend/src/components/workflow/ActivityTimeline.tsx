@@ -57,7 +57,7 @@ const getStepConfig = (event: StreamEvent) => {
       title = "Opinion Analysis"
       if (status === "completed") {
         const sentiment = event.data.output?.overall_sentiment || "N/A"
-        description = `Analyzed opinions. Overall sentiment: ${sentiment}.`
+        description = `Analyzed tweets. Overall sentiment: ${sentiment}.`
       }
       break
     case "query_generator":
@@ -65,7 +65,7 @@ const getStepConfig = (event: StreamEvent) => {
       title = "Generating Search Queries"
       if (status === "completed") {
         const queries = event.data.output?.query_list || []
-        description = `Generated queries: ${queries.join(", ")}`
+        description = `Generated queries:\n${queries.join("\n")}`
       }
       break
     case "web_research":
@@ -83,12 +83,12 @@ const getStepConfig = (event: StreamEvent) => {
       if (status === "completed") {
         const critique =
           event.data.output?.critique || "No further information required."
-        description = `Critique: ${critique.substring(0, 200)}...`
+        description = `Thoughts:\n${critique.substring(0, 200)}...`
       }
       break
     case "finalize_answer":
       icon = FileCheck2
-      title = "Finalizing Deep Research"
+      title = "Finalizing Deep News Research"
       description = "Successfully finalized deep research report."
       break
     case "writer":
@@ -128,9 +128,9 @@ const getStepConfig = (event: StreamEvent) => {
         const id = event.data.output?.publication_id
         const destination = event.data.input?.output_destination
 
-        if (destination === "Download") {
+        if (destination === "GET_OUTPUTS") {
           description =
-            "Final content has been generated and formatted for download."
+            "Final content has been generated and formatted for viewing."
         } else if (id) {
           description = `Content published with ID: ${id}.`
         } else {

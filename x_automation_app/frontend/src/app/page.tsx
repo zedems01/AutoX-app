@@ -128,7 +128,7 @@ export default function WorkflowConfigPage() {
       has_user_provided_topic: false,
       user_provided_topic: "",
       output_destination: "GET_OUTPUTS",
-      x_content_type: "Blog Post",
+      x_content_type: "Social Media Post",
       content_length: "SHORT",
       brand_voice: "",
       target_audience: "",
@@ -137,7 +137,7 @@ export default function WorkflowConfigPage() {
         gemini_reasoning_model: "",
         openai_model: "",
         trends_count: undefined,
-        trends_woeid: undefined,
+        trends_woeid: 1,
         max_tweets_to_retrieve: undefined,
         tweets_language: "",
         content_language: "",
@@ -570,37 +570,12 @@ export default function WorkflowConfigPage() {
                         />
                         <FormField
                           control={form.control}
-                          name="user_config.trends_count"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Trends Count</FormLabel>
-                              <FormDescription className="text-xs">Number of trending topics to fetch. Default is 30. Min is 30.</FormDescription>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="30"
-                                  {...field}
-                                  value={field.value ?? ""}
-                                  onChange={(e) => {
-                                    const value = e.target.value
-                                    field.onChange(
-                                      value === "" ? undefined : parseInt(value, 10)
-                                    )
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
                           name="user_config.trends_woeid"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Trends Location</FormLabel>
                               <FormDescription className="text-xs">
-                                Location for trends (Yahoo! Where On Earth ID).
+                                Location for trends (Yahoo! Where On Earth ID). More details <a href="https://gist.github.com/tedyblood/5bb5a9f78314cc1f478b3dd7cde790b9" target="_blank" rel="noopener noreferrer" className="text-blue-500">here</a>.
                               </FormDescription>
                               <Select
                                 onValueChange={(value) =>
@@ -621,11 +596,36 @@ export default function WorkflowConfigPage() {
                                       key={location.woeid}
                                       value={location.woeid.toString()}
                                     >
-                                      {location.name}
+                                      {`${location.name}  -  ${location.woeid}`}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
                               </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="user_config.trends_count"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Trends Count</FormLabel>
+                              <FormDescription className="text-xs">Number of trending topics to fetch. Default is 30. Min is 30.</FormDescription>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="30"
+                                  {...field}
+                                  value={field.value ?? ""}
+                                  onChange={(e) => {
+                                    const value = e.target.value
+                                    field.onChange(
+                                      value === "" ? undefined : parseInt(value, 10)
+                                    )
+                                  }}
+                                />
+                              </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
