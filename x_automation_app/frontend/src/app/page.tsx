@@ -96,6 +96,25 @@ const formSchema = z
 
 type FormSchemaType = z.infer<typeof formSchema>
 
+const woeidLocations = [
+  { name: "Worldwide", woeid: 1 },
+  { name: "France", woeid: 23424819 },
+  { name: "Paris", woeid: 615702 },
+  { name: "Bordeaux", woeid: 580778 },
+  { name: "Lille", woeid: 608105 },
+  { name: "Lyon", woeid: 609125 },
+  { name: "Marseille", woeid: 610264 },
+  { name: "Montpellier", woeid: 612977 },
+  { name: "Nantes", woeid: 613858 },
+  { name: "Rennes", woeid: 619163 },
+  { name: "Strasbourg", woeid: 627791 },
+  { name: "Toulouse", woeid: 628886 },
+  { name: "United States", woeid: 23424977 },
+  { name: "Canada", woeid: 23424775 },
+  { name: "United Kingdom", woeid: 23424975 },
+  { name: "Spain", woeid: 23424950 },
+]
+
 export default function WorkflowConfigPage() {
   const router = useRouter()
   const { authStatus, session, userDetails, proxy } = useAuth()
@@ -579,24 +598,34 @@ export default function WorkflowConfigPage() {
                           name="user_config.trends_woeid"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Trends WOEID</FormLabel>
+                              <FormLabel>Trends Location</FormLabel>
                               <FormDescription className="text-xs">
-                                Location for trends (Yahoo! Where On Earth ID). '1' is global.
+                                Location for trends (Yahoo! Where On Earth ID).
                               </FormDescription>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="e.g., 1"
-                                  {...field}
-                                  value={field.value ?? ""}
-                                  onChange={(e) => {
-                                    const value = e.target.value
-                                    field.onChange(
-                                      value === "" ? undefined : parseInt(value, 10)
-                                    )
-                                  }}
-                                />
-                              </FormControl>
+                              <Select
+                                onValueChange={(value) =>
+                                  field.onChange(
+                                    value ? parseInt(value, 10) : undefined,
+                                  )
+                                }
+                                defaultValue={field.value?.toString()}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a location" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {woeidLocations.map((location) => (
+                                    <SelectItem
+                                      key={location.woeid}
+                                      value={location.woeid.toString()}
+                                    >
+                                      {location.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
                               <FormMessage />
                             </FormItem>
                           )}
