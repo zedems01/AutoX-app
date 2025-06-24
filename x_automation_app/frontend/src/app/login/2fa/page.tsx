@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { Suspense, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -39,7 +39,7 @@ const formSchema = z.object({
   }),
 })
 
-export default function TwoFactorAuthPage() {
+function TwoFactorAuthComponent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { login } = useAuth()
@@ -80,10 +80,10 @@ export default function TwoFactorAuthPage() {
       toast.error("Session information is missing. Please log in again.", { duration: 15000 })
       return
     }
-    mutation.mutate({ 
-      login_data, 
-      proxy, 
-      two_fa_code: values.two_fa_code 
+    mutation.mutate({
+      login_data,
+      proxy,
+      two_fa_code: values.two_fa_code,
     })
   }
 
@@ -134,5 +134,13 @@ export default function TwoFactorAuthPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function TwoFactorAuthPage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen w-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+      <TwoFactorAuthComponent />
+    </Suspense>
   )
 } 
