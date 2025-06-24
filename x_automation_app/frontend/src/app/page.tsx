@@ -95,16 +95,6 @@ const formSchema = z
   )
 
 type FormSchemaType = z.infer<typeof formSchema>
-const userConfigFields: (keyof NonNullable<FormSchemaType['user_config']>)[] = [
-  "gemini_base_model",
-  "gemini_reasoning_model",
-  "openai_model",
-  "trends_count",
-  "trends_woeid",
-  "max_tweets_to_retrieve",
-  "tweets_language",
-  "content_language",
-]
 
 export default function WorkflowConfigPage() {
   const router = useRouter()
@@ -505,48 +495,179 @@ export default function WorkflowConfigPage() {
                           Optional: Override default agent settings. Leave blank
                           to use defaults.
                         </p>
-                        {userConfigFields.map((key) => {
-                          const isNumberField = [
-                            "trends_count",
-                            "trends_woeid",
-                            "max_tweets_to_retrieve",
-                          ].includes(key)
-
-                          return (
-                            <FormField
-                              key={key}
-                              control={form.control}
-                              name={`user_config.${key}`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="capitalize">
-                                    {key.replace(/_/g, " ")}
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      {...field}
-                                      type={isNumberField ? "number" : "text"}
-                                      value={field.value ?? ""}
-                                      onChange={(e) => {
-                                        const value = e.target.value
-                                        if (isNumberField) {
-                                          field.onChange(
-                                            value === ""
-                                              ? undefined
-                                              : parseInt(value, 10)
-                                          )
-                                        } else {
-                                          field.onChange(value)
-                                        }
-                                      }}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          )
-                        })}
+                        <FormField
+                          control={form.control}
+                          name="user_config.gemini_base_model"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Gemini Model</FormLabel>
+                              <FormDescription className="text-xs">Model for deep news research and/or other tasks. (Free access to some)</FormDescription>
+                              <FormControl>
+                                <Input
+                                  placeholder="'gemini-2.5-flash-lite-preview-06-17'"
+                                  {...field}
+                                  value={field.value ?? ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        {/* <FormField
+                          control={form.control}
+                          name="user_config.gemini_reasoning_model"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Gemini Reasoning Model</FormLabel>
+                              <FormDescription>The model for complex reasoning and analysis.</FormDescription>
+                              <FormControl>
+                                <Input
+                                  placeholder="e.g., 'gemini-1.5-pro-latest'"
+                                  {...field}
+                                  value={field.value ?? ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        /> */}
+                        <FormField
+                          control={form.control}
+                          name="user_config.openai_model"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>OpenAI Model</FormLabel>
+                              <FormDescription className="text-xs">The model powering the agent's reasoning. By default, 'gpt-image-1' is used for image generation.</FormDescription>
+                              <FormControl>
+                                <Input
+                                  placeholder="'gpt-4o'"
+                                  {...field}
+                                  value={field.value ?? ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="user_config.trends_count"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Trends Count</FormLabel>
+                              <FormDescription className="text-xs">Number of trending topics to fetch. Default is 30. Min is 30.</FormDescription>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="30"
+                                  {...field}
+                                  value={field.value ?? ""}
+                                  onChange={(e) => {
+                                    const value = e.target.value
+                                    field.onChange(
+                                      value === "" ? undefined : parseInt(value, 10)
+                                    )
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="user_config.trends_woeid"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Trends WOEID</FormLabel>
+                              <FormDescription className="text-xs">
+                                Location for trends (Yahoo! Where On Earth ID). '1' is global.
+                              </FormDescription>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="e.g., 1"
+                                  {...field}
+                                  value={field.value ?? ""}
+                                  onChange={(e) => {
+                                    const value = e.target.value
+                                    field.onChange(
+                                      value === "" ? undefined : parseInt(value, 10)
+                                    )
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="user_config.max_tweets_to_retrieve"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Max Tweets to Retrieve</FormLabel>
+                              <FormDescription className="text-xs">
+                                Maximum number of tweets to retrieve for opinion analysis.
+                              </FormDescription>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="100"
+                                  {...field}
+                                  value={field.value ?? ""}
+                                  onChange={(e) => {
+                                    const value = e.target.value
+                                    field.onChange(
+                                      value === "" ? undefined : parseInt(value, 10)
+                                    )
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="user_config.tweets_language"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Tweets Language</FormLabel>
+                              <FormDescription className="text-xs">
+                                Language of the retrieved tweets.
+                              </FormDescription>
+                              <FormControl>
+                                <Input
+                                  placeholder="'English'"
+                                  {...field}
+                                  value={field.value ?? ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="user_config.content_language"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Content Language</FormLabel>
+                              <FormDescription className="text-xs">
+                                Language for the final content.
+                              </FormDescription>
+                              <FormControl>
+                                <Input
+                                  placeholder="'English'"
+                                  {...field}
+                                  value={field.value ?? ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </AccordionContent>
                     </AccordionItem>
                   </Accordion>
