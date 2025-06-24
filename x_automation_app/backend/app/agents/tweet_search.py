@@ -34,7 +34,7 @@ def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
     Returns:
         A dictionary to update the 'tweet_search_results' key in the state.
     """
-    logger.info("---SEARCHING FOR TWEETS---\n")
+    logger.info("----SEARCHING FOR TWEETS----\n")
     return {
         "tweet_search_results": [TweetSearched(text='Why would they have to ask? that’s weird. Israel said Donald Trump was involved in this operation from the beginning. I was told the only reason he was allowed to become president was to corral white kids into the army again and go to war with Iran.', source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='Wed Nov 11 16:35:27 +0000 2020', lang='en', isReply=False, author=TweetAuthor(userName='kenpaichi', name='Dr. StormyWaters', isVerified=False, followers=0, following=0)),
   TweetSearched(text='Two days ago, the idea that Israel might pull us into a war with Iran was "hysterical," "unfounded," "paranoid," etc. \n\nNow, it\'s a stated policy preference.', source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='', lang='en', isReply=False, author=TweetAuthor(userName='', name='Brandan P. Buck', isVerified=False, followers=0, following=0)),
@@ -61,7 +61,7 @@ def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
     #         raise ValueError("No topic found in the state to initiate tweet search.")
     #     # logger.info(f"Topic found...n")
 
-    #     logger.info(f"---Searching tweets for topic: {topic}---")
+    #     logger.info(f"----Searching tweets for topic: {topic}----")
         
     #     # if state.get("user_config", {}).get("tweets_language"):
     #     #     tweets_language = state.get("user_config", {}).get("tweets_language")
@@ -83,7 +83,7 @@ def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
     #     parsed_response = response["structured_response"]
     #     # print(f"parsed_response: {parsed_response}\n")
         
-    #     logger.info(f"---Found {len(parsed_response.tweets)} tweets.---\n")
+    #     logger.info(f"----Found {len(parsed_response.tweets)} tweets.----\n")
 
     #     return {"tweet_search_results": parsed_response.tweets}
 

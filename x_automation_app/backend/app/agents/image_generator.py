@@ -38,7 +38,7 @@ def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]
     Returns:
         A dictionary to update the 'generated_images' key in the state.
     """
-    logger.info("---GENERATING IMAGES---\n")
+    logger.info("----GENERATING IMAGES----\n")
     logger.info("No prompts found for image generation.\n")
     return {"generated_images": None}
     
@@ -58,7 +58,7 @@ def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]
     #             feedback_from_data = data.get("feedback")
     #             if feedback_from_data:
     #                 feedback = feedback_from_data
-    #                 logger.info(f"---Revising image prompts based on feedback: {feedback}---\n")
+    #                 logger.info(f"----Revising image prompts based on feedback: {feedback}----\n")
 
 
     #     prompt = image_generator_prompt.format(
@@ -74,7 +74,7 @@ def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]
     #     #     if isinstance(msg, ToolMessage) and isinstance(msg.content, GeneratedImage):
     #     #         generated_images.append(msg.content)
 
-    #     logger.info(f"---Successfully generated {len(parsed_response.images)} images.---\n")
+    #     logger.info(f"----Successfully generated {len(parsed_response.images)} images.----\n")
 
     #     return {"generated_images": parsed_response.images}
 

@@ -32,7 +32,7 @@ def quality_assurance_node(state: OverallState) -> Dict[str, Any]:
     Returns:
         A dictionary to update the 'final_content' and 'final_image_prompts' keys.
     """
-    logger.info("---PERFORMING QUALITY ASSURANCE ON DRAFT---\n")
+    logger.info("----PERFORMING QUALITY ASSURANCE ON CONTENT DRAFT----\n")
 
     try:
         # Extract existing draft and prompts
@@ -77,7 +77,7 @@ def quality_assurance_node(state: OverallState) -> Dict[str, Any]:
         # Invoke the structured LLM to get the final, refined output
         qa_output = structured_llm.invoke(prompt)
 
-        logger.info("---QA complete. Content and prompts are finalized.---\n")
+        logger.info("----QA complete. Content and prompts are finalized.----\n")
 
         return {
             "final_content": qa_output.final_content,

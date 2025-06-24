@@ -17,7 +17,7 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
     Returns:
         A dictionary to update the 'publication_id' in the state.
     """
-    logger.info("---PUBLISHING OR PACKAGING FINAL CONTENT---\n")
+    logger.info("----PUBLISHING OR PACKAGING FINAL CONTENT----\n")
 
     try:
         output_destination = state.get("output_destination")
@@ -32,14 +32,14 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
         publication_id = None
 
         if output_destination == "PUBLISH_X":
-            logger.info("---Destination: PUBLISH_X---\n")
+            logger.info("----Destination: PUBLISH_X----\n")
             if not session:
                 raise ValueError("Authentication session is required to publish on X. Please log in.")
 
             image_url = generated_images[0].s3_url if generated_images else None
 
             if x_content_type == "TWEET_THREAD":
-                logger.info("---Content Type: TWEET_THREAD---\n")
+                logger.info("----Content Type: TWEET_THREAD----\n")
                 thread_results = x_utils.post_tweet_thread(
                     session=session,
                     tweet_text=final_content,
@@ -50,7 +50,7 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
                     publication_id = thread_results[0].get("tweet_id")
 
             elif x_content_type == "SINGLE_TWEET":
-                logger.info("---Content Type: SINGLE_TWEET---\n")
+                logger.info("----Content Type: SINGLE_TWEET----\n")
                 publication_id = x_utils.post_tweet(
                     session=session,
                     tweet_text=final_content,
@@ -58,12 +58,12 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
                     proxy=session.get("proxy")
                 )
             
-            logger.info(f"---Successfully posted to X. Publication ID: {publication_id}---\n")
+            logger.info(f"----Successfully posted to X. Publication ID: {publication_id}----\n")
 
         elif output_destination == "GET_OUTPUTS":
-            logger.info("---Destination: GET_OUTPUTS---\n")
+            logger.info("----Destination: GET_OUTPUTS----\n")
             publication_id = "Content processed and available for viewing"
-            logger.info("---Content packaged successfully.---\n")
+            logger.info("----Content packaged successfully.----\n")
 
         else:
             raise ValueError(f"Unknown output destination: {output_destination}")

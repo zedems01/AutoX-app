@@ -150,7 +150,7 @@ async def start_workflow(payload: StartWorkflowPayload, background_tasks: Backgr
     """
     Starts the main content generation workflow with the user's specified settings.
     """
-    logger.info(f"Payload received...Starting workflow with payload: {payload}\n")
+    logger.info("----STARTING WORKFLOW----\n")
     thread_id = str(uuid.uuid4())
     config = {"configurable": {"thread_id": thread_id}}
 
@@ -243,14 +243,7 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
             if isinstance(data.get("input"), Send) or isinstance(data.get("output"), Send):
                 continue  # Skip sending this event
             if event.get("event") in ALLOWED_EVENTS and event.get("name") in ALLOWED_NAMES:
-                # out={
-                #     "event": event.get("event"),
-                #     "name": event.get("name"),
-                #     # "metadata": event.get("metadata"),
-                # }
-                # print(f"Sending event:\n{out}\n\n")
                 await websocket.send_text(json.dumps(event, cls=CustomJSONEncoder))
-            # await websocket.send_text(json.dumps(event, cls=CustomJSONEncoder))
 
         # After the stream is exhausted (due to interruption), send the final state.
         # This ensures the client has all the data produced during the run.
@@ -272,7 +265,7 @@ async def validate_step(payload: ValidationPayload):
     """
     Receives user validation, updates the state, and resumes the workflow.
     """
-    print("Activating validation endpoint...")
+    logger.info("----VALIDATION STEP----\n")
     config = {"configurable": {"thread_id": payload.thread_id}}
 
     try:
@@ -293,7 +286,6 @@ async def validate_step(payload: ValidationPayload):
         }
         update_data["validation_result"]["validated_step"] = next_step
         update_data["next_human_input_step"] = None
-        print(f"Validation result:\n{payload.validation_result.model_dump(exclude_unset=True)}")
 
         # If the user is approving with data or editing, overwrite the relevant part of the state
         if payload.validation_result.action in [ValidationAction.APPROVE, ValidationAction.EDIT]:
@@ -302,7 +294,6 @@ async def validate_step(payload: ValidationPayload):
                 if next_step == "await_topic_selection" and "selected_topic" in edit_data:
                     # The state for selected_topic expects a dict, not a Pydantic model
                     topic_model = Trend(**edit_data["selected_topic"])
-                    print(f"Topic model:\n{topic_model}\n")
                     update_data["selected_topic"] = topic_model.model_dump(exclude_unset=True)
                 elif next_step == "await_content_validation":
                     if "final_content" in edit_data:
@@ -310,13 +301,11 @@ async def validate_step(payload: ValidationPayload):
                     if "final_image_prompts" in edit_data:
                         update_data["final_image_prompts"] = edit_data["final_image_prompts"]
 
-        # print(f"Updating state with validation data: {update_data}")
         # Update the state directly with the validation data
         graph.update_state(config, update_data)
 
         # Return the updated state so the frontend can re-render and open a new WebSocket
         updated_state = graph.get_state(config)
-        # print(f"Updated state:\n{updated_state.values}\n")
         return updated_state.values
 
     except Exception as e:

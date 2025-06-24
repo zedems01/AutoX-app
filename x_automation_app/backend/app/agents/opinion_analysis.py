@@ -34,7 +34,7 @@ def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
         A dictionary to update the 'opinion_summary', 'overall_sentiment',
         and 'topic_from_opinion_analysis' keys in the state.
     """
-    logger.info("---ANALYZING TWEET OPINIONS---\n")
+    logger.info("----ANALYZING TWEET OPINIONS----\n")
 
     # try:
     #     tweets = state.get("tweet_search_results")
@@ -49,7 +49,7 @@ def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
     #     # Invoke the structured LLM to get a Pydantic object directly
     #     analysis_result = structured_llm.invoke(prompt)
 
-    #     logger.info(f"---Opinion analysis complete. Refined topic: {analysis_result.topic_from_opinion_analysis}---\n")
+    #     logger.info(f"----Opinion analysis complete. Refined topic: {analysis_result.topic_from_opinion_analysis}----\n")
 
     #     return {
     #         "opinion_summary": analysis_result.opinion_summary,

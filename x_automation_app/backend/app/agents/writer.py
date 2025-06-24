@@ -33,7 +33,7 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
     Returns:
         A dictionary to update the 'content_draft' and 'image_prompts' keys in the state.
     """
-    logger.info("---DRAFTING CONTENT AND IMAGE PROMPTS---\n")
+    logger.info("----DRAFTING CONTENT AND IMAGE PROMPTS----\n")
 
     try:
         # Extract all necessary data from the state
@@ -56,7 +56,7 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
         if validation_result and validation_result.get("action") == "reject":
             if validation_result.get("data"):
                 feedback = validation_result.get("data").get("feedback", "No specific feedback provided.")
-            logger.info(f"---Revising draft based on feedback: {feedback}---\n")
+            logger.info(f"----Revising draft based on feedback: {feedback}----\n")
 
         # Format the prompt
         prompt = writer_prompt.format(
@@ -74,7 +74,7 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
         # Invoke the structured LLM
         writer_output = structured_llm.invoke(prompt)
 
-        logger.info(f"---Draft content generated. {len(writer_output.image_prompts)} image prompts created.---\n")
+        logger.info(f"----Draft content generated. {len(writer_output.image_prompts)} image prompts created.----\n")
 
         return {
             "content_draft": writer_output.content_draft,

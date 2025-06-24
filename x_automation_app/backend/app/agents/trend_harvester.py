@@ -29,12 +29,11 @@ def trend_harvester_node(state: OverallState) -> Dict[str, List[Trend]]:
     over the results to select a curated subset, and returns them in a
     structured format.
     """
-    logger.info("---FETCHING AND CURATING TRENDING TOPICS---\n")
+    logger.info("----FETCHING AND CURATING TRENDING TOPICS----\n")
     return {"trending_topics":[{"name":"Messi","rank":2,"tweet_count":"268K posts"},{"name":"Porto","rank":5,"tweet_count":"102K posts"},{"name":"#ONEPIECE1152","rank":19,"tweet_count":"13.4K posts"},{"name":"Schengen","rank":30,"tweet_count":"1,534 posts"}]}
     
     # try:
     #     # Format the prompt with values from the settings
-    #     # print(f"type state: {state}\n\n")
     #     safe_user_config = state.get("user_config") or {}
     #     prompt = trend_harvester_prompt.format(
     #         woeid = (safe_user_config.trends_woeid if safe_user_config and safe_user_config.trends_woeid is not None 
@@ -46,7 +45,7 @@ def trend_harvester_node(state: OverallState) -> Dict[str, List[Trend]]:
     #     )
     #     response = trend_harvester_agent.invoke({"messages": [("user", prompt)]})
     #     parsed_response = response["structured_response"]
-    #     logger.info(f"---Curated {len(parsed_response.trends)} trends successfully.---\n")
+    #     logger.info(f"----Curated {len(parsed_response.trends)} trends successfully.----\n")
     #     return {"trending_topics": parsed_response.trends}
 
     # except Exception as e:
