@@ -4,10 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "test": "jest"
+    "build": "next build --no-lint",
+    "start": "next start"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",

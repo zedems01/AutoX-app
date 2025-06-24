@@ -8,7 +8,8 @@ const nextConfig: NextConfig = {
         hostname: "x-automation-agent.s3.amazonaws.com",
       }
     ]
-  }
+  },
+  output: "standalone",
 };
 
 export default nextConfig;
