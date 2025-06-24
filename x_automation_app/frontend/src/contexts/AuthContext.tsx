@@ -1,7 +1,7 @@
 "use client"
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-// import { validateSession } from '@/lib/api'; // This will be created in a later step
+import { validateSession } from '@/lib/api';
 import { toast } from 'sonner';
 
 // --- Type Definitions ---
@@ -67,16 +67,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (storedSessionJSON) {
         try {
           const storedSession: UserSession = JSON.parse(storedSessionJSON);
-          // TODO: Replace with actual API call once `validateSession` is implemented in api.ts
-          // For now, we'll simulate a successful validation.
-          // await validateSession({ session: storedSession.session, proxy: storedSession.proxy });
+          const { isValid } = await validateSession({ session: storedSession.session, proxy: storedSession.proxy });
           
-          setAuthState({
-            ...storedSession,
-            authStatus: 'authenticated',
-          });
+          if (isValid) {
+            setAuthState({
+              ...storedSession,
+              authStatus: 'authenticated',
+            });
+          } else {
+            toast.error("Your session is invalid. Please log in again.", { duration: 15000 });
+            logout();
+          }
         } catch (error) {
-          toast.error("Your session has expired. Please log in again.");
+          toast.error("Your session has expired. Please log in again.", { duration: 15000 });
           logout();
         }
       } else {
@@ -90,7 +93,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     // This effect listens for the global auth-error event to handle forced logouts
     const handleAuthError = () => {
-      toast.error("Authentication error. You have been logged out.");
+      toast.error("Authentication error. You have been logged out.", { duration: 15000 });
       logout();
     };
 

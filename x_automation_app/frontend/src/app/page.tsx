@@ -157,9 +157,9 @@ export default function WorkflowConfigPage() {
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Check if user needs to be logged in for the selected action
+    // Check a user needs to be logged in for the selected action
     if (values.output_destination === 'PUBLISH_X' && authStatus !== 'authenticated') {
-      toast.error("You must be logged in to publish directly to X.")
+      toast.error("You must be logged in to publish directly to X.", { duration: 15000 })
       router.push('/login')
       return
     }

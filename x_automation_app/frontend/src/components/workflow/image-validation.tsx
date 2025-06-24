@@ -71,7 +71,7 @@ export function ImageValidation({ onSubmitted }: ImageValidationProps) {
       }
     },
     onError: (error) => {
-      toast.error(`Validation failed: ${error.message}`)
+      toast.error(`Validation failed: ${error.message}`, { duration: 15000 })
     },
   })
 
@@ -80,7 +80,7 @@ export function ImageValidation({ onSubmitted }: ImageValidationProps) {
     data?: { feedback: string }
   ) => {
     if (!threadId) {
-      toast.error("Session expired. Please start over.")
+      toast.error("Session expired. Please start over.", { duration: 15000 })
       return
     }
 

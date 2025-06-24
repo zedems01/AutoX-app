@@ -73,7 +73,7 @@ export default function LoginPage() {
     <div className="flex justify-center pt-10">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Twitter Login</CardTitle>
+          <CardTitle>X Session Login</CardTitle>
           <CardDescription>
             Enter your credentials and a proxy to start the process.
           </CardDescription>

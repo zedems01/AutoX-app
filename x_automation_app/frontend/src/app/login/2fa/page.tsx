@@ -93,7 +93,7 @@ export default function TwoFactorAuthPage() {
         <CardHeader>
           <CardTitle>Two-Factor Authentication</CardTitle>
           <CardDescription>
-            Please enter the code from your authentication app.
+            Please enter the code received.
           </CardDescription>
         </CardHeader>
         <CardContent>

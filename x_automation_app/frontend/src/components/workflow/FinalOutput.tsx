@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card"
 import { useWorkflowContext } from "@/contexts/WorkflowProvider"
 import { cn } from "@/lib/utils"
-import { Send, Sparkles } from "lucide-react"
+import { Sparkles } from "lucide-react"
 
 export function FinalOutput() {
   const { workflowState } = useWorkflowContext()

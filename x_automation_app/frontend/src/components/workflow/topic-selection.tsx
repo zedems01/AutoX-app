@@ -73,13 +73,13 @@ export function TopicSelection({ onSubmitted }: TopicSelectionProps) {
       }
     },
     onError: (error) => {
-      toast.error(`Validation failed: ${error.message}`)
+      toast.error(`Validation failed: ${error.message}`, { duration: 15000 })
     },
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     if (!threadId) {
-      toast.error("Session expired. Please start over.")
+      toast.error("Session expired. Please start over.", { duration: 15000 })
       return
     }
 
@@ -88,7 +88,7 @@ export function TopicSelection({ onSubmitted }: TopicSelectionProps) {
     )
 
     if (!selectedTopic) {
-      toast.error("Invalid topic selected. Please try again.")
+      toast.error("Invalid topic selected. Please try again.", { duration: 15000 })
       return
     }
 

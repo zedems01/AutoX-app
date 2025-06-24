@@ -82,7 +82,7 @@ export function ContentValidation({ onSubmitted }: ContentValidationProps) {
       }
     },
     onError: (error) => {
-      toast.error(`Validation failed: ${error.message}`)
+      toast.error(`Validation failed: ${error.message}`, { duration: 15000 })
     },
   })
 
@@ -91,7 +91,7 @@ export function ContentValidation({ onSubmitted }: ContentValidationProps) {
     data?: { feedback: string } | { extra_data: any }
   ) => {
     if (!threadId) {
-      toast.error("Session expired. Please start over.")
+      toast.error("Session expired. Please start over.", { duration: 15000 })
       return
     }
 
@@ -204,7 +204,7 @@ export function ContentValidation({ onSubmitted }: ContentValidationProps) {
         </form>
       </Form>
 
-      {/* Rejection Dialog - Now OUTSIDE the main form */}
+      {/* Rejection Dialog */}
       <Dialog
         open={isRejectionDialogOpen}
         onOpenChange={setRejectionDialogOpen}

@@ -123,8 +123,6 @@ export function useWorkflow(threadId: string | null) {
       } else {
         // This is the initial, full state sent on connection
         setWorkflowState(lastJsonMessage as OverallState)
-        // Clear previous session events - DO NOT DO THIS
-        // setEvents([])
       }
     }
   }, [lastJsonMessage, setWorkflowState, setEvents])
