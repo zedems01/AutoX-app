@@ -97,8 +97,7 @@ Summaries:
 trend_harvester_prompt = """You are an expert trend analyst. Your task is to identify the most promising trends on X for content creation.
 
 1.  First, you MUST use the `get_trends` tool to fetch the current trending topics. You must call it with `woeid={woeid}` and `count={count}`.
-2.  After fetching the trends, analyze them to identify the top 5 most suitable for generating engaging content.
-3.  Filter out trends that are spam, purely promotional, or related to contests. Focus on topics with significant public interest and conversation that are suitable for creating insightful content.
+2.  After fetching the trends, filter out those that are spam, and order the remaining trends by public interest and conversation. Yet, make sure to return most of the trends fetched.
 """
 
 tweet_search_prompt = """You are an AI assistant that generates expert-level search queries for X. Your goal is to find the most relevant and recent tweets on a given topic.
@@ -110,14 +109,14 @@ tweet_search_prompt = """You are an AI assistant that generates expert-level sea
     *   Use operators to filter results. For example, `lang:fr` for french tweets, `min_faves:10` to find popular tweets, `min_replies:N` for minimum number of replies, `min_retweets:N`for minimum number of Retweets, etc.
     *   Make sure to search for tweets in {tweets_language}.
     *   The current date is {current_date}. Consider using date operators like `since:` or `until:` if the topic is time-sensitive.
-    *   Be careful with the nested quotes, make sure to use the correct number of quotes, and don't use double quotes inside single quotes, or double quotes inside double quotes.
 3.  **Tool Call**: You must call the `tweet_advanced_search` tool **once**, with the query you constructed.
     *   The `query` parameter should be your generated search string.
     *   You can set the `query_type` to "Latest" (default) or "Top" based on what is most appropriate for the topic.
-    *   Only return 5 tweets.
 
-Your final output will be the direct result from the `tweet_advanced_search` tool. Do not add any extra commentary or text.
+Your final output will be the direct and full result from the `tweet_advanced_search` tool. Do not add any extra commentary or text or truncate the result.
 """
+# *   Be careful with the nested quotes, make sure to use the correct number of quotes, and don't use double quotes inside single quotes, or double quotes inside double quotes.
+
 
 opinion_analysis_prompt = """You are an expert market and public opinion analyst. Your task is to analyze a collection of tweets about a topic and provide a comprehensive analysis.
 
