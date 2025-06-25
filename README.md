@@ -8,19 +8,22 @@ An autonomous AI agent team for real-time, trend-driven content creation.
 
 ## 🌟 About The Project
 
-AutoX is a powerful, agent-based system that leverages real-time trends and news to automate the creation of diverse content. Whether you need a blog post, an article, or a social media update, this team of AI agents can handle the entire workflow—from initial research to final draft. It offers deep flexibility in adapting to any brand voice and can operate fully autonomously or with human oversight for fine-tuned control.
+AutoX is a **LangGraph** agent-based system that leverages real-time trends and news to automate wide range content creation. From X tweets and threads, to articles, newsletters and social media posts. The team of AI agents handles the entire workflow, from initial researches and writing to image creation and even direct publishing on X. It offers deep flexibility in adapting to any brand voice and can operate fully autonomously or with human oversight for fine-tuned control.
 
-The system features a sleek, modern web interface built with **Next.js** and **Shadcn/UI**, allowing users to configure, launch, and monitor the agentic workflow in real time.
+The system features a clean, modern web interface built using **Next.js** and **Shadcn/UI**, making it easy to configure, launch, and monitor the workflow in real time.
+
 
 ### Key Features
 
--   **📈 Real-Time Trend Analysis**: Capitalizes on breaking trends and news from X and the web to create timely, high-impact content.
--   **✍️ Multi-Format Content Generation**: More than just a tweet scheduler. Generate comprehensive blog posts, detailed articles, and engaging social media updates.
--   **🗣️ Dynamic Brand Voice Adaptation**: Define your brand's unique voice—witty, formal, technical—and the agents will adapt their writing style accordingly.
--   **🤖 Fully Autonomous or Human-Guided**: Run the workflow on complete autopilot or use the Human-in-the-Loop (HiTL) steps to review and refine content at key stages.
--   **🚀 Direct Publishing & Flexible Output**: Publish directly to X or receive the generated content and images to use on any platform like your blog, LinkedIn, or other social channels.
--   **📊 Live Progress Dashboard**: Monitor the entire multi-agent workflow in real-time through a detailed, user-friendly interface.
--   **🌐 Deep Research Capability**: Agents perform in-depth web research to ensure content is not just fast, but also factual and well-supported.
+* **🛠️ Fullstack application**: with a `Next.js` frontend and `LangGraph` backend.
+* **📈 Real-Time Trend Analysis**: Automatically incorporates emerging topics and breaking news from X and the web to produce relevant, timely content.
+* **✍️ Multi-Format Content & Image Generation**: Can generate comprehensive content format, long-form articles, tweets, threads, and social media posts or newsletters, along with AI-generated images to accompany the content.
+* **🌐 Deep Research Capability**: Agents perform targeted web research to support content generation with up-to-date, verifiable information. Inspired by 
+* **🗣️ Dynamic Brand Voice Adaptation**: Allows you to define a specific tone—such as formal, technical, or conversational—which is consistently applied across all generated content.
+* **🤖 Fully Autonomous or Human-Guided**: The workflow can run independently or include optional Human-in-the-Loop (HiTL) checkpoints for review and editing.
+* **🚀 Direct Publishing & Flexible Output**: Content can be published directly to X or exported for use.
+* **📊 Live Progress Dashboard**: Provides a real-time overview of the multi-agent workflow, including task status and output previews.
+
 
 ## 🏗️ Architecture
 
@@ -49,8 +52,11 @@ Follow these steps to set up and run the project locally.
 
 -   Node.js and npm
 -   Python 3.12+ and [UV](https://github.com/astral-sh/uv)
+-   [Docker](https://www.docker.com/get-started) and [Docker Compose](https://docs.docker.com/compose/install/) (for containerized setup)
 
-### 1. Backend Setup
+### Option 1: Manual Setup
+
+#### 1. Backend Setup
 
 First, set up and launch the backend server.
 
@@ -86,7 +92,7 @@ uvicorn app.main:app --reload
 # The backend will be running at http://localhost:8000
 ```
 
-### 2. Frontend Setup
+#### 2. Frontend Setup
 
 In a separate terminal, set up and launch the frontend application.
 
@@ -102,6 +108,38 @@ npm run dev
 ```
 
 The application will be accessible at **http://localhost:3000**.
+
+### Option 2: Docker Compose Setup
+
+Alternatively, you can run the entire application using Docker.
+
+1.  **Configure Environment Variables**
+
+    Just like in the manual setup, the backend needs its environment variables.
+
+    ```bash
+    # 1. Navigate to the backend directory
+    cd x_automation_app/backend
+
+    # 2. Create the .env file from the template
+    cp env.template .env
+    ```
+
+    Now, edit the newly created `.env` file and add your credentials. The Docker service will automatically load this file.
+
+2.  **Launch with Docker Compose**
+
+    From the root directory of the project, run the following command:
+
+    ```bash
+    docker-compose up --build -d
+    ```
+
+    This command will build the Docker images for the frontend and backend and start the services in the background.
+
+    The application will be accessible at the same URLs:
+    -   Frontend: **http://localhost:3000**
+    -   Backend: **http://localhost:8000**
 
 ## 🤖 The Agent Team
 
