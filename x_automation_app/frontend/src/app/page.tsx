@@ -381,6 +381,7 @@ export default function WorkflowConfigPage() {
                               ![
                                 "Blog Post",
                                 "Social Media Post",
+                                "Newsletter",
                                 "SINGLE_TWEET",
                                 "TWEET_THREAD",
                               ].includes(field.value)
@@ -410,6 +411,9 @@ export default function WorkflowConfigPage() {
                                   </SelectItem>
                                   <SelectItem value="Social Media Post">
                                     Social Media Post
+                                  </SelectItem>
+                                  <SelectItem value="Newsletter">
+                                    Newsletter
                                   </SelectItem>
                                   <SelectItem value="SINGLE_TWEET">
                                     Single Tweet
