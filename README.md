@@ -1,9 +1,9 @@
-# AutoX 🚀
+# AutoX Content Creator 🚀
 
 An autonomous AI agent team for real-time, trend-driven content creation.
 
 <p style="text-align: center;">
-  <img src="./x_automation_app/autoX-workflow-graph.png" alt="workflow images" width="700" />
+  <img src="./x_automation_app/app.png" alt="workflow images" width="700" />
 </p>
 
 ## 🌟 About The Project
@@ -18,8 +18,8 @@ The system features a clean, modern web interface built using **Next.js** and **
 * **🛠️ Fullstack application**: with a `Next.js` frontend and `LangGraph` backend.
 * **📈 Real-Time Trend Analysis**: Automatically incorporates emerging topics and breaking news from X and the web to produce relevant, timely content.
 * **✍️ Multi-Format Content & Image Generation**: Can generate comprehensive content format, long-form articles, tweets, threads, and social media posts or newsletters, along with AI-generated images to accompany the content.
-* **🌐 Deep Research Capability**: Agents perform targeted web research to support content generation with up-to-date, verifiable information. Inspired by 
-* **🗣️ Dynamic Brand Voice Adaptation**: Allows you to define a specific tone—such as formal, technical, or conversational—which is consistently applied across all generated content.
+* **🌐 Deep Research Capability**: Agents perform targeted web research to support content generation with up-to-date, verifiable information. Inspired by this [Google AI Quickstart](https://github.com/google-gemini/gemini-fullstack-langgraph-quickstart.git)
+* **🗣️ Dynamic Brand Voice Adaptation**: Allows you to define a specific tone, such as formal, technical, or conversational, which is consistently applied across all generated content.
 * **🤖 Fully Autonomous or Human-Guided**: The workflow can run independently or include optional Human-in-the-Loop (HiTL) checkpoints for review and editing.
 * **🚀 Direct Publishing & Flexible Output**: Content can be published directly to X or exported for use.
 * **📊 Live Progress Dashboard**: Provides a real-time overview of the multi-agent workflow, including task status and output previews.
@@ -27,16 +27,16 @@ The system features a clean, modern web interface built using **Next.js** and **
 
 ## 🏗️ Architecture
 
-The project is a monorepo composed of a FastAPI backend and a Next.js frontend.
+The project is a monorepo composed of a LangGraph+FastAPI backend and a Next.js frontend.
 
-### Backend
+### backend/
 
 -   **Framework**: **FastAPI** serves the REST API and WebSocket for real-time communication.
 -   **Agentic Core**: **LangGraph** orchestrates the stateful, multi-agent workflow.
 -   **Data Validation**: **Pydantic** ensures data integrity between the frontend, backend, and agent states.
 -   **Dependencies**: Managed by **UV**.
 
-### Frontend
+### frontend/
 
 -   **Framework**: **Next.js** (with the App Router).
 -   **Language**: **TypeScript**.
@@ -56,54 +56,39 @@ Follow these steps to set up and run the project locally.
 
 ### Option 1: Manual Setup
 
+You can run the backend and frontend development servers separately.
+
 #### 1. Backend Setup
 
 First, set up and launch the backend server.
 
 ```bash
-# 1. Navigate to the backend directory
 cd x_automation_app/backend
+uv sync
+.venv\Scripts\activate
+# or source .venv/bin/activate
 
-# 2. Create and activate a virtual environment
-uv venv
-source .venv/bin/activate
-# On Windows, use: .venv\Scripts\activate
-
-# 3. Install dependencies
-uv pip install -e .
-
-# 4. Set up environment variables
-# Copy the template to a new .env file
+# Set up environment variables using the template
 cp env.template .env
-
-# 5. Edit the .env file with your credentials
+uvicorn app.main:app --reload
+# The backend will be running at http://localhost:8000
 ```
 
-You will need to provide the following in the `.env` file:
+<!-- You will need to provide the following in the `.env` file:
 -   `GEMINI_API_KEY`: Mandatory for the deep research agent.
 -   `OPENAI_API_KEY`: For the main content generation agents.
 -   `X_API_KEY`: From a service like `twitterapi.io` for scraping.
 -   `USER_PROXY`: A proxy is required for X login automation.
--   Optionally, provide AWS credentials for image uploads and LangSmith for tracing.
+-   Optionally, provide AWS credentials for image uploads and LangSmith for tracing. -->
 
-```bash
-# 6. Launch the backend server
-uvicorn app.main:app --reload
-# The backend will be running at http://localhost:8000
-```
 
 #### 2. Frontend Setup
 
 In a separate terminal, set up and launch the frontend application.
 
 ```bash
-# 1. Navigate to the frontend directory
 cd x_automation_app/frontend
-
-# 2. Install dependencies
 npm install
-
-# 3. Launch the frontend development server
 npm run dev
 ```
 
@@ -118,10 +103,7 @@ Alternatively, you can run the entire application using Docker.
     Just like in the manual setup, the backend needs its environment variables.
 
     ```bash
-    # 1. Navigate to the backend directory
     cd x_automation_app/backend
-
-    # 2. Create the .env file from the template
     cp env.template .env
     ```
 
@@ -141,9 +123,13 @@ Alternatively, you can run the entire application using Docker.
     -   Frontend: **http://localhost:3000**
     -   Backend: **http://localhost:8000**
 
-## 🤖 The Agent Team
+## 🤖 Backend Agent Team
 
 The workflow is composed of several specialized agents and nodes that collaborate to generate and publish content.
+
+<p style="text-align: center;">
+  <img src="./x_automation_app/autoX-workflow-graph.png" alt="workflow images" width="700" />
+</p>
 
 -   **🔎 Trend Harvester**: Identifies trending topics on X for a specified location.
 -   **🐦 Tweet Searcher**: Gathers relevant, recent tweets for a given topic to understand public sentiment and talking points.
