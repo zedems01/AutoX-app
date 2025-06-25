@@ -32,11 +32,16 @@ export function WorkflowDashboard() {
     isConnected,
     error,
     progress,
+    events,
   } = useWorkflowContext()
   useWorkflow(threadId)
   const [isTopicModalOpen, setTopicModalOpen] = useState(false)
   const [isContentModalOpen, setContentModalOpen] = useState(false)
   const [isImageModalOpen, setImageModalOpen] = useState(false)
+
+  const isPublicatorCompleted = events.some(
+    (event) => event.name === "publicator" && event.event !== "on_chain_start"
+  )
 
   useEffect(() => {
     const nextStep = workflowState?.next_human_input_step
@@ -59,8 +64,8 @@ export function WorkflowDashboard() {
           </div>
           <div className="flex items-center gap-4">
             <WorkflowStatus />
-            {workflowState?.current_step === "END" && (
-              <Button onClick={() => window.location.reload()} size="sm">
+            {(workflowState?.current_step === "END" || isPublicatorCompleted) && (
+              <Button onClick={() => window.location.reload()} size="sm" className="cursor-pointer">
                 Start New Workflow
               </Button>
             )}

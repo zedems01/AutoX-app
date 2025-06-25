@@ -40,7 +40,9 @@ const getStepConfig = (event: StreamEvent) => {
       if (status === "completed") {
         const trends = event.data.output?.trending_topics || []
         const trendNames = trends.map((t: any) => t.name).join(", ")
-        description = `Gathered ${trends.length} trending topics: ${trendNames}.`
+        description = `Gathered ${
+          trends.length
+        } relevant trending topics: ${trendNames.substring(0, 200)}...`
       }
       break
     case "tweet_searcher":
@@ -112,7 +114,7 @@ const getStepConfig = (event: StreamEvent) => {
       icon = Image
       title = "Image Generation"
       if (status === "completed") {
-        const images = event.data.output?.images || []
+        const images = event.data.output?.generated_images || []
         if (images.length > 0) {
           const imageNames = images.map((img: any) => img.image_name).join(", ")
           description = `Generated ${images.length} images: ${imageNames}.`
