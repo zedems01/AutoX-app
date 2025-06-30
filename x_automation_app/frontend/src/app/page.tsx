@@ -646,7 +646,7 @@ export default function WorkflowConfigPage() {
                               <FormControl>
                                 <Input
                                   type="number"
-                                  placeholder="100"
+                                  placeholder="50"
                                   {...field}
                                   value={field.value ?? ""}
                                   onChange={(e) => {

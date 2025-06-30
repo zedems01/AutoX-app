@@ -18,7 +18,7 @@ The system features a clean, modern web interface built using **Next.js** and **
 * **🛠️ Fullstack application**: with a `Next.js` frontend and `LangGraph` backend.
 * **📈 Real-Time Trend Analysis**: Automatically incorporates emerging topics and breaking news from X and the web to produce relevant, timely content.
 * **✍️ Multi-Format Content & Image Generation**: Can generate comprehensive content format, long-form articles, tweets, threads, and social media posts or newsletters, along with AI-generated images to accompany the content.
-* **🌐 Deep Research Capability**: Agents perform targeted web research to support content generation with up-to-date, verifiable information. Inspired by this [Google AI Quickstart](https://github.com/google-gemini/gemini-fullstack-langgraph-quickstart.git)
+* **🌐 Deep Research Capability**: Agents perform targeted web research to support content generation with up-to-date, verifiable information. Inspired by this [Google AI Quickstart](https://github.com/google-gemini/gemini-fullstack-langgraph-quickstart.git).
 * **🗣️ Dynamic Brand Voice Adaptation**: Allows you to define a specific tone, such as formal, technical, or conversational, which is consistently applied across all generated content.
 * **🤖 Fully Autonomous or Human-Guided**: The workflow can run independently or include optional Human-in-the-Loop (HiTL) checkpoints for review and editing.
 * **🚀 Direct Publishing & Flexible Output**: Content can be published directly to X or exported for use.
