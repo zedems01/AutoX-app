@@ -19,17 +19,16 @@ logger = logging.getLogger(__name__)
 
 
 
-# try:
-#     llm = ChatOpenAI(model=settings.OPENAI_MODEL)
-# except Exception as e:
-#     logger.error(f"Error initializing OpenAI model: {e}")
-#     try:
-#         llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
-#     except Exception as e:
-#         logger.error(f"Error initializing Google Generative AI model: {e}")
-#         llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
+try:
+    llm = ChatOpenAI(model=settings.OPENAI_MODEL)
+except Exception as e:
+    logger.error(f"Error initializing OpenAI model: {e}")
+    try:
+        llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
+    except Exception as e:
+        logger.error(f"Error initializing Google Generative AI model: {e}")
+        llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
 
-llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
 image_generating_agent = create_react_agent(model=llm, tools=[generate_and_upload_image], response_format=ImageGeneratorOutput)
 
 def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]:
@@ -47,8 +46,6 @@ def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]
         A dictionary to update the 'generated_images' key in the state.
     """
     logger.info("----GENERATING IMAGES----\n")
-    # logger.info("No prompts found for image generation.\n")
-    # return {"generated_images": None}
     
     try:
         final_image_prompts = state.get("final_image_prompts")

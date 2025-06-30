@@ -14,17 +14,16 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-# try:
-#     llm = ChatOpenAI(model=settings.OPENAI_MODEL)
-# except Exception as e:
-#     logger.error(f"Error initializing OpenAI model: {e}")
-#     try:
-#         llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
-#     except Exception as e:
-#         logger.error(f"Error initializing Google Generative AI model: {e}")
-#         llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
+try:
+    llm = ChatOpenAI(model=settings.OPENAI_MODEL)
+except Exception as e:
+    logger.error(f"Error initializing OpenAI model: {e}")
+    try:
+        llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
+    except Exception as e:
+        logger.error(f"Error initializing Google Generative AI model: {e}")
+        llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
 
-llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
 trend_harvester_agent = create_react_agent(model=llm, tools=[get_trends], response_format=TrendResponse)
 
 def trend_harvester_node(state: OverallState) -> Dict[str, List[Trend]]:
@@ -36,7 +35,6 @@ def trend_harvester_node(state: OverallState) -> Dict[str, List[Trend]]:
     structured format.
     """
     logger.info("----FETCHING AND CURATING TRENDING TOPICS----\n")
-    # return {"trending_topics":[{"name":"Messi","rank":2,"tweet_count":"268K posts"},{"name":"Porto","rank":5,"tweet_count":"102K posts"},{"name":"#ONEPIECE1152","rank":19,"tweet_count":"13.4K posts"},{"name":"Schengen","rank":30,"tweet_count":"1,534 posts"}]}
     
     try:
         safe_user_config = state.get("user_config") or {}
