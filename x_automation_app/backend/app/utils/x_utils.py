@@ -1,3 +1,10 @@
+# --- 
+# TODO:
+# * refine the logic of the 'tweet_advanced_search' tool to give more autonomy to the agent 
+# * implement an agent for smart chunking and image integration in thread content  
+# ---
+
+
 import requests
 from ..config import settings
 from .schemas import Trend, TweetSearched, TweetAuthor
@@ -281,7 +288,6 @@ def upload_image(
     except requests.exceptions.RequestException as e:
         raise Exception(f"Network error during media upload: {e}")
     
-#TODO: Use an agent for smart chunking of text and image integration
 def get_char_count(text: str) -> int:
     """
     Calculates the character count of a string for Twitter, where emojis count as 2 characters

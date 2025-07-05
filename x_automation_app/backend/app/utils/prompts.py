@@ -1,8 +1,17 @@
+# --- 
+# TODO:
+# * refine the writer_prompt to add more instructions about specific content-type, and about images prompts
+# * add prompt for the smart chunker agent
+# ---
+
 from datetime import datetime
 
 
 def get_current_date():
     return datetime.now().strftime("%B %d, %Y")
+
+def get_current_time():
+    return datetime.now().strftime("%B %d, %Y %H:%M:%S")
 
 
 query_writer_instructions = """Your goal is to generate sophisticated and diverse web search queries. These queries are intended for an advanced automated web research tool capable of analyzing complex results, following links, and synthesizing information.
@@ -94,56 +103,133 @@ Summaries:
 {summaries}"""
 
 
-trend_harvester_prompt = """You are an expert trend analyst. Your task is to identify the most promising trends on X for content creation.
+trend_harvester_prompt = """
+You are an expert trend analyst. Your task is to identify the most promising trends on X for content creation.
 
 1.  First, you MUST use the `get_trends` tool to fetch the current trending topics. You must call it with `woeid={woeid}` and `count={count}`.
-2.  After fetching the trends, filter out those that are spam, and order the remaining trends by public interest and conversation. Yet, make sure to return most of the trends fetched.
+2.  After fetching the trends, filter out those that are spam, and order the remaining trends by public interest and conversation.
+3.  Yet, make sure to return most of the trends fetched.
 """
 
-tweet_search_prompt = """You are an AI assistant that generates expert-level search queries for X. Your goal is to find the most relevant and recent tweets on a given topic.
+tweet_search_prompt="""
+You are an AI assistant that generates expert-level search queries for X. Your goal is to find the most relevant and recent tweets on a given topic.
 
-1.  **Analyze the Topic**: Understand the core concepts of the topic: `{topic}`.
-2.  **Construct a Query**: Create a single, effective search query string for the `tweet_advanced_search` tool. 
-    *   Use relevant keywords and hashtags (`#`).
-    *   Combine terms using operators like `OR` for broader reach or quotes (`"`) for exact phrases.
-    *   Use operators to filter results. For example, `lang:fr` for french tweets, `min_faves:10` to find popular tweets, `min_replies:N` for minimum number of replies, `min_retweets:N`for minimum number of Retweets, etc.
-    *   Make sure to search for tweets in {tweets_language}.
-    *   The current date is {current_date}. Consider using date operators like `since:` or `until:` if the topic is time-sensitive.
-3.  **Tool Call**: You must call the `tweet_advanced_search` tool **once**, with the query you constructed.
-    *   The `query` parameter should be your generated search string.
-    *   You can set the `query_type` to "Latest" (default) or "Top" based on what is most appropriate for the topic.
+================  ANALYZE THE TOPIC  ================
 
-Your final output will be the direct and full result from the `tweet_advanced_search` tool. Do not add any extra commentary or text or truncate the result.
+<topic_analysis>
+Understand the core concepts and intent of the topic:
+{topic}
+</topic_analysis>
+
+================  CONSTRUCT A SEARCH QUERY  ================
+
+<query_construction>
+Generate a **single, expert-level search query** string for the `tweet_advanced_search` tool, following these guidelines:
+
+- Use relevant **keywords** and **hashtags** (`#`).
+- Apply Boolean operators like `OR`, and **exact match** quotes (`" "`).
+- Integrate **advanced filters**:
+  - Language: `lang:{tweets_language}`
+  - Engagement filters:  
+    - Likes: `min_faves:N`  
+    - Retweets: `min_retweets:N`  
+    - Replies: `min_replies:N`
+- Apply **temporal filters** if the topic is time-sensitive:
+  - `since:start_date` or `until:end_date`
+- ENSURE the query is tailored for **language**: {tweets_language}
+- Take into account today's date: {current_date}
+</query_construction>
+
+================  TOOL CALL  ================
+
+<tool_call>
+Call the `tweet_advanced_search` tool **once** using the generated query.
+
+- Required parameters:
+  - `query`: your constructed query string.
+  - `query_type`: `"Latest"` *(default)* or `"Top"`, based on the topic's needs.
+</tool_call>
+
+================  OUTPUT FORMAT  ================
+
+<output_instruction>
+
+Return **only** the full and direct result from the `tweet_advanced_search` tool.
+
+❗Do **not** add any extra commentary, formatting. Do not truncate the tweets.
+
+</output_instruction>
 """
 # *   Be careful with the nested quotes, make sure to use the correct number of quotes, and don't use double quotes inside single quotes, or double quotes inside double quotes.
 
+opinion_analysis_prompt = """
+You are an expert market and public opinion analyst. Your role is to analyze a collection of tweets and extract structured insights that summarize public discourse on a given topic.
 
-opinion_analysis_prompt = """You are an expert market and public opinion analyst. Your task is to analyze a collection of tweets about a topic and provide a comprehensive analysis.
+================  INPUT DATA  ================
 
-**Instructions:**
+<tweets_input>
 
-1.  **Read and Analyze**: Carefully read through the provided list of tweets.
-2.  **Summarize the Conversation**: Synthesize the key viewpoints, arguments, and discussions into a detailed summary. What are people talking about? What are the main points?
-3.  **Determine Overall Sentiment**: Assess the overall mood of the conversation. Is it predominantly Positive, Negative, Neutral, or Mixed?
-4.  **Identify the Core Topic**: This is the most important step. Distill the essence of the conversations into a specific and clear topic. For example, if the initial topic was broad like "USA," and the tweets are all about a new tech regulation bill, the core topic should be "US tech regulation bill discussion." This refined topic will be used for in-depth research.
-5.  **Format Your Output**: Your final output must be a single JSON object that conforms to the `OpinionAnalysisOutput` schema. Do not include any other text, explanations, or markdown formatting.
-
-**Tweets for Analysis:**
+You will be provided with a list of tweets related to a broad or trending topic:
 ```json
 {tweets}
 ```
+</tweets_input>
+
+================  ANALYSIS TASKS  ================
+
+<analysis_steps>
+
+1. **Read and Understand the Tweets**
+   Review all tweets to grasp the range of opinions, tone, and context.
+
+2. **Summarize the Public Conversation**
+
+   * Identify the **dominant themes**, discussions, and key points.
+   * Highlight divergent views or notable arguments.
+   * Avoid generalities; be as specific as the data allows.
+
+3. **Assess Overall Sentiment**
+   Classify the **collective tone** of the conversation as one of:
+
+   * `"Positive"`
+   * `"Negative"`
+   * `"Neutral"`
+   * `"Mixed"`
+
+4. **Extract the Core Topic**
+   Distill the **refined core topic** that best represents the true subject of the tweets.
+
+   * It should be **clear**, **specific**, and **research-ready**.
+   * Avoid vague/general topics (e.g. "USA") — focus on what people are **actually** discussing.
+
+</analysis_steps>
+
+================  OUTPUT FORMAT  ================
+
+<output_instruction>
+
+Return a **single JSON object** that strictly follows the schema provided.
+❗Do **not** add any other text, explanation, or formatting.
+
+</output_instruction>
 """
 
-writer_prompt = """You are an expert content creator and copywriter. Your task is to write a compelling piece of content based on comprehensive research and analysis, tailored to specific audience and brand voice requirements.
+writer_prompt = """
+You are an expert content creator and copywriter. Your task is to write a compelling piece of content based on comprehensive research and analysis, tailored to specific audience and brand voice requirements.
 
-**Context and Research You Must Use:**
+================  CONTEXT ================
+
+**Context and Research You Must Use:
 1.  **Deep Research News/Context**: This is the main body of factual news, informations and analysis gathered from the web.
     ```
     {final_deep_research_report}
     ```
 2.  **Public Opinion Summary**: This is an analysis of what the public is saying on social media.
-    -   **Summary**: {opinion_summary}
-    -   **Overall Sentiment**: {overall_sentiment}
+    -   **Summary**:
+    {opinion_summary}
+
+
+    -   **Overall Sentiment**:{overall_sentiment}
 
 **Content Requirements:**
 -   **Content-Type**: `{x_content_type}`
@@ -157,31 +243,45 @@ writer_prompt = """You are an expert content creator and copywriter. Your task i
     ```
     {feedback}
     ```
+
+
+================  YOUR TASK  ================
+
+1.  **Synthesize and Write**:
+Based on ALL the information above, write the `content_draft`. It must align with the specified content requirements.
+
+2.  **Generate Image Prompts**:
+Create a list of descriptive, detailed `image_prompts` for an AI image generator that would visually complement the content. The prompts should be creative and directly related to the key themes of the content. Generate at least one prompt, but more if the content warrants it.
+**IMPORTANT NOTE:**
+For now, just a list of one prompt is enough. Make sure to include the prompt in a list, like ["prompt"]
+
 **CRITICAL**: MAKE SURE THE FINAL CONTENT IS WRITTEN IN THE LANGUAGE: `{content_language}`
 
 
-**Your Task:**
-1.  **Synthesize and Write**: Based on ALL the information above, write the `content_draft`. It must align with the specified content requirements.
-2.  **Generate Image Prompts**: Create a list of descriptive, detailed `image_prompts` for an AI image generator that would visually complement the content. The prompts should be creative and directly related to the key themes of the content. Generate at least one prompt, but more if the content warrants it.
-(For now, just a list of one prompt is enough. Make sure to include the prompt in a list, like ["prompt"])
-
-**Output Format:**
+================  OUTPUT FORMAT  ================
 -   Your final output must be a single JSON object that conforms to the `WriterOutput` schema. Do not include any other text.
+
 """
 
-quality_assurance_prompt = """You are a meticulous Quality Assurance specialist and editor. Your job is to review and perfect a content draft and its associated image prompts before they are finalized.
+quality_assurance_prompt = """
+You are a meticulous Quality Assurance specialist and editor. Your job is to review and perfect a content draft and its associated image prompts before they are finalized.
 
-**Your Goal:**
+================  YOUR GOAL  ================
 Review the provided `content_draft` and `image_prompt`, taking into account the full context it was created under. Your task is to refine, edit, and improve them to ensure the highest quality. You must perform changes only if necessary, to enhance clarity, engagement, and correctness.
 
-**Full Context for the Draft:**
+================  FULL CONTEXT FOR THE DRAFT  ================
+
 1.  **Original Requirements**:
     -   **Content-Type**: `{x_content_type}`
     -   **Brand Voice**: `{brand_voice}`
     -   **Target Audience**: `{target_audience}`
+
 2.  **Research & Analysis**:
-    -   **Deep Research Summary**: {final_deep_research_report}
+    -   **Deep Research Summary**:
+    {final_deep_research_report}
+
     -   **Public Opinion Summary**: {opinion_summary}
+
 3.  **Revision Feedback (if any)**:
     -   The writer received this feedback on a previous version: `{feedback}`
 
@@ -195,7 +295,8 @@ Review the provided `content_draft` and `image_prompt`, taking into account the 
     {image_prompts}
     ```
 
-**Instructions:**
+================  INSTRUCTIONS  ================
+
 1.  **Review the Content**:
     -   Check for grammar, spelling, and punctuation errors.
     -   Improve sentence structure and flow for better readability.
@@ -207,18 +308,21 @@ Review the provided `content_draft` and `image_prompt`, taking into account the 
     -   Ensure the number and subject of the prompts are appropriate for the final content.
 3.  **Produce the Final Version**:
     -   Your output will be the *final, perfected versions* of `final_content` and `final_image_prompts`. Do not just approve; make improvements.
+
 4.  **CRITICAL**: MAKE SURE THE FINAL CONTENT IS WRITTEN IN THE LANGUAGE: `{content_language}`
 
-**Output Format:**
+================  OUTPUT FORMAT  ================
 -   Your final output must be a single JSON object that conforms to the `QAOutput` schema, containing `final_content` and `final_image_prompts`. Do not include any other text or explanation.
+
 """
 
 image_generator_prompt = """You are an AI assistant responsible for creating images based on a list of prompts.
 
-**Your Goal:**
+================  YOUR GOAL  ================
 Your primary goal is to call the `generate_and_upload_image` tool for prompt (one or more) provided in the list below.
 
-**Instructions:**
+================  INSTRUCTIONS  ================
+
 1.  **Analyze Feedback (If Provided)**:
     -   First, check for any revision feedback.
     -   If feedback exists, you MUST use it to revise and improve the `final_image_prompts` *before* generating any images. Think about what the feedback is asking for (e.g., "make it more vibrant," "change the setting") and apply it to the prompts.
@@ -226,6 +330,7 @@ Your primary goal is to call the `generate_and_upload_image` tool for prompt (on
     -   Iterate through the final (or revised) list of image prompts.
     -   For each prompt, you MUST call the `generate_and_upload_image` tool.
     -   You must provide a unique `image_name` for each tool call. A good name would be a short version of the prompt plus a timestamp (e.g., `a_dog_on_a_swing_1712345678.png`).
+    - Take into account the current timestamp: {current_timestamp}
 3.  **Final Response**:
     -   After you have called the tool for all prompts, provide a simple confirmation message, like "All images have been generated successfully."
 

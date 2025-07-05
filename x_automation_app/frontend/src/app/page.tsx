@@ -524,7 +524,7 @@ export default function WorkflowConfigPage() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Gemini Model</FormLabel>
-                              <FormDescription className="text-xs">Model for deep news research and/or other tasks. (Free access to some)</FormDescription>
+                              <FormDescription className="text-xs">Model for deep research news and/or other tasks. (Free access to some)</FormDescription>
                               <FormControl>
                                 <Input
                                   placeholder="'gemini-2.5-flash-lite-preview-06-17'"

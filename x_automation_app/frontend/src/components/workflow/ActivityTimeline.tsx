@@ -90,7 +90,7 @@ const getStepConfig = (event: StreamEvent) => {
       break
     case "finalize_answer":
       icon = FileCheck2
-      title = "Finalizing Deep News Research"
+      title = "Finalizing Deep Research News"
       description = "Successfully finalized deep research report."
       break
     case "writer":

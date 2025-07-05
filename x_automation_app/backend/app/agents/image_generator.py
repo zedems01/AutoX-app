@@ -2,7 +2,7 @@ from langgraph.prebuilt import create_react_agent
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_anthropic import ChatAnthropic
-from ..utils.prompts import image_generator_prompt
+from ..utils.prompts import image_generator_prompt, get_current_time
 from typing import Dict, Any, List
 from .state import OverallState
 from ..utils.schemas import (
@@ -68,7 +68,8 @@ def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]
 
         prompt = image_generator_prompt.format(
             final_image_prompts=final_image_prompts,
-            feedback=feedback
+            feedback=feedback,
+            current_timestamp=get_current_time()
         )
         
         response = image_generating_agent.invoke({"messages": [("user", prompt)]})
