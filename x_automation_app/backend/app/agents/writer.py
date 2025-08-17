@@ -38,7 +38,7 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
     Returns:
         A dictionary to update the 'content_draft' and 'image_prompts' keys in the state.
     """
-    logger.info("DRAFTING CONTENT AND IMAGE PROMPTS")
+    logger.info("DRAFTING CONTENT AND IMAGE PROMPTS...")
 
     try:
         final_deep_research_report = state.get("final_deep_research_report", "No deep research context provided.")

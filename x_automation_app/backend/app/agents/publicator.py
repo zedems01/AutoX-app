@@ -16,7 +16,7 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
     Returns:
         A dictionary to update the 'publication_id' in the state.
     """
-    logger.info("PUBLISHING/DISPLAYING FINAL CONTENT")
+    logger.info("PUBLISHING/DISPLAYING FINAL CONTENT...")
 
     try:
         output_destination = state.get("output_destination")

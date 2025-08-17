@@ -35,9 +35,9 @@ def trend_harvester_node(state: OverallState) -> Dict[str, List[Trend]]:
     over the results to select a curated subset, and returns them in a
     structured format.
     """
-    logger.info("FETCHING AND CURATING TRENDING TOPICS")
+    logger.info("FETCHING AND CURATING TRENDING TOPICS...")
     parsed_response = [{"name":"Messi","rank":2,"tweet_count":"268K posts"},{"name":"Porto","rank":5,"tweet_count":"102K posts"},{"name":"#ONEPIECE1152","rank":19,"tweet_count":"13.4K posts"},{"name":"Schengen","rank":30,"tweet_count":"1,534 posts"}]
-    logger.info(ctext(f'Curated {len(parsed_response)} trends successfully from woeid:{2000000}\n', color='white'))
+    logger.info(ctext(f'Successfully curated {len(parsed_response)} trends from woeid:{2000000}\n', color='white'))
     return {"trending_topics": parsed_response}
     
     try:

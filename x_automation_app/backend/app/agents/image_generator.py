@@ -47,7 +47,7 @@ def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]
     Returns:
         A dictionary to update the 'generated_images' key in the state.
     """
-    logger.info("GENERATING CONTENT IMAGES")
+    logger.info("GENERATING CONTENT IMAGES...")
     logger.info(ctext("No prompts found for image generation.", color='white'))
     return {"generated_images": None}
     

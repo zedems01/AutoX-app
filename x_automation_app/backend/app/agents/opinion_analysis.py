@@ -40,7 +40,7 @@ def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
         A dictionary to update the 'opinion_summary', 'overall_sentiment',
         and 'topic_from_opinion_analysis' keys in the state.
     """
-    logger.info("ANALYZING TWEETS CONTENT")
+    logger.info("ANALYZING TWEETS CONTENT...")
 
     try:
         tweets = state.get("tweet_search_results")

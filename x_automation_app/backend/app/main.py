@@ -150,7 +150,7 @@ async def start_workflow(payload: StartWorkflowPayload):
     thread_id = str(uuid.uuid4())
     config = {"configurable": {"thread_id": thread_id}}
 
-    logger.info(f"STARTING WORKFLOW --- thread_id: {ctext(thread_id, color='white', italic=True)}")
+    logger.info(f"STARTING WORKFLOW... --- thread_id: {ctext(thread_id, color='white', italic=True)}")
 
     try:
         # Prepare the initial state from the payload
