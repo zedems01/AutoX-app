@@ -10,12 +10,11 @@ from ..config import settings
 from .schemas import Trend, TweetSearched, TweetAuthor
 from typing import List, Optional
 from langchain_core.tools import tool
-import logging
 import re
 import unicodedata
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+from ..utils.logging_config import setup_logging, ctext
+logger = setup_logging()
 
 
 class InvalidSessionError(Exception):
@@ -157,7 +156,7 @@ def tweet_advanced_search(
     all_tweets: List[TweetSearched] = []
     current_cursor = ""
     max_tweets_to_retrieve = int(settings.MAX_TWEETS_TO_RETRIEVE)
-    print(f"MAX_TWEETS_TO_RETRIEVE: {max_tweets_to_retrieve}; Type: {type(max_tweets_to_retrieve)}")
+    # print(f"MAX_TWEETS_TO_RETRIEVE: {max_tweets_to_retrieve}; Type: {type(max_tweets_to_retrieve)}")
     while len(all_tweets) < max_tweets_to_retrieve:
         params = {"query": query, "query_type": query_type, "cursor": current_cursor}
         headers = {"X-API-Key": api_key}
@@ -191,10 +190,10 @@ def tweet_advanced_search(
                     author=author
                 )
                 all_tweets.append(tweet_obj)
-            logger.info(f"Tweets fetched!! Found {len(all_tweets)} tweets so far...")
+            logger.info(ctext(f"Fetched {len(all_tweets)} tweets so far...", color='white'))
 
             if len(all_tweets) >= max_tweets_to_retrieve:
-                logger.info(f"Total tweets reached max limit {max_tweets_to_retrieve}, exiting loop.")
+                logger.info(ctext(f"Max tweets reached: {max_tweets_to_retrieve}, exiting loop.", color='white'))
                 break
 
             has_next_page = data.get("has_next_page", False)

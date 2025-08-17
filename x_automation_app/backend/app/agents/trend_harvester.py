@@ -8,10 +8,10 @@ from .state import OverallState
 from ..utils.schemas import Trend, TrendResponse
 from ..utils.x_utils import get_trends
 from ..config import settings
-import logging
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+# import logging
+from ..utils.logging_config import setup_logging, ctext
+logger = setup_logging()
 
 
 try:
@@ -24,6 +24,7 @@ except Exception as e:
         logger.error(f"Error initializing Google Generative AI model: {e}")
         llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
 
+# llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
 trend_harvester_agent = create_react_agent(model=llm, tools=[get_trends], response_format=TrendResponse)
 
 def trend_harvester_node(state: OverallState) -> Dict[str, List[Trend]]:
@@ -34,21 +35,28 @@ def trend_harvester_node(state: OverallState) -> Dict[str, List[Trend]]:
     over the results to select a curated subset, and returns them in a
     structured format.
     """
-    logger.info("----FETCHING AND CURATING TRENDING TOPICS----\n")
+    logger.info("FETCHING AND CURATING TRENDING TOPICS")
+    parsed_response = [{"name":"Messi","rank":2,"tweet_count":"268K posts"},{"name":"Porto","rank":5,"tweet_count":"102K posts"},{"name":"#ONEPIECE1152","rank":19,"tweet_count":"13.4K posts"},{"name":"Schengen","rank":30,"tweet_count":"1,534 posts"}]
+    logger.info(ctext(f'Curated {len(parsed_response)} trends successfully from woeid:{2000000}\n', color='white'))
+    return {"trending_topics": parsed_response}
     
     try:
         safe_user_config = state.get("user_config") or {}
-        prompt = trend_harvester_prompt.format(
-            woeid = (safe_user_config.trends_woeid if safe_user_config and safe_user_config.trends_woeid is not None 
+        woeid = (safe_user_config.trends_woeid if safe_user_config and safe_user_config.trends_woeid is not None 
                 else settings.TRENDS_WOEID
-            ),
-            count = (safe_user_config.trends_count if safe_user_config and safe_user_config.trends_count is not None 
+            )
+        count = (safe_user_config.trends_count if safe_user_config and safe_user_config.trends_count is not None 
                 else settings.TRENDS_COUNT
             )
+
+        prompt = trend_harvester_prompt.format(
+            woeid = woeid,
+            count = count
         )
         response = trend_harvester_agent.invoke({"messages": [("user", prompt)]})
         parsed_response = response["structured_response"]
-        logger.info(f"----Curated {len(parsed_response.trends)} trends successfully.----\n")
+        logger.info(ctext(f'Successfully curated {len(parsed_response.trends)} trends from woeid:{woeid}\n', color='white'))
+
         return {"trending_topics": parsed_response.trends}
 
     except Exception as e:

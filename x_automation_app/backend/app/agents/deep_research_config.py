@@ -25,12 +25,12 @@ class Configuration(BaseModel):
     )
 
     number_of_initial_queries: int = Field(
-        default=3,
+        default=1,
         metadata={"description": "The number of initial search queries to generate."},
     )
 
     max_research_loops: int = Field(
-        default=3,
+        default=1,
         metadata={"description": "The maximum number of research loops to perform."},
     )
 

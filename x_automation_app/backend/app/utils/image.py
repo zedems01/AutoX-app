@@ -5,11 +5,10 @@ from openai import OpenAI
 from ..config import settings
 from langchain_core.tools import tool
 from .schemas import GeneratedImage
-import logging
 from pathlib import Path
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+from ..utils.logging_config import setup_logging, ctext
+logger = setup_logging()
 
 
 
@@ -48,7 +47,9 @@ def generate_and_upload_image(prompt: str, image_name: str) -> GeneratedImage:
         with open(image_path, "wb") as f:
             f.write(image_bytes)
 
-        logger.info(f"Image saved to {str(image_path)}")
+        # logger.info(ctext(f"Image saved to {str(image_path)}", color='white'))
+        relative_path = image_path.relative_to(Path(__file__).resolve().parents[3])
+        logger.info(ctext(f"Image saved to {str(relative_path)}", color='white'))
         
         # Upload the image to AWS S3 to get a presigned URL
         s3_client = boto3.client(
@@ -70,7 +71,7 @@ def generate_and_upload_image(prompt: str, image_name: str) -> GeneratedImage:
             ExpiresIn=3600
         )
         
-        logger.info(f"Successfully uploaded image {image_name} to S3 bucket {bucket_name}.")
+        logger.info(ctext(f"Successfully uploaded image {image_name} to S3 bucket {bucket_name}.", color='white'))
         return GeneratedImage(
             image_name=image_name,
             local_file_path=str(image_path),

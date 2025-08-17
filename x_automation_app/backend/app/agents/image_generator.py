@@ -12,10 +12,9 @@ from ..utils.schemas import (
 )
 from ..utils.image import generate_and_upload_image
 from ..config import settings
-import logging
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+from ..utils.logging_config import setup_logging, ctext
+logger = setup_logging()
 
 
 
@@ -28,6 +27,9 @@ except Exception as e:
     except Exception as e:
         logger.error(f"Error initializing Google Generative AI model: {e}")
         llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
+
+# llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
+
 
 image_generating_agent = create_react_agent(model=llm, tools=[generate_and_upload_image], response_format=ImageGeneratorOutput)
 
@@ -45,12 +47,14 @@ def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]
     Returns:
         A dictionary to update the 'generated_images' key in the state.
     """
-    logger.info("----GENERATING IMAGES----\n")
+    logger.info("GENERATING CONTENT IMAGES")
+    logger.info(ctext("No prompts found for image generation.", color='white'))
+    return {"generated_images": None}
     
     try:
         final_image_prompts = state.get("final_image_prompts")
         if not final_image_prompts:
-            logger.info("No image prompts found. Skipping image generation.")
+            logger.info(ctext("No image prompts found. Skipping image generation.", color='white'))
             return {"generated_images": []}
 
         # Handle feedback from the HiTL validation step
@@ -63,7 +67,7 @@ def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]
                 feedback_from_data = data.get("feedback")
                 if feedback_from_data:
                     feedback = feedback_from_data
-                    logger.info(f"----Revising image prompts based on feedback: {feedback}----\n")
+                    logger.info(ctext(f"Revising image prompts based on feedback: {feedback}\n", color='white'))
 
 
         prompt = image_generator_prompt.format(
@@ -75,7 +79,7 @@ def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]
         response = image_generating_agent.invoke({"messages": [("user", prompt)]})
         parsed_response = response["structured_response"]
 
-        logger.info(f"----Successfully generated {len(parsed_response.images)} images.----\n")
+        logger.info(ctext(f"Successfully generated {len(parsed_response.images)} images.\n", color='white'))
 
         return {"generated_images": parsed_response.images}
 

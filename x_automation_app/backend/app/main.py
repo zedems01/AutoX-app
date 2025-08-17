@@ -13,9 +13,9 @@ from .utils.schemas import ValidationResult, Trend, UserConfigSchema, UserDetail
 from .utils.json_encoder import CustomJSONEncoder
 from langgraph.types import Send
 
-import logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+# import logging
+from .utils.logging_config import setup_logging, ctext
+logger = setup_logging()
 
 
 app = FastAPI(
@@ -77,7 +77,7 @@ def health_check():
     """
     Endpoint to check if the server is running.
     """
-    return {"status": "ok"}
+    return {"status": "oki doki"}
 
 # --- Authentication Endpoints ---
 
@@ -147,9 +147,10 @@ async def start_workflow(payload: StartWorkflowPayload):
     """
     Starts the main content generation workflow with the user's specified settings.
     """
-    logger.info("----STARTING WORKFLOW----\n")
     thread_id = str(uuid.uuid4())
     config = {"configurable": {"thread_id": thread_id}}
+
+    logger.info(f"STARTING WORKFLOW --- thread_id: {ctext(thread_id, color='white', italic=True)}")
 
     try:
         # Prepare the initial state from the payload
@@ -196,6 +197,7 @@ async def start_workflow(payload: StartWorkflowPayload):
 
         # Save the initial state and start the graph by the first WebSocket connection.
         graph.update_state(config, initial_state)
+        logger.info(ctext("Graph successfully updated with initial state.\n", color='white'))
 
         # Returning the state just constructed so the frontend can proceed.
         return {"thread_id": thread_id, "initial_state": initial_state}
@@ -256,7 +258,7 @@ async def validate_step(payload: ValidationPayload):
     """
     Receives user validation, updates the state, and resumes the workflow.
     """
-    logger.info("----VALIDATION STEP----\n")
+    logger.info("VALIDATION STEP")
     config = {"configurable": {"thread_id": payload.thread_id}}
 
     try:
@@ -292,6 +294,8 @@ async def validate_step(payload: ValidationPayload):
                         update_data["final_image_prompts"] = edit_data["final_image_prompts"]
 
         graph.update_state(config, update_data)
+        logger.info(ctext("Graph successfully updated with validation data.\n", color='white'))
+
 
         # Return the updated state so the frontend can re-render and open a new WebSocket
         updated_state = graph.get_state(config)

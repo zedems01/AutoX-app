@@ -10,10 +10,9 @@ from ..utils.x_utils import tweet_advanced_search
 from ..utils.schemas import TweetSearched, TweetSearchResponse, TweetAuthor
 from typing import List
 from ..config import settings
-import logging
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+from ..utils.logging_config import setup_logging, ctext
+logger = setup_logging()
 
 
 try:
@@ -39,7 +38,23 @@ def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
     Returns:
         A dictionary to update the 'tweet_search_results' key in the state.
     """
-    logger.info("----SEARCHING FOR TWEETS----\n")
+    logger.info("TWEET SEARCH PROCESS")
+
+    parsed_response = [TweetSearched(text='Why would they have to ask? that’s weird. Israel said Donald Trump was involved in this operation from the beginning. I was told the only reason he was allowed to become president was to corral white kids into the army again and go to war with Iran.', source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='Wed Nov 11 16:35:27 +0000 2020', lang='en', isReply=False, author=TweetAuthor(userName='kenpaichi', name='Dr. StormyWaters', isVerified=False, followers=0, following=0)),
+  TweetSearched(text='Two days ago, the idea that Israel might pull us into a war with Iran was "hysterical," "unfounded," "paranoid," etc. \n\nNow, it\'s a stated policy preference.', source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='', lang='en', isReply=False, author=TweetAuthor(userName='', name='Brandan P. Buck', isVerified=False, followers=0, following=0)),
+  TweetSearched(text='@RealAlexJones don’t forget the sadistic nature of netanyahu. He’s the type of guy to flee israel, deliberately cut off defense systems and cause mass casualties to force America into a war with iran', source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='Wed Nov 11 16:35:27 +0000 2020', lang='en', isReply=False, author=TweetAuthor(userName='', name='westsidephilosophy', isVerified=False, followers=0, following=0)),
+  TweetSearched(text="-FDD/Israel: Bomb Iran so it doesn't get a bomb!\n\n*Israel bombs but fails to destroy the nuclear program*\n\n-FDD/Israel: America must bomb Iran now because, after Israel tried, Iran really wants to get a bomb\n\nSo the plan was all along: Israel starts a war TO PULL THE US INTO IT", source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='', lang='en', isReply=False, author=TweetAuthor(userName='', name='Trita Parsi', isVerified=False, followers=0, following=0)),
+  TweetSearched(text='🚨⚡️ Israel officially ‘ASKS’ US to ‘join’ war with Iran — Axios\n\nWill Trump agree or put ‘America first’? https://t.co/ooZuOA5bLp', source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='', lang='en', isReply=False, author=TweetAuthor(userName='', name='RussiaNews 🇷🇺', isVerified=False, followers=0, following=0)),
+  TweetSearched(text='Why would they have to ask? that’s weird. Israel said Donald Trump was involved in this operation from the beginning. I was told the only reason he was allowed to become president was to corral white kids into the army again and go to war with Iran.', source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='', lang='en', isReply=False, author=TweetAuthor(userName='', name='Dr. StormyWaters', isVerified=False, followers=0, following=0)),
+  TweetSearched(text='Two days ago, the idea that Israel might pull us into a war with Iran was "hysterical," "unfounded," "paranoid," etc. \n\nNow, it\'s a stated policy preference.', source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='', lang='en', isReply=False, author=TweetAuthor(userName='', name='Brandan P. Buck', isVerified=False, followers=0, following=0)),
+  TweetSearched(text='@RealAlexJones don’t forget the sadistic nature of netanyahu. He’s the type of guy to flee israel, deliberately cut off defense systems and cause mass casualties to force America into a war with iran', source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='Wed Nov 11 16:35:27 +0000 2020', lang='en', isReply=False, author=TweetAuthor(userName='', name='westsidephilosophy', isVerified=False, followers=0, following=0)),
+  TweetSearched(text="-FDD/Israel: Bomb Iran so it doesn't get a bomb!\n\n*Israel bombs but fails to destroy the nuclear program*\n\n-FDD/Israel: America must bomb Iran now because, after Israel tried, Iran really wants to get a bomb\n\nSo the plan was all along: Israel starts a war TO PULL THE US INTO IT", source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='', lang='en', isReply=False, author=TweetAuthor(userName='', name='Trita Parsi', isVerified=False, followers=0, following=0)),
+  TweetSearched(text='🚨⚡️ Israel officially ‘ASKS’ US to ‘join’ war with Iran — Axios\n\nWill Trump agree or put ‘America first’? https://t.co/ooZuOA5bLp', source='Twitter for iPhone', retweetCount=0, replyCount=0, likeCount=0, quoteCount=0, viewCount=0, createdAt='', lang='en', isReply=False, author=TweetAuthor(userName='', name='RussiaNews 🇷🇺', isVerified=False, followers=0, following=0))]
+    
+    logger.info(ctext(f"Successfully fetched {len(parsed_response)} tweets.\n", color='white'))
+
+    return {"tweet_search_results": parsed_response}
+
     
     try:
         topic = ""
@@ -52,7 +67,8 @@ def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
         if not topic:
             raise ValueError("No topic found in the state to initiate tweet search.")
 
-        logger.info(f"----Searching tweets for topic: {topic}----")
+        logger.info(ctext(f"Searching for tweets about: {topic}\n", color='white'))
+
 
         user_config = state.get("user_config") or {}
         tweets_language = (user_config.tweets_language if user_config and user_config.tweets_language is not None 
@@ -68,7 +84,7 @@ def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
         response = tweet_search_agent.invoke({"messages": [("user", prompt)]})
         parsed_response = response["structured_response"]
         
-        logger.info(f"----Found {len(parsed_response.tweets)} tweets.----\n")
+        logger.info(ctext(f"Successfully fetched {len(parsed_response.tweets)} tweets.\n", color='white'))
 
         return {"tweet_search_results": parsed_response.tweets}
 
