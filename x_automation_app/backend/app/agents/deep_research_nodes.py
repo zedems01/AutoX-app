@@ -222,7 +222,7 @@ def generate_query(state: OverallState, config: RunnableConfig) -> QueryGenerati
     if not topic:
         raise ValueError("No topic found in the state for deep research.")
     
-    logger.info(ctext(f"Research topic: {topic}\n", color='white'))
+    logger.info(ctext(f"Research topic: {ctext(topic, color='white', italic=True)}", color='white'))
 
     # check for custom initial search query count
     if state.get("initial_search_query_count") is None:
@@ -261,6 +261,7 @@ def web_research(state: WebSearchState, config: RunnableConfig) -> OverallState:
     Performs web research for a single query using the Google Search API tool.
     """
     logger.info(ctext(f"Performing web research for the query: {ctext(state['search_query'], color='white', italic=True)}", color='white'))
+
     configurable = Configuration.from_runnable_config(config)
     user_config = state.get("user_config") or {}
     web_search_model = (user_config.gemini_base_model if user_config and user_config.gemini_base_model is not None 
@@ -301,6 +302,7 @@ def reflection(state: OverallState, config: RunnableConfig) -> ReflectionState:
     Analyzes research results, identifies knowledge gaps, and generates follow-up queries.
     """
     logger.info("REFLECTING ON RESEARCH RESULTS...")
+
     configurable = Configuration.from_runnable_config(config)
     state["research_loop_count"] = state.get("research_loop_count", 0) + 1
     user_config = state.get("user_config") or {}
@@ -349,10 +351,10 @@ def evaluate_research(state: ReflectionState, config: RunnableConfig) -> Overall
         else configurable.max_research_loops
     )
     if state["is_sufficient"] or state["research_loop_count"] >= max_research_loops:
-        logger.info("Research is sufficient, finalizing answer.")
+        logger.info(ctext("Research is sufficient, finalizing answer...", color='white'))
         return "finalize_answer"
     else:
-        logger.info("Research is not sufficient, continuing.")
+        logger.info(ctext("Research is not sufficient, continuing...", color='white'))
         return [
             Send(
                 "web_research",

@@ -75,12 +75,14 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
         )
         
         writer_output = structured_llm.invoke(prompt)
+        content_draft = writer_output.content_draft
+        image_prompts = writer_output.image_prompts if isinstance(writer_output.image_prompts, list) else [writer_output.image_prompts]
 
-        logger.info(ctext(f"Content successfully drafted; {len(writer_output.image_prompts)} image prompts created.\n", color='white'))
+        logger.info(ctext(f"Content successfully drafted; {len(image_prompts)} image prompts created.\n", color='white'))
 
         return {
-            "content_draft": writer_output.content_draft,
-            "image_prompts": writer_output.image_prompts if isinstance(writer_output.image_prompts, list) else [writer_output.image_prompts],
+            "content_draft": content_draft,
+            "image_prompts": image_prompts,
         }
 
     except Exception as e:

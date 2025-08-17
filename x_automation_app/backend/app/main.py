@@ -197,7 +197,9 @@ async def start_workflow(payload: StartWorkflowPayload):
 
         # Save the initial state and start the graph by the first WebSocket connection.
         graph.update_state(config, initial_state)
-        logger.info(ctext("Graph successfully updated with initial state.\n", color='white'))
+        autonomous_mode = True if initial_state["is_autonomous_mode"] else False
+        publish_x = True if initial_state["output_destination"] == "PUBLISH_X" else False
+        logger.info(ctext(f"Graph successfully updated with initial state:\nAutonomous mode: {autonomous_mode}\nPublish to X: {publish_x}\nContent type: {initial_state['x_content_type']}\nContent length: {initial_state['content_length']}\n", color='white'))
 
         # Returning the state just constructed so the frontend can proceed.
         return {"thread_id": thread_id, "initial_state": initial_state}
@@ -247,7 +249,7 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
     except WebSocketDisconnect:
         print(f"WebSocket disconnected for thread: {thread_id}\n")
     except Exception as e:
-        print(f"Error in WebSocket for thread {thread_id}: {e}\n")
+        # print(f"Error in WebSocket for thread {thread_id}: {e}\n")
         await websocket.close(code=1011, reason=str(e))
 
 
@@ -287,11 +289,21 @@ async def validate_step(payload: ValidationPayload):
                     # The state for selected_topic expects a dict, not a Pydantic model
                     topic_model = Trend(**edit_data["selected_topic"])
                     update_data["selected_topic"] = topic_model.model_dump(exclude_unset=True)
+                    logger.info(ctext(f"The user approved the topic: '{ctext(update_data['selected_topic']['name'], italic=True)}'", color='white'))
+
                 elif next_step == "await_content_validation":
+                    logger.info(ctext(f"The user edited then approved the generated content.", color='white'))
                     if "final_content" in edit_data:
                         update_data["final_content"] = edit_data["final_content"]
                     if "final_image_prompts" in edit_data:
                         update_data["final_image_prompts"] = edit_data["final_image_prompts"]
+            else:
+                logger.info(ctext(f"The user approved the generated content.", color='white'))
+        
+        elif payload.validation_result.action == ValidationAction.REJECT:
+            if payload.validation_result.data and payload.validation_result.data.feedback:
+                feedback = payload.validation_result.data.feedback
+                logger.info(ctext(f"The user rejected the generated content with the following feedback: '{ctext(feedback, italic=True, color='white')}'.", color='red'))
 
         graph.update_state(config, update_data)
         logger.info(ctext("Graph successfully updated with validation data.\n", color='white'))

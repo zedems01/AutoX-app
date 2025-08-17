@@ -52,7 +52,7 @@ def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
 
         analysis_result = structured_llm.invoke(prompt)
 
-        logger.info(ctext(f"Opinion analysis completed. Overall sentiment: {analysis_result.overall_sentiment}; Refined topic: {analysis_result.topic_from_opinion_analysis}\n", color='white'))
+        logger.info(ctext(f"Opinion analysis completed\nOverall sentiment: {analysis_result.overall_sentiment};\nRefined topic: {analysis_result.topic_from_opinion_analysis}\n", color='white'))
 
         # return {
         #     "opinion_summary": analysis_result.opinion_summary,

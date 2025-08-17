@@ -1,9 +1,20 @@
 import logging
 import sys
 from copy import copy
+import re
 
 import colorlog
 import click
+
+class NoHttpRequestFilter(logging.Filter):
+    """
+    A logging filter to exclude logs containing 'http' or 'AFC' (case-insensitive).
+    """
+    def filter(self, record: logging.LogRecord) -> bool:
+        # Exclude logs containing 'http' or 'AFC' (case-insensitive)
+        patterns = [ r'http', r'afc']
+        message = record.getMessage().lower()
+        return not any(re.search(pattern, message) for pattern in patterns)
 
 def setup_logging(log_level='INFO', use_colors=None):
     """
@@ -45,11 +56,11 @@ def setup_logging(log_level='INFO', use_colors=None):
                             fg=color_spec.get("fg"),
                             bg=color_spec.get("bg"),
                             bold=bool(color_spec.get("bold", False)),
-                            dim=bool(color_spec.get("dim", False)),         # Reduces the intensity of the text.
+                            dim=bool(color_spec.get("dim", False)),
                             underline=bool(color_spec.get("underline", False)),
-                            italic=bool(color_spec.get("italic", False)),    
-                            blink=bool(color_spec.get("blink", False)),      # Makes the text blink.
-                            reverse=bool(color_spec.get("reverse", False)),  # Inverts the foreground and background colors of the text.
+                            italic=bool(color_spec.get("italic", False)),
+                            blink=bool(color_spec.get("blink", False)),
+                            reverse=bool(color_spec.get("reverse", False)),
                         )
             return super().format(r)
 
@@ -72,6 +83,9 @@ def setup_logging(log_level='INFO', use_colors=None):
         )
     )
 
+    # Add the HTTP filter to the console handler
+    console_handler.addFilter(NoHttpRequestFilter())
+
     if not use_colors:
         console_handler.setFormatter(logging.Formatter(
             '%(asctime)s [%(levelname)s] %(message)s', datefmt=datefmt
@@ -87,11 +101,6 @@ def ctext(text: str, color: str = None, bg: str = None, **styles) -> str:
     - color : foreground color (alias of fg)
     - bg : background color
     - styles : bold=True, underline=True, italic=True, dim=True, blink=True, reverse=True
-
-    Example:
-        ctext("Hello", color="red", bold=True)
-        ctext("Warning!", color="yellow", underline=True)
-        ctext("OK", color="green", bg="black")
     """
     return click.style(
         text,
@@ -105,17 +114,13 @@ def ctext(text: str, color: str = None, bg: str = None, **styles) -> str:
         reverse=styles.get("reverse", False),
     )
 
-
 if __name__ == "__main__":
     logger = setup_logging()
 
+    # Test logs
     logger.info("Default INFO message")
     logger.warning("Default WARNING message")
-
-    # Styled text
+    logger.info("HTTP Request: POST https://api.anthropic.com/v1/messages \"HTTP/1.1 200 OK\"")  # Should be filtered
+    logger.info("HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite-preview-06-17:generateContent \"HTTP/1.1 200 OK\"")  # Should be filtered
     logger.info(ctext("This is bold red", color="red", bold=True))
-    logger.info(ctext("This is underlined cyan", color="cyan", underline=True))
-
-    # Mixing styled parts inside a sentence
     logger.info(f"Process {ctext('OK', color='green', bold=True)} completed")
-

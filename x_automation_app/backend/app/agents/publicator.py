@@ -57,12 +57,12 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
                     proxy=session.get("proxy")
                 )
             
-            logger.info(ctext(f"Successfully posted to X. Publication ID: {publication_id}", color='white'))
+            logger.info(ctext(f"Successfully posted to X. Publication ID: {publication_id}\n\n", color='white'))
 
         elif output_destination == "GET_OUTPUTS":
             logger.info(ctext("Destination: GET_OUTPUTS", color='white'))
             publication_id = "Content processed and available for viewing"
-            logger.info(ctext("Content displayed successfully.", color='white'))
+            logger.info(ctext("Content displayed successfully.\n\n", color='white'))
 
         else:
             raise ValueError(f"Unknown output destination: {output_destination}")

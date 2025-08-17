@@ -157,7 +157,7 @@ export interface OverallState {
   output_destination?: "GET_OUTPUTS" | "PUBLISH_X";
   has_user_provided_topic: boolean;
   user_provided_topic?: string;
-  x_content_type?: "TWEET_THREAD" | "SINGLE_TWEET";
+  x_content_type?: string;
   content_length?: "SHORT" | "MEDIUM" | "LONG";
   brand_voice?: string;
   target_audience?: string;
