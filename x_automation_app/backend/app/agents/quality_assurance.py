@@ -41,6 +41,7 @@ def quality_assurance_node(state: OverallState) -> Dict[str, Any]:
 
     try:
         content_draft = state.get("content_draft")
+        content_length = state.get("content_length")
         image_prompts = state.get("image_prompts")
         if not content_draft or not image_prompts:
             raise ValueError("Content draft or image prompts are missing for QA.")
@@ -76,12 +77,18 @@ def quality_assurance_node(state: OverallState) -> Dict[str, Any]:
         )
 
         qa_output = structured_llm.invoke(prompt)
+        final_content = qa_output.final_content
+        final_image_prompts = qa_output.final_image_prompts if isinstance(qa_output.final_image_prompts, list) else [qa_output.final_image_prompts]
 
         logger.info(ctext("Content and prompts are finalized.\n", color='white'))
+        if content_length in ["Short", "Medium"] and len(final_image_prompts) > 0:
+            logger.info(ctext(f"Content:\n{final_content}\n\nImage prompts:\n{'\n- '.join(final_image_prompts)}\n", color='white', italic=True))
+        else:
+            logger.info(ctext(f"Content:\n{final_content}\n", color='white', italic=True))
 
         return {
-            "final_content": qa_output.final_content,
-            "final_image_prompts": qa_output.final_image_prompts,
+            "final_content": final_content,
+            "final_image_prompts": final_image_prompts,
         }
 
     except Exception as e:

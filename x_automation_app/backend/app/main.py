@@ -14,7 +14,7 @@ from .utils.json_encoder import CustomJSONEncoder
 from langgraph.types import Send
 
 # import logging
-from .utils.logging_config import setup_logging, ctext
+from .utils.logging_config import setup_logging, ctext, add_file_handler, remove_file_handler
 logger = setup_logging()
 
 
@@ -149,6 +149,7 @@ async def start_workflow(payload: StartWorkflowPayload):
     """
     thread_id = str(uuid.uuid4())
     config = {"configurable": {"thread_id": thread_id}}
+    add_file_handler(thread_id)
 
     logger.info(f"STARTING WORKFLOW... --- thread_id: {ctext(thread_id, color='white', italic=True)}")
 
@@ -248,6 +249,7 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
 
     except WebSocketDisconnect:
         print(f"WebSocket disconnected for thread: {thread_id}\n")
+        remove_file_handler(thread_id)
     except Exception as e:
         # print(f"Error in WebSocket for thread {thread_id}: {e}\n")
         await websocket.close(code=1011, reason=str(e))

@@ -407,7 +407,7 @@ def finalize_answer(state: OverallState, config: RunnableConfig):
             )
             unique_sources.append(source)
         
-    logger.info("DEEP RESEARCH REPORT COMPLETED")
+    logger.info(f"DEEP RESEARCH REPORT COMPLETED:\n{ctext(response.split('\n')[0], color='white', italic=True)}\n...\n{ctext(response.split('\n')[-1], color='white', italic=True)}\n")
     
     return {
         "final_deep_research_report": response,

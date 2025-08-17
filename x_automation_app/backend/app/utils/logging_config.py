@@ -2,6 +2,9 @@ import logging
 import sys
 from copy import copy
 import re
+import os
+from pathlib import Path
+from datetime import datetime
 
 import colorlog
 import click
@@ -93,6 +96,50 @@ def setup_logging(log_level='INFO', use_colors=None):
 
     logger.addHandler(console_handler)
     return logger
+
+def add_file_handler(thread_id: str):
+    """Adds a file handler to the root logger for a specific workflow run."""
+    logger = logging.getLogger()
+
+    logs_dir = Path(__file__).parent.parent / 'logs'
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    log_file_path = logs_dir / f"{timestamp}_{thread_id}.log"
+
+    file_handler = logging.FileHandler(log_file_path, mode='a', encoding='utf-8')
+    file_handler.setLevel(logger.level)
+    file_handler.name = f"file_handler_{thread_id}"
+
+    class PlainFormatter(logging.Formatter):
+        def format(self, record: logging.LogRecord) -> str:
+            formatted_message = super().format(record)
+            return click.unstyle(formatted_message)
+
+    fmt = '%(asctime)s [%(levelname)s] %(message)s'
+    datefmt = '%Y-%m-%d %H:%M:%S'
+    
+    formatter = PlainFormatter(fmt, datefmt=datefmt)
+    file_handler.setFormatter(formatter)
+    
+    file_handler.addFilter(NoHttpRequestFilter())
+
+    logger.addHandler(file_handler)
+
+def remove_file_handler(thread_id: str):
+    """Removes the file handler associated with a specific workflow run."""
+    logger = logging.getLogger()
+    handler_name = f"file_handler_{thread_id}"
+    
+    handler_to_remove = None
+    for handler in logger.handlers:
+        if handler.name == handler_name:
+            handler_to_remove = handler
+            break
+            
+    if handler_to_remove:
+        handler_to_remove.close()
+        logger.removeHandler(handler_to_remove)
 
 def ctext(text: str, color: str = None, bg: str = None, **styles) -> str:
     """
