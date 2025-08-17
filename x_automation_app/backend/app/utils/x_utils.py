@@ -90,6 +90,48 @@ def complete_login(
     except requests.exceptions.RequestException as e:
         raise Exception(f"Network error during Login Step 2: {e}")
 
+def login_v2(
+        user_name: str,
+        email: str,
+        password: str,
+        proxy: str,
+        totp_secret: str,
+        api_key: str = settings.X_API_KEY
+    ) -> dict:
+    """
+    Performs the login process using the v2 API.
+    Returns the user session details.
+    """
+    url = "https://api.twitterapi.io/twitter/user_login_v2"
+    payload = {
+        "user_name": user_name,
+        "email": email,
+        "password": password,
+        "totp_secret": totp_secret,
+        "proxy": proxy
+    }
+    headers = {
+        "X-API-Key": api_key,
+        "Content-Type": "application/json"
+    }
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+        if "login_cookie" in data and data["login_cookie"] != "":
+            return {
+                "session_cookie": data["login_cookie"], # user session cookie
+                "user_details": {"user_name": user_name, "email": email}
+            }
+        else:
+            raise Exception(f"Login failed: {data.get('msg', 'Unknown error')}")
+    except requests.exceptions.RequestException as e:
+        raise Exception(f"Network error during Login: {e}")
+
+
+
+
+
 
 @tool
 def get_trends(
