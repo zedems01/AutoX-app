@@ -22,74 +22,6 @@ class InvalidSessionError(Exception):
     pass
 
 
-def start_login(
-        email: str,
-        password: str,
-        proxy: str,
-        api_key: str = settings.X_API_KEY
-    ) -> str:
-    """
-    Performs the first step of the 2FA login process.
-    Returns the login_data required for the second step.
-    """
-    url = "https://api.twitterapi.io/twitter/login_by_email_or_username"
-    payload = {
-        "username_or_email": email,
-        "password": password,
-        "proxy": proxy
-    }
-    headers = {
-        "X-API-Key": api_key,
-        "Content-Type": "application/json"
-    }
-
-    try:
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status() # Raises HTTPError for bad responses (4xx or 5xx)
-        data = response.json()
-        if "login_data" in data and data["login_data"] != "":
-            return data["login_data"]
-        else:
-            raise Exception(f"Login Step 1 failed: {data.get('msg', 'Unknown error')}")
-    except requests.exceptions.RequestException as e:
-        raise Exception(f"Network error during Login Step 1: {e}")
-    
-
-def complete_login(
-        login_data: str,
-        two_fa_code: str,
-        proxy: str,
-        api_key: str = settings.X_API_KEY
-    ) -> dict:
-    """
-    Performs the second step of the 2FA login process.
-    Saves the session token upon successful login.
-    Returns the user session details.
-    """
-    url = "https://api.twitterapi.io/twitter/login_by_2fa"
-    payload = {
-        "login_data": login_data,
-        "2fa_code": two_fa_code,
-        "proxy": proxy
-    }
-    headers = {
-        "X-API-Key": api_key,
-        "Content-Type": "application/json"
-    }
-    try:
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()
-        data = response.json()
-        if "session" in data and data["session"] != "":
-            return {
-                "session": data["session"],
-                "user_details": data["user"]
-            }
-        else:
-            raise Exception(f"Login Step 2 failed: {data.get('msg', 'Unknown error')}")
-    except requests.exceptions.RequestException as e:
-        raise Exception(f"Network error during Login Step 2: {e}")
-
 def login_v2(
         user_name: str,
         email: str,
@@ -127,10 +59,6 @@ def login_v2(
             raise Exception(f"Login failed: {data.get('msg', 'Unknown error')}")
     except requests.exceptions.RequestException as e:
         raise Exception(f"Network error during Login: {e}")
-
-
-
-
 
 
 @tool

@@ -58,7 +58,6 @@ class OverallState(TypedDict):
     user_config: Optional[UserConfigSchema]
 
     # === Login & Session ===
-    login_data: Optional[str]
     session: Optional[str]
     user_details: Optional[UserDetails]
     proxy: Optional[str]

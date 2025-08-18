@@ -1,15 +1,11 @@
 // --- API Payloads ---
 
-export interface StartLoginPayload {
+export interface LoginPayload {
+  user_name: string;
   email: string;
   password: string;
   proxy: string;
-}
-
-export interface CompleteLoginPayload {
-  login_data: string;
-  two_fa_code: string;
-  proxy: string;
+  totp_secret: string;
 }
 
 export interface StartWorkflowPayload {
@@ -40,11 +36,7 @@ export interface ValidationPayload {
 
 // --- API Responses ---
 
-export interface StartLoginResponse {
-  login_data: string; 
-}
-
-export interface CompleteLoginResponse {
+export interface LoginResponse {
   session: string;
   userDetails: UserDetails;
   proxy: string;
