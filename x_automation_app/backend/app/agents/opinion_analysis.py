@@ -54,19 +54,20 @@ def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
 
         logger.info(ctext(f"Opinion analysis completed\nOverall sentiment: {analysis_result.overall_sentiment};\nRefined topic: {analysis_result.topic_from_opinion_analysis}\n", color='white'))
 
-        # return {
-        #     "opinion_summary": analysis_result.opinion_summary,
-        #     "overall_sentiment": analysis_result.overall_sentiment,
-        #     "topic_from_opinion_analysis": analysis_result.topic_from_opinion_analysis,
-        # }
         return {
-            "opinion_summary": "The tweets express significant concern and suspicion regarding Israel's potential actions to draw the United States into a war with Iran. There's a prevailing belief that this is a deliberate strategy, with some users even implicating figures like Donald Trump or Benjamin Netanyahu in a plot to force US military involvement. The conversation highlights anxieties about the US being manipulated into a conflict that is not in its best interest.",
-            "overall_sentiment": "negative",
-            "topic_from_opinion_analysis": "US potential involvement in an Israel-Iran conflict",
-            "has_user_provided_topic":False,
-            "is_autonomous_mode":False,
-            "output_destination": "GET_OUTPUTS",
+            "opinion_summary": analysis_result.opinion_summary,
+            "overall_sentiment": analysis_result.overall_sentiment,
+            "topic_from_opinion_analysis": analysis_result.topic_from_opinion_analysis,
         }
+
+        # return {
+        #     "opinion_summary": "The tweets express significant concern and suspicion regarding Israel's potential actions to draw the United States into a war with Iran. There's a prevailing belief that this is a deliberate strategy, with some users even implicating figures like Donald Trump or Benjamin Netanyahu in a plot to force US military involvement. The conversation highlights anxieties about the US being manipulated into a conflict that is not in its best interest.",
+        #     "overall_sentiment": "negative",
+        #     "topic_from_opinion_analysis": "US potential involvement in an Israel-Iran conflict",
+        #     "has_user_provided_topic":False,
+        #     "is_autonomous_mode":False,
+        #     "output_destination": "GET_OUTPUTS",
+        # }
 
     except Exception as e:
         logger.error(f"An error occurred in the opinion analysis node: {e}\n")

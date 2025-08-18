@@ -196,7 +196,7 @@ def get_citations(response, resolved_urls_map):
 
 
 
-# This client is used for the Google Search API tool
+# Google Search API tool is used to get grounding metadata
 # Ensure the API key is loaded from the environment
 api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:

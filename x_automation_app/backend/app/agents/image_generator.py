@@ -28,9 +28,6 @@ except Exception as e:
         logger.error(f"Error initializing Google Generative AI model: {e}")
         llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
 
-# llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
-
-
 image_generating_agent = create_react_agent(model=llm, tools=[generate_and_upload_image], response_format=ImageGeneratorOutput)
 
 def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]:
@@ -48,8 +45,9 @@ def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]
         A dictionary to update the 'generated_images' key in the state.
     """
     logger.info("GENERATING CONTENT IMAGES...")
-    logger.info(ctext("No prompts found for image generation.", color='white'))
-    return {"generated_images": None}
+
+    # logger.info(ctext("No prompts found for image generation.", color='white'))
+    # return {"generated_images": None}
     
     try:
         final_image_prompts = state.get("final_image_prompts")
