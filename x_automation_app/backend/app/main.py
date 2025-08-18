@@ -78,6 +78,48 @@ def health_check():
 
 # --- Authentication Endpoints ---
 
+# @app.post("/auth/start-login", tags=["Authentication"])
+# async def start_login(payload: StartLoginPayload):
+#     """
+#     Starts the 2FA login process for Twitter.
+#     This is a stateless endpoint.
+#     """
+#     try:
+#         login_data = x_utils.start_login(
+#             email=payload.email, password=payload.password, proxy=payload.proxy
+#         )
+#         logger.info("Successfully started login process.")
+#         return {"login_data": login_data}
+#     except Exception as e:
+#         logger.error(f"Failed to start login: {e}")
+#         raise HTTPException(status_code=400, detail=f"Failed to start login: {e}")
+
+# @app.post("/auth/complete-login", tags=["Authentication"])
+# async def complete_login(payload: CompleteLoginPayload):
+#     """
+#     Completes the 2FA login process using the code provided by the user.
+#     This is a stateless endpoint.
+#     """
+#     try:
+#         session_details = x_utils.complete_login(
+#             login_data=payload.login_data,
+#             two_fa_code=payload.two_fa_code,
+#             proxy=payload.proxy
+#         )
+#         logger.info("Successfully completed login process. Session initialized.")
+#         logger.info(f"Name: {session_details['user_details']['name']} \t Username: {session_details['user_details']['screen_name']}")
+
+#         return {
+#             "session": session_details["session"],
+#             "userDetails": session_details["user_details"],
+#             "proxy": payload.proxy,
+#         }
+
+#     except Exception as e:
+#         logger.error(f"Failed to complete login: {e}")
+#         raise HTTPException(status_code=400, detail=f"Failed to complete login: {e}")
+
+
 @app.post("/auth/login", tags=["Authentication"])
 async def login(payload: LoginPayload):
     """

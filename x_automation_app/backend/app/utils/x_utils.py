@@ -21,6 +21,73 @@ class InvalidSessionError(Exception):
     """Custom exception for invalid session."""
     pass
 
+# def start_login(
+#         email: str,
+#         password: str,
+#         proxy: str,
+#         api_key: str = settings.X_API_KEY
+#     ) -> str:
+#     """
+#     Performs the first step of the 2FA login process.
+#     Returns the login_data required for the second step.
+#     """
+#     url = "https://api.twitterapi.io/twitter/login_by_email_or_username"
+#     payload = {
+#         "username_or_email": email,
+#         "password": password,
+#         "proxy": proxy
+#     }
+#     headers = {
+#         "X-API-Key": api_key,
+#         "Content-Type": "application/json"
+#     }
+
+#     try:
+#         response = requests.post(url, json=payload, headers=headers)
+#         response.raise_for_status() # Raises HTTPError for bad responses (4xx or 5xx)
+#         data = response.json()
+#         if "login_data" in data and data["login_data"] != "":
+#             return data["login_data"]
+#         else:
+#             raise Exception(f"Login Step 1 failed: {data.get('msg', 'Unknown error')}")
+#     except requests.exceptions.RequestException as e:
+#         raise Exception(f"Network error during Login Step 1: {e}")
+    
+# def complete_login(
+#         login_data: str,
+#         two_fa_code: str,
+#         proxy: str,
+#         api_key: str = settings.X_API_KEY
+#     ) -> dict:
+#     """
+#     Performs the second step of the 2FA login process.
+#     Saves the session token upon successful login.
+#     Returns the user session details.
+#     """
+#     url = "https://api.twitterapi.io/twitter/login_by_2fa"
+#     payload = {
+#         "login_data": login_data,
+#         "2fa_code": two_fa_code,
+#         "proxy": proxy
+#     }
+#     headers = {
+#         "X-API-Key": api_key,
+#         "Content-Type": "application/json"
+#     }
+#     try:
+#         response = requests.post(url, json=payload, headers=headers)
+#         response.raise_for_status()
+#         data = response.json()
+#         if "session" in data and data["session"] != "":
+#             return {
+#                 "session": data["session"],
+#                 "user_details": data["user"]
+#             }
+#         else:
+#             raise Exception(f"Login Step 2 failed: {data.get('msg', 'Unknown error')}")
+#     except requests.exceptions.RequestException as e:
+#         raise Exception(f"Network error during Login Step 2: {e}")
+
 
 def login_v2(
         user_name: str,
@@ -324,18 +391,18 @@ def chunk_text(text: str, max_length: int = 270) -> list[str]:
 
     return chunks 
 
-def deep_get(data_dict, keys, default=None):
-    """
-    Accesses a value nested in a dictionary in a secure way.
-    """
-    current_level = data_dict
-    for key in keys:
-        if not isinstance(current_level, dict):
-            return default
-        current_level = current_level.get(key)
-        if current_level is None:
-            return default
-    return current_level
+# def deep_get(data_dict, keys, default=None):
+#     """
+#     Accesses a value nested in a dictionary in a secure way.
+#     """
+#     current_level = data_dict
+#     for key in keys:
+#         if not isinstance(current_level, dict):
+#             return default
+#         current_level = current_level.get(key)
+#         if current_level is None:
+#             return default
+#     return current_level
 
 
 def post_tweet(
@@ -395,28 +462,87 @@ def post_tweet(
         raise Exception("Failed to decode API response as JSON.")
     except requests.exceptions.RequestException as e:
         raise Exception(f"Network error during tweet posting: {e}") from e
-        
-def post_tweet_thread(
-        session: str,
+
+def post_tweet_v2(
+        login_cookies: str,
         tweet_text: str,
         proxy: str,
-        image_url: Optional[str]=None,
+        image_urls: Optional[List[str]]=None,
+        reply_to_tweet_id: Optional[str]=None,
+        api_key: str = settings.X_API_KEY
+    ):
+    """
+    Posts a tweet with optional media and returns the tweet ID.
+    Requires a valid session from a successful login.
+    """
+    if not login_cookies:
+        raise Exception("Cannot post tweet: User is not logged in. Call login methods first.")
+
+    media_ids = None
+    if image_urls:
+        media_ids = [upload_image(login_cookies, image_url, proxy, api_key) for image_url in image_urls]
+
+    url = "https://api.twitterapi.io/twitter/create_tweet_v2"
+
+    payload = {
+        "login_cookies": login_cookies,
+        "tweet_text": tweet_text,
+        "proxy": proxy
+    }
+
+    if media_ids:
+        payload["media_ids"] = media_ids
+    if reply_to_tweet_id:
+        payload["reply_to_tweet_id"] = reply_to_tweet_id
+
+    headers = {
+        "X-API-Key": api_key,
+        "Content-Type": "application/json"
+    }
+
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+
+        if data.get("status") == "success":
+            # path_to_id = ["data", "create_tweet", "tweet_result", "result", "rest_id"]
+            # tweet_id = deep_get(data, path_to_id)
+            tweet_id = data.get("tweet_id")
+            
+            if tweet_id:
+                return tweet_id
+            else:
+                raise Exception("Tweet ID not found in a successful API response.")
+        else:
+            raise Exception(f"Failed to post tweet: {data.get('msg', 'Unknown error')}")
+
+    except requests.exceptions.JSONDecodeError:
+        raise Exception("Failed to decode API response as JSON.")
+    except requests.exceptions.RequestException as e:
+        raise Exception(f"Network error during tweet posting: {e}") from e
+
+def post_tweet_thread(
+        login_cookies: str,
+        tweet_text: str,
+        proxy: str,
+        image_urls: Optional[List[str]]=None,
         api_key: str = settings.X_API_KEY
     ) -> List[dict]:
     """
-    Publishes a thread of tweets.
+    Publishes a thread of tweets.   
     
     Args:
-        session (str): The authenticated user session.
-        tweet_texts (List[str]): A list of tweet content strings. The first is the main tweet.
+        login_cookies (str): The authenticated user session.
+        tweet_text (str): The main tweet content string.
         proxy (str): The proxy to use for the requests.
-        image_url (Optional[str]): The URL of the image to attach to the first tweet.
+        image_urls (Optional[List[str]]): The URLs of the images to attach to the first tweet.
         api_key (str): The API key.
 
     Returns:
         List[dict]: A list of dictionaries containing the response from the API for each posted tweet.
     """
-    if not session:
+    if not login_cookies:
         raise Exception("Cannot post tweet thread: User is not logged in.")
 
     chunks = chunk_text(tweet_text)
@@ -424,14 +550,14 @@ def post_tweet_thread(
     reply_to_id = None
 
     for i, chunk in enumerate(chunks):
-        # For now, no handling multiple images in threads.
-        # If there is an image, it will be added to the first tweet.
-        tweet_id = post_tweet(
-            session=session,
+        # For now, not handling multiple images accross a thread.
+        # If there are images, they will all be added to the first tweet.
+        tweet_id = post_tweet_v2(
+            login_cookies=login_cookies,
             tweet_text=chunk,
             proxy=proxy,
-            image_url=image_url if i == 0 else None,
-            in_reply_to_tweet_id=reply_to_id,
+            image_urls=image_urls if i == 0 else None,
+            reply_to_tweet_id=reply_to_id,
             api_key=api_key
         )
         
