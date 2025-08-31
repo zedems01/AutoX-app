@@ -6,10 +6,9 @@ from typing import Dict, Any, Optional
 from .state import OverallState
 from ..utils.schemas import WriterOutput
 from ..config import settings
-import logging
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+from ..utils.logging_config import setup_logging, ctext
+logger = setup_logging()
 
 
 try:
@@ -38,7 +37,7 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
     Returns:
         A dictionary to update the 'content_draft' and 'image_prompts' keys in the state.
     """
-    logger.info("----DRAFTING CONTENT AND IMAGE PROMPTS----\n")
+    logger.info("DRAFTING CONTENT AND IMAGE PROMPTS...")
 
     try:
         final_deep_research_report = state.get("final_deep_research_report", "No deep research context provided.")
@@ -75,12 +74,14 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
         )
         
         writer_output = structured_llm.invoke(prompt)
+        content_draft = writer_output.content_draft
+        image_prompts = writer_output.image_prompts if isinstance(writer_output.image_prompts, list) else [writer_output.image_prompts]
 
-        logger.info(f"----Draft content generated. {len(writer_output.image_prompts)} image prompts created.----\n")
+        logger.info(ctext(f"Content successfully drafted; {len(image_prompts)} image prompts created.\n", color='white'))
 
         return {
-            "content_draft": writer_output.content_draft,
-            "image_prompts": writer_output.image_prompts if isinstance(writer_output.image_prompts, list) else [writer_output.image_prompts],
+            "content_draft": content_draft,
+            "image_prompts": image_prompts,
         }
 
     except Exception as e:

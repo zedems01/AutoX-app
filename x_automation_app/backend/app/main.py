@@ -13,9 +13,9 @@ from .utils.schemas import ValidationResult, Trend, UserConfigSchema, UserDetail
 from .utils.json_encoder import CustomJSONEncoder
 from langgraph.types import Send
 
-import logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+# import logging
+from .utils.logging_config import setup_logging, ctext, add_file_handler, remove_file_handler
+logger = setup_logging()
 
 
 app = FastAPI(
@@ -38,15 +38,12 @@ app.add_middleware(
 )
 
 # --- Pydantic Models for API Payloads ---
-class StartLoginPayload(BaseModel):
+class LoginPayload(BaseModel):
+    user_name: str
     email: str
     password: str
     proxy: str
-
-class CompleteLoginPayload(BaseModel):
-    login_data: str
-    two_fa_code: str
-    proxy: str
+    totp_secret: str
 
 class StartWorkflowPayload(BaseModel):
     is_autonomous_mode: bool
@@ -77,44 +74,70 @@ def health_check():
     """
     Endpoint to check if the server is running.
     """
-    return {"status": "ok"}
+    return {"status": "oki doki"}
 
 # --- Authentication Endpoints ---
 
-@app.post("/auth/start-login", tags=["Authentication"])
-async def start_login(payload: StartLoginPayload):
-    """
-    Starts the 2FA login process for Twitter.
-    This is a stateless endpoint.
-    """
-    try:
-        login_data = x_utils.start_login(
-            email=payload.email, password=payload.password, proxy=payload.proxy
-        )
-        logger.info("Successfully started login process.")
-        return {"login_data": login_data}
-    except Exception as e:
-        logger.error(f"Failed to start login: {e}")
-        raise HTTPException(status_code=400, detail=f"Failed to start login: {e}")
+# @app.post("/auth/start-login", tags=["Authentication"])
+# async def start_login(payload: StartLoginPayload):
+#     """
+#     Starts the 2FA login process for Twitter.
+#     This is a stateless endpoint.
+#     """
+#     try:
+#         login_data = x_utils.start_login(
+#             email=payload.email, password=payload.password, proxy=payload.proxy
+#         )
+#         logger.info("Successfully started login process.")
+#         return {"login_data": login_data}
+#     except Exception as e:
+#         logger.error(f"Failed to start login: {e}")
+#         raise HTTPException(status_code=400, detail=f"Failed to start login: {e}")
+
+# @app.post("/auth/complete-login", tags=["Authentication"])
+# async def complete_login(payload: CompleteLoginPayload):
+#     """
+#     Completes the 2FA login process using the code provided by the user.
+#     This is a stateless endpoint.
+#     """
+#     try:
+#         session_details = x_utils.complete_login(
+#             login_data=payload.login_data,
+#             two_fa_code=payload.two_fa_code,
+#             proxy=payload.proxy
+#         )
+#         logger.info("Successfully completed login process. Session initialized.")
+#         logger.info(f"Name: {session_details['user_details']['name']} \t Username: {session_details['user_details']['screen_name']}")
+
+#         return {
+#             "session": session_details["session"],
+#             "userDetails": session_details["user_details"],
+#             "proxy": payload.proxy,
+#         }
+
+#     except Exception as e:
+#         logger.error(f"Failed to complete login: {e}")
+#         raise HTTPException(status_code=400, detail=f"Failed to complete login: {e}")
 
 
-@app.post("/auth/complete-login", tags=["Authentication"])
-async def complete_login(payload: CompleteLoginPayload):
+@app.post("/auth/login", tags=["Authentication"])
+async def login(payload: LoginPayload):
     """
-    Completes the 2FA login process using the code provided by the user.
-    This is a stateless endpoint.
+    Handles the user login process.
     """
     try:
-        session_details = x_utils.complete_login(
-            login_data=payload.login_data,
-            two_fa_code=payload.two_fa_code,
-            proxy=payload.proxy
+        session_details = x_utils.login_v2(
+            user_name=payload.user_name,
+            email=payload.email,
+            password=payload.password,
+            proxy=payload.proxy,
+            totp_secret=payload.totp_secret
         )
         logger.info("Successfully completed login process. Session initialized.")
-        logger.info(f"Name: {session_details['user_details']['name']} \t Username: {session_details['user_details']['screen_name']}")
+        logger.info(f"Username: {session_details['user_details']['user_name']} \t Email: {session_details['user_details']['email']}")
 
         return {
-            "session": session_details["session"],
+            "session": session_details["session_cookie"],
             "userDetails": session_details["user_details"],
             "proxy": payload.proxy,
         }
@@ -147,9 +170,11 @@ async def start_workflow(payload: StartWorkflowPayload):
     """
     Starts the main content generation workflow with the user's specified settings.
     """
-    logger.info("----STARTING WORKFLOW----\n")
     thread_id = str(uuid.uuid4())
     config = {"configurable": {"thread_id": thread_id}}
+    add_file_handler(thread_id)
+
+    logger.info(f"STARTING WORKFLOW... --- thread_id: {ctext(thread_id, color='white', italic=True)}")
 
     try:
         # Prepare the initial state from the payload
@@ -196,6 +221,9 @@ async def start_workflow(payload: StartWorkflowPayload):
 
         # Save the initial state and start the graph by the first WebSocket connection.
         graph.update_state(config, initial_state)
+        autonomous_mode = True if initial_state["is_autonomous_mode"] else False
+        publish_x = True if initial_state["output_destination"] == "PUBLISH_X" else False
+        logger.info(ctext(f"Graph successfully updated with initial state:\nAutonomous mode: {autonomous_mode}\nPublish to X: {publish_x}\nContent type: {initial_state['x_content_type']}\nContent length: {initial_state['content_length']}\n", color='white'))
 
         # Returning the state just constructed so the frontend can proceed.
         return {"thread_id": thread_id, "initial_state": initial_state}
@@ -244,8 +272,9 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
 
     except WebSocketDisconnect:
         print(f"WebSocket disconnected for thread: {thread_id}\n")
+        remove_file_handler(thread_id)
     except Exception as e:
-        print(f"Error in WebSocket for thread {thread_id}: {e}\n")
+        # print(f"Error in WebSocket for thread {thread_id}: {e}\n")
         await websocket.close(code=1011, reason=str(e))
 
 
@@ -256,7 +285,7 @@ async def validate_step(payload: ValidationPayload):
     """
     Receives user validation, updates the state, and resumes the workflow.
     """
-    logger.info("----VALIDATION STEP----\n")
+    logger.info("VALIDATION STEP")
     config = {"configurable": {"thread_id": payload.thread_id}}
 
     try:
@@ -285,13 +314,25 @@ async def validate_step(payload: ValidationPayload):
                     # The state for selected_topic expects a dict, not a Pydantic model
                     topic_model = Trend(**edit_data["selected_topic"])
                     update_data["selected_topic"] = topic_model.model_dump(exclude_unset=True)
+                    logger.info(ctext(f"The user approved the topic: '{ctext(update_data['selected_topic']['name'], italic=True)}'", color='white'))
+
                 elif next_step == "await_content_validation":
+                    logger.info(ctext(f"The user edited then approved the generated content.", color='white'))
                     if "final_content" in edit_data:
                         update_data["final_content"] = edit_data["final_content"]
                     if "final_image_prompts" in edit_data:
                         update_data["final_image_prompts"] = edit_data["final_image_prompts"]
+            else:
+                logger.info(ctext(f"The user approved the generated content.", color='white'))
+        
+        elif payload.validation_result.action == ValidationAction.REJECT:
+            if payload.validation_result.data and payload.validation_result.data.feedback:
+                feedback = payload.validation_result.data.feedback
+                logger.info(ctext(f"The user rejected the generated content with the following feedback: '{ctext(feedback, italic=True, color='white')}'.", color='red'))
 
         graph.update_state(config, update_data)
+        logger.info(ctext("Graph successfully updated with validation data.\n", color='white'))
+
 
         # Return the updated state so the frontend can re-render and open a new WebSocket
         updated_state = graph.get_state(config)

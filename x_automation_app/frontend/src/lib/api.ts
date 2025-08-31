@@ -1,8 +1,6 @@
 import {
-  CompleteLoginPayload,
-  CompleteLoginResponse,
-  StartLoginPayload,
-  StartLoginResponse,
+  LoginPayload,
+  LoginResponse,
   StartWorkflowPayload,
   StartWorkflowResponse,
   ValidateSessionPayload,
@@ -27,22 +25,13 @@ async function handleResponse<T>(response: Response): Promise<T> {
   return response.json();
 }
 
-export async function startLogin(payload: StartLoginPayload): Promise<StartLoginResponse> {
-  const response = await fetch(`${API_BASE_URL}/auth/start-login`, {
+export async function login(payload: LoginPayload): Promise<LoginResponse> {
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return handleResponse<StartLoginResponse>(response);
-}
-
-export async function completeLogin(payload: CompleteLoginPayload): Promise<CompleteLoginResponse> {
-  const response = await fetch(`${API_BASE_URL}/auth/complete-login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  return handleResponse<CompleteLoginResponse>(response);
+  return handleResponse<LoginResponse>(response);
 }
 
 export async function validateSession(payload: ValidateSessionPayload): Promise<{ isValid: boolean }> {

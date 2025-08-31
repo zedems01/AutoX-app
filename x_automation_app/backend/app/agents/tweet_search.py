@@ -10,10 +10,9 @@ from ..utils.x_utils import tweet_advanced_search
 from ..utils.schemas import TweetSearched, TweetSearchResponse, TweetAuthor
 from typing import List
 from ..config import settings
-import logging
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+from ..utils.logging_config import setup_logging, ctext
+logger = setup_logging()
 
 
 try:
@@ -39,8 +38,8 @@ def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
     Returns:
         A dictionary to update the 'tweet_search_results' key in the state.
     """
-    logger.info("----SEARCHING FOR TWEETS----\n")
-    
+    logger.info("TWEET SEARCH PROCESS")
+
     try:
         topic = ""
         selected_topic = state.get("selected_topic")
@@ -52,7 +51,8 @@ def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
         if not topic:
             raise ValueError("No topic found in the state to initiate tweet search.")
 
-        logger.info(f"----Searching tweets for topic: {topic}----")
+        logger.info(ctext(f"Searching for tweets about: {topic}\n", color='white'))
+
 
         user_config = state.get("user_config") or {}
         tweets_language = (user_config.tweets_language if user_config and user_config.tweets_language is not None 
@@ -68,7 +68,7 @@ def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
         response = tweet_search_agent.invoke({"messages": [("user", prompt)]})
         parsed_response = response["structured_response"]
         
-        logger.info(f"----Found {len(parsed_response.tweets)} tweets.----\n")
+        logger.info(ctext(f"Successfully fetched {len(parsed_response.tweets)} tweets.\n", color='white'))
 
         return {"tweet_search_results": parsed_response.tweets}
 

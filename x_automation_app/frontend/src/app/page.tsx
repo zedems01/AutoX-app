@@ -123,7 +123,7 @@ export default function WorkflowConfigPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      is_autonomous_mode: true,
+      is_autonomous_mode: false,
       show_details: false,
       has_user_provided_topic: false,
       user_provided_topic: "",

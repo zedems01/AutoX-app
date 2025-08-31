@@ -22,10 +22,8 @@ from ..utils.prompts import (
     answer_instructions,
 )
 
-import logging
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+from ..utils.logging_config import setup_logging, ctext
+logger = setup_logging()
 
 
 # Helper functions
@@ -198,7 +196,7 @@ def get_citations(response, resolved_urls_map):
 
 
 
-# This client is used for the Google Search API tool
+# Google Search API tool is used to get grounding metadata
 # Ensure the API key is loaded from the environment
 api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
@@ -211,7 +209,8 @@ def generate_query(state: OverallState, config: RunnableConfig) -> QueryGenerati
     """
     Generates a list of search queries based on the research topic from the state.
     """
-    logger.info("----GENERATING DEEP RESEARCH QUERIES----\n")
+    logger.info("GENERATING QUERIES FOR DEEP RESEARCH...")
+
     configurable = Configuration.from_runnable_config(config)
     user_config = state.get("user_config") or {}
     query_generator_model = (user_config.gemini_base_model if user_config and user_config.gemini_base_model is not None 
@@ -223,7 +222,7 @@ def generate_query(state: OverallState, config: RunnableConfig) -> QueryGenerati
     if not topic:
         raise ValueError("No topic found in the state for deep research.")
     
-    logger.info(f"----Researching topic: {topic}----\n")
+    logger.info(ctext(f"Research topic: {ctext(topic, color='white', italic=True)}", color='white'))
 
     # check for custom initial search query count
     if state.get("initial_search_query_count") is None:
@@ -250,7 +249,7 @@ def continue_to_web_research(state: QueryGenerationState):
     """
     Sends the generated search queries to the web research node for parallel execution.
     """
-    logger.info("----CONTINUING TO WEB RESEARCH----\n")
+    # logger.info("----CONTINUING TO WEB RESEARCH----\n")
     return [
         Send("web_research", {"search_query": search_query, "id": int(idx)})
         for idx, search_query in enumerate(state["query_list"])
@@ -261,7 +260,8 @@ def web_research(state: WebSearchState, config: RunnableConfig) -> OverallState:
     """
     Performs web research for a single query using the Google Search API tool.
     """
-    logger.info(f"----PERFORMING WEB RESEARCH FOR: {state['search_query']}----\n")
+    logger.info(ctext(f"Performing web research for the query: {ctext(state['search_query'], color='white', italic=True)}", color='white'))
+
     configurable = Configuration.from_runnable_config(config)
     user_config = state.get("user_config") or {}
     web_search_model = (user_config.gemini_base_model if user_config and user_config.gemini_base_model is not None 
@@ -301,7 +301,8 @@ def reflection(state: OverallState, config: RunnableConfig) -> ReflectionState:
     """
     Analyzes research results, identifies knowledge gaps, and generates follow-up queries.
     """
-    logger.info("----REFLECTING ON RESEARCH RESULTS----\n")
+    logger.info("REFLECTING ON RESEARCH RESULTS...")
+
     configurable = Configuration.from_runnable_config(config)
     state["research_loop_count"] = state.get("research_loop_count", 0) + 1
     user_config = state.get("user_config") or {}
@@ -342,7 +343,7 @@ def evaluate_research(state: ReflectionState, config: RunnableConfig) -> Overall
     Controls the research loop by deciding whether to continue gathering information
     or to finalize the summary based on the configured maximum number of research loops.
     """
-    logger.info("----EVALUATING RESEARCH----\n")
+    # logger.info("----EVALUATING RESEARCH----\n")
     configurable = Configuration.from_runnable_config(config)
     max_research_loops = (
         state.get("max_research_loops")
@@ -350,10 +351,10 @@ def evaluate_research(state: ReflectionState, config: RunnableConfig) -> Overall
         else configurable.max_research_loops
     )
     if state["is_sufficient"] or state["research_loop_count"] >= max_research_loops:
-        logger.info("----RESEARCH IS SUFFICIENT. FINALIZING ANSWER----\n")
+        logger.info(ctext("Research is sufficient, finalizing answer...", color='white'))
         return "finalize_answer"
     else:
-        logger.info("----RESEARCH NOT SUFFICIENT. CONTINUING.----\n")
+        logger.info(ctext("Research is not sufficient, continuing...", color='white'))
         return [
             Send(
                 "web_research",
@@ -374,7 +375,6 @@ def finalize_answer(state: OverallState, config: RunnableConfig):
     combining them with the running summary to create a well-structured
     research report with proper citations.
     """
-    logger.info("----FINALIZING DEEP RESEARCH REPORT----\n")
     configurable = Configuration.from_runnable_config(config)
     user_config = state.get("user_config") or {}
     reasoning_model = (user_config.gemini_reasoning_model if user_config and user_config.gemini_reasoning_model is not None 
@@ -406,7 +406,9 @@ def finalize_answer(state: OverallState, config: RunnableConfig):
                 source["short_url"], source["value"]
             )
             unique_sources.append(source)
-            
+        
+    logger.info(f"DEEP RESEARCH REPORT COMPLETED:\n{ctext(response.split('\n')[0], color='white', italic=True)}\n...\n{ctext(response.split('\n')[-1], color='white', italic=True)}\n")
+    
     return {
         "final_deep_research_report": response,
         "sources_gathered": unique_sources

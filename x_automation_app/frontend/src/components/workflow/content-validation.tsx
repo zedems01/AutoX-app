@@ -176,7 +176,7 @@ export function ContentValidation({ onSubmitted }: ContentValidationProps) {
           <DialogFooter className="flex justify-end space-x-2 pt-4">
             <Button
               type="button"
-              variant="outline"
+              variant="positive"
               onClick={onApprove}
               disabled={mutation.isPending}
               className="cursor-pointer"
@@ -252,6 +252,7 @@ export function ContentValidation({ onSubmitted }: ContentValidationProps) {
                   type="submit"
                   variant="destructive"
                   disabled={mutation.isPending}
+                  className="cursor-pointer"
                 >
                   {mutation.isPending && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

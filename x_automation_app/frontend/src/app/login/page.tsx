@@ -26,38 +26,39 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { startLogin } from "@/lib/api"
+import { login } from "@/lib/api"
 import { Loader2 } from "lucide-react"
+import { useAuth } from "@/contexts/AuthContext"
 
 const formSchema = z.object({
+  user_name: z.string().min(1, { message: "Username is required." }),
   email: z.string().email({ message: "Invalid email address." }),
   password: z.string().min(1, { message: "Password is required." }),
   proxy: z.string().url({ message: "Please enter a valid proxy URL." }),
+  totp_secret: z.string().min(1, { message: "TOTP secret is required." }),
 })
 
 export default function LoginPage() {
   const router = useRouter()
-  const [loginData, setLoginData] = useState<string | null>(null);
-  const [proxy, setProxy] = useState<string | null>(null);
+  const { login: authLogin } = useAuth()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      user_name: "",
       email: "",
       password: "",
       proxy: "",
+      totp_secret: "",
     },
   })
 
   const mutation = useMutation({
-    mutationFn: startLogin,
+    mutationFn: login,
     onSuccess: (data) => {
-      toast.success("Login initiated. Please check for a 2FA code.", { duration: 20000 })
-      const queryParams = new URLSearchParams({
-        login_data: data.login_data,
-        proxy: proxy!,
-      });
-      router.push(`/login/2fa?${queryParams.toString()}`)
+      toast.success("Login successful!", { duration: 5000 })
+      authLogin(data)
+      router.push("/")
     },
     onError: (error) => {
       toast.error(`Login failed: ${error.message}`, { duration: 15000 })
@@ -65,7 +66,6 @@ export default function LoginPage() {
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    setProxy(values.proxy);
     mutation.mutate(values)
   }
 
@@ -81,6 +81,19 @@ export default function LoginPage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="user_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input placeholder="your_username" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="email"
@@ -123,11 +136,27 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="totp_secret"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>TOTP Secret</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="••••••••" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Your Time-based One-Time Password secret.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <Button type="submit" className="w-full cursor-pointer" disabled={mutation.isPending}>
                 {mutation.isPending && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                Start Login
+                Login
               </Button>
             </form>
           </Form>

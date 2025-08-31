@@ -21,19 +21,19 @@ from .state import OverallState
 
 
 def await_topic_selection(state: OverallState) -> dict:
-    """Node to await user selection of a topic."""
+    """Node to await the topic selection."""
     return {
         "next_human_input_step": "await_topic_selection",
     }
 
 def await_content_validation(state: OverallState) -> dict:
-    """Node to await user validation of the generated content."""
+    """Node to await the generated content validation."""
     return {
         "next_human_input_step": "await_content_validation",
     }
 
 def await_image_validation(state: OverallState) -> dict:
-    """Node to await user validation of the generated images."""
+    """Node to await the generated images validation."""
     return {
         "next_human_input_step": "await_image_validation",
     }

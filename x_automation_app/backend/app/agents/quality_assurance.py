@@ -5,23 +5,23 @@ from ..utils.prompts import quality_assurance_prompt
 from typing import Dict, Any
 from .state import OverallState
 from ..utils.schemas import QAOutput
-import logging
 from ..config import settings
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+from ..utils.logging_config import setup_logging, ctext
+logger = setup_logging()
 
 
-try:
-    llm = ChatOpenAI(model=settings.OPENAI_MODEL)
-except Exception as e:
-    logger.error(f"Error initializing OpenAI model: {e}")
-    try:
-        llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
-    except Exception as e:
-        logger.error(f"Error initializing Google Generative AI model: {e}")
-        llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
+# try:
+#     llm = ChatOpenAI(model=settings.OPENAI_MODEL)
+# except Exception as e:
+#     logger.error(f"Error initializing OpenAI model: {e}")
+#     try:
+#         llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
+#     except Exception as e:
+#         logger.error(f"Error initializing Google Generative AI model: {e}")
+#         llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
 
+llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
 structured_llm = llm.with_structured_output(QAOutput)
 
 def quality_assurance_node(state: OverallState) -> Dict[str, Any]:
@@ -37,10 +37,11 @@ def quality_assurance_node(state: OverallState) -> Dict[str, Any]:
     Returns:
         A dictionary to update the 'final_content' and 'final_image_prompts' keys.
     """
-    logger.info("----PERFORMING QUALITY ASSURANCE ON CONTENT DRAFT----\n")
+    logger.info("QUALITY REVIEW ON CONTENT DRAFT")
 
     try:
         content_draft = state.get("content_draft")
+        content_length = state.get("content_length")
         image_prompts = state.get("image_prompts")
         if not content_draft or not image_prompts:
             raise ValueError("Content draft or image prompts are missing for QA.")
@@ -76,12 +77,18 @@ def quality_assurance_node(state: OverallState) -> Dict[str, Any]:
         )
 
         qa_output = structured_llm.invoke(prompt)
+        final_content = qa_output.final_content
+        final_image_prompts = qa_output.final_image_prompts if isinstance(qa_output.final_image_prompts, list) else [qa_output.final_image_prompts]
 
-        logger.info("----QA complete. Content and prompts are finalized.----\n")
+        logger.info(ctext("Content and prompts are finalized.\n", color='white'))
+        if content_length in ["Short", "Medium"] and len(final_image_prompts) > 0:
+            logger.info(ctext(f"Content:\n{final_content}\n\nImage prompts:\n{'\n- '.join(final_image_prompts)}\n", color='white', italic=True))
+        else:
+            logger.info(ctext(f"Content:\n{final_content}\n", color='white', italic=True))
 
         return {
-            "final_content": qa_output.final_content,
-            "final_image_prompts": qa_output.final_image_prompts,
+            "final_content": final_content,
+            "final_image_prompts": final_image_prompts,
         }
 
     except Exception as e:
