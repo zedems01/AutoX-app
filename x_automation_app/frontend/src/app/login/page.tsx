@@ -30,6 +30,12 @@ import { login } from "@/lib/api"
 import { Loader2 } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 
+const USER_NAME = process.env.USER_NAME
+const USER_EMAIL = process.env.USER_EMAIL
+const USER_PASSWORD = process.env.USER_PASSWORD
+const USER_PROXY = process.env.USER_PROXY
+const USER_TOTP_SECRET = process.env.USER_TOTP_SECRET
+
 const formSchema = z.object({
   user_name: z.string().min(1, { message: "Username is required." }),
   email: z.string().email({ message: "Invalid email address." }),

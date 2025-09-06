@@ -38,7 +38,8 @@ def generate_and_upload_image(prompt: str, image_name: str) -> GeneratedImage:
         image_key = f"images/{image_name}"
 
         # Define the path to the frontend's public/images directory
-        images_dir = Path(__file__).resolve().parents[3] / "frontend" / "public" / "images"
+        # images_dir = Path(__file__).resolve().parents[3] / "frontend" / "public" / "images"
+        images_dir = Path(__file__).resolve().parents[0] / "images"
         images_dir.mkdir(parents=True, exist_ok=True)
         image_path = images_dir / image_name
 
@@ -48,7 +49,8 @@ def generate_and_upload_image(prompt: str, image_name: str) -> GeneratedImage:
             f.write(image_bytes)
 
         # logger.info(ctext(f"Image saved to {str(image_path)}", color='white'))
-        relative_path = image_path.relative_to(Path(__file__).resolve().parents[3])
+        # relative_path = image_path.relative_to(Path(__file__).resolve().parents[3])
+        relative_path = image_path.relative_to(Path(__file__).resolve().parents[0])
         logger.info(ctext(f"Image saved to {str(relative_path)}", color='white'))
         
         # Upload the image to AWS S3 to get a presigned URL

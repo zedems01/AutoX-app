@@ -11,16 +11,17 @@ from ..utils.logging_config import setup_logging, ctext
 logger = setup_logging()
 
 
-try:
-    llm = ChatOpenAI(model=settings.OPENAI_MODEL)
-except Exception as e:
-    logger.error(f"Error initializing OpenAI model: {e}")
-    try:
-        llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
-    except Exception as e:
-        logger.error(f"Error initializing Google Generative AI model: {e}")
-        llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
+# try:
+#     llm = ChatOpenAI(model=settings.OPENAI_MODEL)
+# except Exception as e:
+#     logger.error(f"Error initializing OpenAI model: {e}")
+#     try:
+#         llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
+#     except Exception as e:
+#         logger.error(f"Error initializing Google Generative AI model: {e}")
+#         llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
 
+llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
 structured_llm = llm.with_structured_output(WriterOutput)
 
 def writer_node(state: OverallState) -> Dict[str, Any]:

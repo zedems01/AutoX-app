@@ -26,6 +26,7 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
 
         generated_images = state.get("generated_images")
         session = state.get("session")
+        proxy = state.get("proxy")
         x_content_type = state.get("x_content_type")
 
         publication_id = None
@@ -35,26 +36,26 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
             if not session:
                 raise ValueError("Authentication session is required to publish on X. Please log in.")
 
-            image_url = generated_images[0].s3_url if generated_images else None
+            image_url = [generated_images[0].s3_url] if generated_images else None
 
             if x_content_type == "TWEET_THREAD":
                 logger.info(ctext("Content Type: TWEET_THREAD", color='white'))
                 thread_results = x_utils.post_tweet_thread(
-                    session=session,
+                    login_cookies=session,
                     tweet_text=final_content,
-                    image_url=image_url,
-                    proxy=session.get("proxy")
+                    image_urls=image_url,
+                    proxy=proxy
                 )
                 if thread_results and thread_results[0].get("status") == "success":
                     publication_id = thread_results[0].get("tweet_id")
 
             elif x_content_type == "SINGLE_TWEET":
                 logger.info(ctext("Content Type: SINGLE_TWEET", color='white'))
-                publication_id = x_utils.post_tweet(
-                    session=session,
+                publication_id = x_utils.post_tweet_v2(
+                    login_cookies=session,
                     tweet_text=final_content,
-                    image_url=image_url,
-                    proxy=session.get("proxy")
+                    image_urls=image_url,
+                    proxy=proxy
                 )
             
             logger.info(ctext(f"Successfully posted to X. Publication ID: {publication_id}\n\n", color='white'))

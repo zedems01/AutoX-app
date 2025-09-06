@@ -125,6 +125,9 @@ async def login(payload: LoginPayload):
     """
     Handles the user login process.
     """
+    # print(f"\nPAYLOAD reçu pour le login:\n{payload}\n")
+    logger.info(f"STARTING LOGIN...")
+
     try:
         session_details = x_utils.login_v2(
             user_name=payload.user_name,
@@ -133,8 +136,8 @@ async def login(payload: LoginPayload):
             proxy=payload.proxy,
             totp_secret=payload.totp_secret
         )
-        logger.info("Successfully completed login process. Session initialized.")
-        logger.info(f"Username: {session_details['user_details']['user_name']} \t Email: {session_details['user_details']['email']}")
+        username = ctext(session_details['user_details']['user_name'], italic=True)
+        logger.info(ctext(f"Successfully completed login process. Session initialized for user {username}", color='white'))
 
         return {
             "session": session_details["session_cookie"],
