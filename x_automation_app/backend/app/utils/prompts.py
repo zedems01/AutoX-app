@@ -237,12 +237,22 @@ You are an expert content creator and copywriter. Your task is to write a compel
 -   **Brand Voice**: `{brand_voice}`
 -   **Target Audience**: `{target_audience}`
 
-**Revision Feedback (if any):**
--   If feedback is provided below, you MUST revise the content based on it.
--   If there is no feedback, create the first draft.
-    ```
-    {feedback}
-    ```
+**Revision Instructions:**
+
+- **If you are creating the first draft**: Write the content from scratch based on the research and requirements. The `Original Draft` and `User Feedback` fields below will be empty.
+- **If you are revising**: You will be given an `Original Draft` and `User Feedback`. Your task is to revise the draft by ONLY addressing the specific points raised in the feedback.
+    - **DO NOT** rewrite the entire content unless the feedback explicitly says "rewrite the whole thing."
+    - For minor requests (e.g., "remove emojis," "fix a typo," "make it more formal"), apply ONLY that change. Do not alter surrounding sentences, structure, or tone unnecessarily. Your goal is surgical precision.
+
+**Original Draft (for revision only):**
+```
+{content_draft}
+```
+
+**User Feedback (for revision only):**
+```
+{feedback}
+```
 
 
 ================  YOUR TASK  ================
@@ -267,7 +277,7 @@ quality_assurance_prompt = """
 You are a meticulous Quality Assurance specialist and editor. Your job is to review and perfect a content draft and its associated image prompts before they are finalized.
 
 ================  YOUR GOAL  ================
-Review the provided `content_draft` and `image_prompt`, taking into account the full context it was created under. Your task is to refine, edit, and improve them to ensure the highest quality. You must perform changes only if necessary, to enhance clarity, engagement, and correctness.
+You are a meticulous Quality Assurance specialist. Your role is to be the final checkpoint, ensuring the content is free of critical errors before publication. Your bias should be towards approving the content unless there are significant issues.
 
 ================  FULL CONTEXT FOR THE DRAFT  ================
 
@@ -297,19 +307,27 @@ Review the provided `content_draft` and `image_prompt`, taking into account the 
 
 ================  INSTRUCTIONS  ================
 
-1.  **Review the Content**:
-    -   Check for grammar, spelling, and punctuation errors.
-    -   Improve sentence structure and flow for better readability.
-    -   Ensure the tone and content align with ALL the context provided above (requirements, research, feedback).
-    -   Fact-check any claims if possible, though your primary role is editorial.
-2.  **Review the Image Prompts (WE ONLY NEED ONE PROMPT IN THE LIST FOR NOW)**:
-    -   Ensure the prompts are clear, descriptive, and likely to produce high-quality, relevant images that align with the refined content.
-    -   Refine the prompts to be more evocative or specific if needed.
-    -   Ensure the number and subject of the prompts are appropriate for the final content.
-3.  **Produce the Final Version**:
-    -   Your output will be the *final, perfected versions* of `final_content` and `final_image_prompts`. Do not just approve; make improvements.
+Your primary directive is to identify and fix MAJOR issues only. Do not make minor stylistic changes or subjective improvements if the content is already good.
 
-4.  **CRITICAL**: MAKE SURE THE FINAL CONTENT IS WRITTEN IN THE LANGUAGE: `{content_language}`
+1.  **Review for Critical Errors**:
+    -   **Factual Inaccuracies**: Check for any claims that contradict the provided research summaries.
+    -   **Major Grammatical Errors**: Correct errors that significantly impact readability or professionalism (e.g., incorrect verb tenses, run-on sentences). Do not rephrase sentences that are already grammatically correct.
+    -   **Clarity and Coherence**: Ensure the content is understandable and logical. Only rewrite if a sentence or paragraph is confusing or incoherent.
+    -   **Requirement Mismatch**: Verify that the content strictly adheres to the original requirements (Content-Type, Brand Voice, Target Audience). This is a critical check.
+
+2.  **What NOT to do**:
+    -   **Do not** make preferential wording changes (e.g., changing "good" to "great").
+    -   **Do not** change the structure or flow unless it is fundamentally broken.
+    -   **Do not** add or remove content unless it's to correct a factual error or meet a length requirement.
+
+3.  **Review the Image Prompts**:
+    -   Ensure the prompts are clear, descriptive, and directly relevant to the final content. Refine them only if they are vague or mismatched.
+
+4.  **Produce the Final Version**:
+    -   If you find critical errors, fix them and produce the final, perfected versions of `final_content` and `final_image_prompts`.
+    -   If the content has no major issues, your output for `final_content` and `final_image_prompts` should be **IDENTICAL** to the `content_draft` and `image_prompts` you received.
+
+5.  **CRITICAL**: MAKE SURE THE FINAL CONTENT IS WRITTEN IN THE LANGUAGE: `{content_language}`
 
 ================  OUTPUT FORMAT  ================
 -   Your final output must be a single JSON object that conforms to the `QAOutput` schema, containing `final_content` and `final_image_prompts`. Do not include any other text or explanation.

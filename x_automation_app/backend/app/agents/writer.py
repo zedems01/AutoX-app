@@ -46,6 +46,7 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
         overall_sentiment = state.get("overall_sentiment", "Neutral")
         x_content_type = state.get("x_content_type", "Article")
         content_length = state.get("content_length", "Medium")
+        content_draft = state.get("content_draft", "")  # Get existing draft for revisions
         brand_voice = state.get("brand_voice", "Professional")
         target_audience = state.get("target_audience", "General audience")
 
@@ -62,6 +63,9 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
                 feedback = validation_result.get("data").get("feedback", "No specific feedback provided.")
             logger.info(f"----Revising draft based on feedback: {feedback}----\n")
 
+        print(f"Content draft: {content_draft}\n")
+        print(f"Feedback: {feedback}\n")
+
         prompt = writer_prompt.format(
             final_deep_research_report=final_deep_research_report,
             opinion_summary=opinion_summary,
@@ -70,6 +74,7 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
             content_length=content_length,
             brand_voice=brand_voice,
             target_audience=target_audience,
+            content_draft=content_draft,
             feedback=feedback,
             content_language=content_language
         )
@@ -77,6 +82,8 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
         writer_output = structured_llm.invoke(prompt)
         content_draft = writer_output.content_draft
         image_prompts = writer_output.image_prompts if isinstance(writer_output.image_prompts, list) else [writer_output.image_prompts]
+
+        print(f"Content draft: {content_draft}\n")
 
         logger.info(ctext(f"Content successfully drafted; {len(image_prompts)} image prompts created.\n", color='white'))
 
