@@ -1,8 +1,5 @@
-# --- 
 # TODO:
 # * refine the logic of the 'tweet_advanced_search' tool to give more autonomy to the agent 
-# * implement an agent for smart chunking and image integration in thread content  
-# ---
 
 
 import requests

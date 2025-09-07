@@ -21,6 +21,7 @@ from ..utils.prompts import (
     reflection_instructions,
     answer_instructions,
 )
+from ..config import settings
 
 from ..utils.logging_config import setup_logging, ctext
 logger = setup_logging()
@@ -197,8 +198,8 @@ def get_citations(response, resolved_urls_map):
 
 
 # Google Search API tool is used to get grounding metadata
-# Ensure the API key is loaded from the environment
-api_key = os.getenv("GEMINI_API_KEY")
+# Ensure the API key is loaded from the environment, no need to pay for it as we are using the free tier
+api_key = settings.GEMINI_API_KEY
 if not api_key:
     raise ValueError("GEMINI_API_KEY environment variable not set.")
 genai_client = Client(api_key=api_key)

@@ -1,11 +1,20 @@
-import base64
+# TODO:
+# * refine the logic of the image_generator node to handle image edits from user feedbacks
+
+
+# import base64
 import boto3
 from botocore.exceptions import NoCredentialsError, PartialCredentialsError
-from openai import OpenAI
+# from openai import OpenAI
 from ..config import settings
 from langchain_core.tools import tool
 from .schemas import GeneratedImage
 from pathlib import Path
+
+from google import genai
+# from google.genai import types
+from PIL import Image
+from io import BytesIO
 
 from ..utils.logging_config import setup_logging, ctext
 logger = setup_logging()
@@ -15,7 +24,7 @@ logger = setup_logging()
 @tool
 def generate_and_upload_image(prompt: str, image_name: str) -> GeneratedImage:
     """
-    Generates an image using OpenAI's gpt-image-1, uploads it to AWS S3,
+    Generates an image using Gemini's gemini-2.5-flash-image-preview, uploads it to AWS S3,
     and returns a presigned URL.
 
     Args:
@@ -25,28 +34,22 @@ def generate_and_upload_image(prompt: str, image_name: str) -> GeneratedImage:
         GeneratedImage: The generated image.
     """
     try:
-        # Generate the image with OpenAI
-        client = OpenAI(api_key=settings.OPENAI_API_KEY)
-        result = client.images.generate(
-            model="gpt-image-1",
-            prompt=prompt,
-            size="1024x1024"
-        )
-        image_b64 = result.data[0].b64_json
-        image_bytes = base64.b64decode(image_b64)
 
-        image_key = f"images/{image_name}"
-
-        # Define the path to the frontend's public/images directory
         # images_dir = Path(__file__).resolve().parents[3] / "frontend" / "public" / "images"
         images_dir = Path(__file__).resolve().parents[0] / "images"
         images_dir.mkdir(parents=True, exist_ok=True)
         image_path = images_dir / image_name
 
-        bucket_name = settings.BUCKET_NAME
-
-        with open(image_path, "wb") as f:
-            f.write(image_bytes)
+        client = genai.Client()
+        response = client.models.generate_content(
+            model = settings.GEMINI_IMAGE_MODEL,
+            contents = [prompt]
+        )
+        for part in response.candidates[0].content.parts:
+            if part.inline_data is not None:
+                image = Image.open(BytesIO(part.inline_data.data))
+                image.save(image_path)
+        print("generation done")
 
         # logger.info(ctext(f"Image saved to {str(image_path)}", color='white'))
         # relative_path = image_path.relative_to(Path(__file__).resolve().parents[3])
@@ -54,6 +57,11 @@ def generate_and_upload_image(prompt: str, image_name: str) -> GeneratedImage:
         logger.info(ctext(f"Image saved to {str(relative_path)}", color='white'))
         
         # Upload the image to AWS S3 to get a presigned URL
+        bucket_name = settings.BUCKET_NAME
+        image_key = f"images/{image_name}"
+
+        print("uploading to s3")
+
         s3_client = boto3.client(
             "s3",
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,

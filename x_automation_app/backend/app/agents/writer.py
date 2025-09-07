@@ -1,6 +1,6 @@
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_anthropic import ChatAnthropic
+# from langchain_anthropic import ChatAnthropic
 from ..utils.prompts import writer_prompt
 from typing import Dict, Any, Optional
 from .state import OverallState
@@ -11,17 +11,22 @@ from ..utils.logging_config import setup_logging, ctext
 logger = setup_logging()
 
 
-# try:
-#     llm = ChatOpenAI(model=settings.OPENAI_MODEL)
-# except Exception as e:
-#     logger.error(f"Error initializing OpenAI model: {e}")
-#     try:
-#         llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
-#     except Exception as e:
-#         logger.error(f"Error initializing Google Generative AI model: {e}")
-#         llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
+try:
+    llm = ChatOpenAI(
+        api_key=settings.OPENROUTER_API_KEY,
+        base_url=settings.OPENROUTER_BASE_URL,
+        model=settings.OPENROUTER_MODEL
+    )
+except Exception as e:
+    logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
+    try:
+        llm = ChatGoogleGenerativeAI(
+            model=settings.GEMINI_REASONING_MODEL,
+            google_api_key=settings.GEMINI_API_KEY
+        )
+    except Exception as e:
+        logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
 
-llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
 structured_llm = llm.with_structured_output(WriterOutput)
 
 def writer_node(state: OverallState) -> Dict[str, Any]:
@@ -63,8 +68,8 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
                 feedback = validation_result.get("data").get("feedback", "No specific feedback provided.")
             logger.info(f"----Revising draft based on feedback: {feedback}----\n")
 
-        print(f"Content draft: {content_draft}\n")
-        print(f"Feedback: {feedback}\n")
+        # print(f"Content draft: {content_draft}\n")
+        # print(f"Feedback: {feedback}\n")
 
         prompt = writer_prompt.format(
             final_deep_research_report=final_deep_research_report,
@@ -83,7 +88,7 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
         content_draft = writer_output.content_draft
         image_prompts = writer_output.image_prompts if isinstance(writer_output.image_prompts, list) else [writer_output.image_prompts]
 
-        print(f"Content draft: {content_draft}\n")
+        # print(f"Content draft: {content_draft}\n")
 
         logger.info(ctext(f"Content successfully drafted; {len(image_prompts)} image prompts created.\n", color='white'))
 

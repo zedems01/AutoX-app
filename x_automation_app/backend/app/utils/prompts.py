@@ -357,8 +357,6 @@ Your primary goal is to call the `generate_and_upload_image` tool for prompt (on
     -   For each prompt, you MUST call the `generate_and_upload_image` tool.
     -   You must provide a unique `image_name` for each tool call. A good name would be a short version of the prompt plus a timestamp (e.g., `a_dog_on_a_swing_1712345678.png`).
     - Take into account the current timestamp: {current_timestamp}
-3.  **Final Response**:
-    -   After you have called the tool for all prompts, provide a simple confirmation message, like "All images have been generated successfully."
 
 **Image Prompts to Generate:**
 ```
@@ -369,6 +367,9 @@ Your primary goal is to call the `generate_and_upload_image` tool for prompt (on
 ```
 {feedback}
 ```
+
+================  OUTPUT FORMAT  ================
+-   Your final output must be a single JSON object that conforms to the `ImageGeneratorOutput` schema, containing a list of generated images objects. Do not include any other text or explanation.
 """
 
 thread_composer_prompt = """

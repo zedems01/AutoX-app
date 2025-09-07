@@ -1,13 +1,12 @@
 from typing import Dict, Any, List
 from .state import OverallState
-from ..utils import x_utils
+from ..utils.x_utils import get_char_count, post_tweet_v2
 from ..utils.prompts import thread_composer_prompt
 from ..utils.schemas import ThreadPlan, GeneratedImage
 
+from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.pydantic_v1 import ValidationError
-from langchain.agents import AgentExecutor, create_react_agent
+from langgraph.prebuilt import create_react_agent
 from ..config import settings
 
 
@@ -15,15 +14,29 @@ from ..utils.logging_config import setup_logging, ctext
 logger = setup_logging()
 
 
-def create_thread_composer_agent(llm, tools, prompt):
-    agent = create_react_agent(llm, tools, prompt)
-    agent_executor = AgentExecutor(
-        agent=agent, 
-        tools=tools,
-        handle_parsing_errors=True,
-        max_iterations=5
+try:
+    llm = ChatOpenAI(
+        api_key=settings.OPENROUTER_API_KEY,
+        base_url=settings.OPENROUTER_BASE_URL,
+        model=settings.OPENROUTER_MODEL,
+        temperature=0.5
     )
-    return agent_executor
+except Exception as e:
+    logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
+    try:
+        llm = ChatGoogleGenerativeAI(
+            model=settings.GEMINI_REASONING_MODEL,
+            google_api_key=settings.GEMINI_API_KEY,
+            temperature=0.5
+        )
+    except Exception as e:
+        logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
+
+thread_composer_agent = create_react_agent(
+    model=llm,
+    tools=[get_char_count],
+    response_format=ThreadPlan
+)
 
 
 def publicator_node(state: OverallState) -> Dict[str, Any]:
@@ -61,34 +74,23 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
 
             if x_content_type == "TWEET_THREAD":
                 logger.info(ctext("Content Type: TWEET_THREAD", color='white'))
-                
-                # --- Initialize the Thread Composer Agent ---
-                llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, temperature=0.3)
-                tools = [x_utils.get_char_count]
-                prompt = ChatPromptTemplate.from_template(thread_composer_prompt)
-                agent_executor = create_thread_composer_agent(llm, tools, prompt)
 
-                # --- Invoke the agent to get the thread plan ---
-                logger.info("Invoking Thread Composer Agent to plan the thread...")
-                agent_response = agent_executor.invoke({
-                    "final_content": final_content,
-                    "image_paths": image_paths
-                })
-                
-                try:
-                    thread_plan = ThreadPlan.parse_raw(agent_response["output"])
-                except (ValidationError, KeyError) as e:
-                    logger.error(f"Failed to parse agent output into ThreadPlan: {e}\nOutput was: {agent_response['output']}")
-                    raise ValueError("Could not generate a valid tweet thread plan from the agent.")
+                prompt = thread_composer_prompt.format(
+                    final_content=final_content,
+                    image_paths=image_paths
+                )
+
+                response = thread_composer_agent.invoke({"messages": [("user", prompt)]})
+                parsed_response = response["structured_response"]
 
                 # --- Execute the thread plan ---
                 posted_tweets = []
                 reply_to_id = None
-                for i, chunk in enumerate(thread_plan.thread):
-                    logger.info(f"Posting chunk {i+1}/{len(thread_plan.thread)}...")
+                for i, chunk in enumerate(parsed_response.thread):
+                    logger.info(ctext(f"Posting chunk {i+1}/{len(parsed_response.thread)}...", color='white'))
                     chunk_image_path = [chunk.image_path] if chunk.image_path else None
                     
-                    tweet_id = x_utils.post_tweet_v2(
+                    tweet_id = post_tweet_v2(
                         login_cookies=session,
                         tweet_text=chunk.text,
                         proxy=proxy,
@@ -109,7 +111,7 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
 
             elif x_content_type == "SINGLE_TWEET":
                 logger.info(ctext("Content Type: SINGLE_TWEET", color='white'))
-                publication_id = x_utils.post_tweet_v2(
+                publication_id = post_tweet_v2(
                     login_cookies=session,
                     tweet_text=final_content,
                     image_paths=image_paths,
