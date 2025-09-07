@@ -120,6 +120,20 @@ class TweetDrafts(BaseModel):
     drafts: List[str]
 
 
+class TweetChunk(BaseModel):
+    """
+    Represents a single tweet within a thread.
+    """
+    text: str = Field(..., description="The content of the tweet chunk.")
+    image_path: Optional[str] = Field(None, description="The local path to an image to be attached to this specific tweet.")
+
+class ThreadPlan(BaseModel):
+    """
+    Represents the entire thread structure as planned by the agent.
+    """
+    thread: List[TweetChunk] = Field(..., description="A list of TweetChunk objects, in the order they should be posted.")
+
+
 class TweetAdvancedSearchParameters(BaseModel):
     """
     Parameters for the tweet_advanced_search tool.

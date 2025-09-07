@@ -12,6 +12,7 @@ from typing import List, Optional
 from langchain_core.tools import tool
 import re
 import unicodedata
+import warnings
 
 from ..utils.logging_config import setup_logging, ctext
 logger = setup_logging()
@@ -318,7 +319,7 @@ def upload_image_v2(
         except requests.exceptions.RequestException as e:
             raise Exception(f"Network error during media upload: {e}")
 
-    
+@tool
 def get_char_count(text: str) -> int:
     """
     Calculates the character count of a string for Twitter, where emojis count as 2 characters
@@ -345,9 +346,11 @@ def get_char_count(text: str) -> int:
 
 def chunk_text(text: str, max_length: int = 270) -> list[str]:
     """
+    DEPRECATED: This function is replaced by the ThreadComposerAgent.
     Chunks a long text into a list of smaller strings, each within the max_length,
     respecting word boundaries and Twitter's character counting rules.
     """
+    warnings.warn("chunk_text is deprecated and will be removed in a future version. Use ThreadComposerAgent instead.", DeprecationWarning)
     if get_char_count(text) <= max_length:
         return [text]
 
@@ -417,7 +420,7 @@ def post_tweet_v1(
 
     media_id = None
     if image_url:
-        media_id = upload_image(session, image_url, proxy, api_key)
+        media_id = upload_image_v1(session, image_url, proxy, api_key)
 
     url = "https://api.twitterapi.io/twitter/create_tweet"
 
@@ -458,6 +461,7 @@ def post_tweet_v1(
     except requests.exceptions.RequestException as e:
         raise Exception(f"Network error during tweet posting: {e}") from e
 
+@tool
 def post_tweet_v2(
         login_cookies: str,
         tweet_text: str,
@@ -527,6 +531,7 @@ def post_tweet_thread(
         api_key: str = settings.X_API_KEY
     ) -> List[dict]:
     """
+    DEPRECATED: This function is replaced by the ThreadComposerAgent.
     Publishes a thread of tweets.   
     
     Args:
@@ -539,6 +544,7 @@ def post_tweet_thread(
     Returns:
         List[dict]: A list of dictionaries containing the response from the API for each posted tweet.
     """
+    warnings.warn("post_tweet_thread is deprecated and will be removed in a future version. Use ThreadComposerAgent instead.", DeprecationWarning)
     if not login_cookies:
         raise Exception("Cannot post tweet thread: User is not logged in.")
 
