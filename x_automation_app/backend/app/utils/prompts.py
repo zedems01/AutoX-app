@@ -1,7 +1,6 @@
 # --- 
 # TODO:
 # * refine the writer_prompt to add more instructions about specific content-type, and about images prompts
-# * add prompt for the smart chunker agent
 # ---
 
 from datetime import datetime
@@ -53,6 +52,7 @@ Instructions:
 Research Topic:
 {research_topic}
 """
+
 
 reflection_instructions = """You are an expert research assistant analyzing summaries about "{research_topic}".
 
@@ -117,13 +117,16 @@ You are an AI assistant that generates expert-level search queries for X. Your g
 ================  ANALYZE THE TOPIC  ================
 
 <topic_analysis>
+
 Understand the core concepts and intent of the topic:
 {topic}
+
 </topic_analysis>
 
 ================  CONSTRUCT A SEARCH QUERY  ================
 
 <query_construction>
+
 Generate a **single, expert-level search query** string for the `tweet_advanced_search` tool, following these guidelines:
 
 - Use relevant **keywords** and **hashtags** (`#`).
@@ -138,16 +141,19 @@ Generate a **single, expert-level search query** string for the `tweet_advanced_
   - `since:start_date` or `until:end_date`
 - ENSURE the query is tailored for **language**: {tweets_language}
 - Take into account today's date: {current_date}
+
 </query_construction>
 
 ================  TOOL CALL  ================
 
 <tool_call>
+
 Call the `tweet_advanced_search` tool **once** using the generated query.
 
 - Required parameters:
   - `query`: your constructed query string.
   - `query_type`: `"Latest"` *(default)* or `"Top"`, based on the topic's needs.
+
 </tool_call>
 
 ================  OUTPUT FORMAT  ================
@@ -161,6 +167,7 @@ Return **only** the full and direct result from the `tweet_advanced_search` tool
 </output_instruction>
 """
 # *   Be careful with the nested quotes, make sure to use the correct number of quotes, and don't use double quotes inside single quotes, or double quotes inside double quotes.
+
 
 opinion_analysis_prompt = """
 You are an expert market and public opinion analyst. Your role is to analyze a collection of tweets and extract structured insights that summarize public discourse on a given topic.
@@ -262,16 +269,17 @@ Based on ALL the information above, write the `content_draft`. It must align wit
 
 2.  **Generate Image Prompts**:
 Create a list of descriptive, detailed `image_prompts` for an AI image generator that would visually complement the content. The prompts should be creative and directly related to the key themes of the content. Generate at least one prompt, but more if the content warrants it.
-**IMPORTANT NOTE:**
-For now, just a list of one prompt is enough. Make sure to include the prompt in a list, like ["prompt"]
 
 **CRITICAL**: MAKE SURE THE FINAL CONTENT IS WRITTEN IN THE LANGUAGE: `{content_language}`
 
 
 ================  OUTPUT FORMAT  ================
--   Your final output must be a single JSON object that conforms to the `WriterOutput` schema. Do not include any other text.
+-   Your final output must be a single JSON object that conforms to the `WriterOutput` schema, even if it's a single prompt. Do not include any other text.
 
 """
+
+# **IMPORTANT :**
+# For now, just a list of one prompt is enough. Make sure to include the prompt in a list, like ["prompt"]
 
 quality_assurance_prompt = """
 You are a meticulous Quality Assurance specialist and editor. Your job is to review and perfect a content draft and its associated image prompts before they are finalized.
@@ -300,7 +308,7 @@ You are a meticulous Quality Assurance specialist. Your role is to be the final 
     ```
     {content_draft}
     ```
-2.  **Image Prompt**:
+2.  **Image Prompt(s)**:
     ```
     {image_prompts}
     ```
@@ -320,7 +328,7 @@ Your primary directive is to identify and fix MAJOR issues only. Do not make min
     -   **Do not** change the structure or flow unless it is fundamentally broken.
     -   **Do not** add or remove content unless it's to correct a factual error or meet a length requirement.
 
-3.  **Review the Image Prompts**:
+3.  **Review the Image Prompt(s)**:
     -   Ensure the prompts are clear, descriptive, and directly relevant to the final content. Refine them only if they are vague or mismatched.
 
 4.  **Produce the Final Version**:
