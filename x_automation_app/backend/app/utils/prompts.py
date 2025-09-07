@@ -268,7 +268,10 @@ You are an expert content creator and copywriter. Your task is to write a compel
 Based on ALL the information above, write the `content_draft`. It must align with the specified content requirements.
 
 2.  **Generate Image Prompts**:
-Create a list of descriptive, detailed `image_prompts` for an AI image generator that would visually complement the content. The prompts should be creative and directly related to the key themes of the content. Generate at least one prompt, but more if the content warrants it.
+Create a list of descriptive, detailed `image_prompts` for an AI image generator. The number of prompts should be proportional to the content's length and complexity. Follow these rules:
+    -   **For short content (e.g., a Single Tweet):** If the message conveys a single, focused idea, **one** image prompt is sufficient. Do not generate more.
+    -   **For longer content (e.g., a Tweet Thread or an Article):** You may generate multiple prompts, but **only if** each prompt illustrates a distinct aspect, section, or key point of the content. If the entire text revolves around one central theme, one powerful image prompt is still preferred.
+    -   **Guiding Principle**: Prioritize quality over quantity. Avoid creating multiple similar prompts. Each prompt should be unique and add distinct visual value. If in doubt, stick to the minimum.
 
 **CRITICAL**: MAKE SURE THE FINAL CONTENT IS WRITTEN IN THE LANGUAGE: `{content_language}`
 
