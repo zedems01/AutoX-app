@@ -83,9 +83,8 @@ export interface UserSession {
 }
 
 export interface UserConfigSchema {
-    gemini_base_model?: string;
-    gemini_reasoning_model?: string;
-    openai_model?: string;
+    gemini_model?: string;
+    openrouter_model?: string;
     trends_count?: number;
     trends_woeid?: number;
     max_tweets_to_retrieve?: number;

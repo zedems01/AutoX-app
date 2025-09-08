@@ -70,9 +70,8 @@ const formSchema = z
     target_audience: z.string().optional(),
     user_config: z
       .object({
-        gemini_base_model: z.string().optional(),
-        gemini_reasoning_model: z.string().optional(),
-        openai_model: z.string().optional(),
+        gemini_model: z.string().optional(),
+        openrouter_model: z.string().optional(),
         trends_count: z.number().optional(),
         trends_woeid: z.number().optional(),
         max_tweets_to_retrieve: z.number().optional(),
@@ -134,9 +133,8 @@ export default function WorkflowConfigPage() {
       brand_voice: "",
       target_audience: "",
       user_config: {
-        gemini_base_model: "",
-        gemini_reasoning_model: "",
-        openai_model: "",
+        gemini_model: "",
+        openrouter_model: "",
         trends_count: undefined,
         trends_woeid: 1,
         max_tweets_to_retrieve: undefined,
@@ -521,14 +519,32 @@ export default function WorkflowConfigPage() {
                         </p>
                         <FormField
                           control={form.control}
-                          name="user_config.gemini_base_model"
+                          name="user_config.openrouter_model"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>OpenRouter Model</FormLabel>
+                              <FormDescription className="text-xs">The main model powering the agent's reasoning.</FormDescription>
+                              <FormControl>
+                                <Input
+                                  placeholder="'openai/gpt-5'"
+                                  {...field}
+                                  value={field.value ?? ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="user_config.gemini_model"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Gemini Model</FormLabel>
-                              <FormDescription className="text-xs">Model for deep research news and/or other tasks. (Free access to some)</FormDescription>
+                              <FormDescription className="text-xs">Fallback model if OpenRouter model is not available.</FormDescription>
                               <FormControl>
                                 <Input
-                                  placeholder="'gemini-2.5-flash-lite-preview-06-17'"
+                                  placeholder="'gemini-2.5-pro'"
                                   {...field}
                                   value={field.value ?? ""}
                                 />
@@ -555,24 +571,7 @@ export default function WorkflowConfigPage() {
                             </FormItem>
                           )}
                         /> */}
-                        <FormField
-                          control={form.control}
-                          name="user_config.openai_model"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>OpenAI Model</FormLabel>
-                              <FormDescription className="text-xs">The model powering the agent's reasoning. By default, 'gpt-image-1' is used for image generation.</FormDescription>
-                              <FormControl>
-                                <Input
-                                  placeholder="'gpt-4o'"
-                                  {...field}
-                                  value={field.value ?? ""}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                        
                         <FormField
                           control={form.control}
                           name="user_config.trends_woeid"

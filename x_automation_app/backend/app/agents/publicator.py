@@ -25,7 +25,7 @@ except Exception as e:
     logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
     try:
         llm = ChatGoogleGenerativeAI(
-            model=settings.GEMINI_REASONING_MODEL,
+            model=settings.GEMINI_MODEL,
             google_api_key=settings.GEMINI_API_KEY,
             temperature=0.5
         )
