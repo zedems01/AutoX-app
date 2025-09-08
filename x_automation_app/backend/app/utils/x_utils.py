@@ -386,20 +386,6 @@ def chunk_text(text: str, max_length: int = 270) -> list[str]:
 
     return chunks 
 
-# def deep_get(data_dict, keys, default=None):
-#     """
-#     Accesses a value nested in a dictionary in a secure way.
-#     """
-#     current_level = data_dict
-#     for key in keys:
-#         if not isinstance(current_level, dict):
-#             return default
-#         current_level = current_level.get(key)
-#         if current_level is None:
-#             return default
-#     return current_level
-
-
 def post_tweet_v1(
         session: str,
         tweet_text: str,

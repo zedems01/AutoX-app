@@ -1,7 +1,7 @@
 from langgraph.prebuilt import create_react_agent
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
-# from langchain_anthropic import ChatAnthropic
+
 from ..utils.prompts import trend_harvester_prompt
 from typing import Dict, Any, List
 from .state import OverallState
@@ -9,7 +9,7 @@ from ..utils.schemas import Trend, TrendResponse
 from ..utils.x_utils import get_trends
 from ..config import settings
 
-# import logging
+
 from ..utils.logging_config import setup_logging, ctext
 logger = setup_logging()
 

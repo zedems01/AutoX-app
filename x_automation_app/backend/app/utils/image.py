@@ -2,17 +2,14 @@
 # * refine the logic of the image_generator node to handle image edits from user feedbacks
 
 
-# import base64
 import boto3
 from botocore.exceptions import NoCredentialsError, PartialCredentialsError
-# from openai import OpenAI
 from ..config import settings
 from langchain_core.tools import tool
 from .schemas import GeneratedImage
 from pathlib import Path
 
 from google import genai
-# from google.genai import types
 from PIL import Image
 from io import BytesIO
 
@@ -35,7 +32,6 @@ def generate_and_upload_image(prompt: str, image_name: str) -> GeneratedImage:
     """
     try:
 
-        # images_dir = Path(__file__).resolve().parents[3] / "frontend" / "public" / "images"
         images_dir = Path(__file__).resolve().parents[0] / "images"
         images_dir.mkdir(parents=True, exist_ok=True)
         image_path = images_dir / image_name
@@ -49,18 +45,13 @@ def generate_and_upload_image(prompt: str, image_name: str) -> GeneratedImage:
             if part.inline_data is not None:
                 image = Image.open(BytesIO(part.inline_data.data))
                 image.save(image_path)
-        print("generation done")
 
-        # logger.info(ctext(f"Image saved to {str(image_path)}", color='white'))
-        # relative_path = image_path.relative_to(Path(__file__).resolve().parents[3])
         relative_path = image_path.relative_to(Path(__file__).resolve().parents[0])
         logger.info(ctext(f"Image saved to {str(relative_path)}", color='white'))
         
         # Upload the image to AWS S3 to get a presigned URL
         bucket_name = settings.BUCKET_NAME
         image_key = f"images/{image_name}"
-
-        print("uploading to s3")
 
         s3_client = boto3.client(
             "s3",
