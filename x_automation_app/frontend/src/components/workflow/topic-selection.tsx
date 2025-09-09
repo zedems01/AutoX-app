@@ -146,7 +146,7 @@ export function TopicSelection({ onSubmitted }: TopicSelectionProps) {
                                   {topic.name}
                                 </TableCell>
                                 <TableCell className="text-right">
-                                  {topic.tweet_count.toLocaleString()}
+                                  {topic.tweet_count ? topic.tweet_count.toLocaleString() : 'N/A'}
                                 </TableCell>
                               </TableRow>
                             ))}
