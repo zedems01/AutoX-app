@@ -46,35 +46,35 @@ def trend_harvester_node(state: OverallState) -> Dict[str, List[Trend]]:
     """
     logger.info("FETCHING AND CURATING TRENDING TOPICS...")
 
-    parsed_response = [{"name":"Messi","rank":2,"tweet_count":"268K posts"},{"name":"Porto","rank":5,"tweet_count":"102K posts"},{"name":"#ONEPIECE1152","rank":19,"tweet_count":"13.4K posts"},{"name":"Schengen","rank":30,"tweet_count":"1,534 posts"}]
+    # parsed_response = [{"name":"Messi","rank":2,"tweet_count":"268K posts"},{"name":"Porto","rank":5,"tweet_count":"102K posts"},{"name":"#ONEPIECE1152","rank":19,"tweet_count":"13.4K posts"},{"name":"Schengen","rank":30,"tweet_count":"1,534 posts"}]
 
-    msg1 = f"Successfully curated {len(parsed_response)} trends from woeid: {2000000}\n"
-    msg2 = f"Top trends: {ctext(", ".join([f'{trend["name"]} ({trend["tweet_count"]})' for trend in parsed_response[:3]]), italic=True)}\n"
-    logger.info(ctext(msg1 + msg2, color='white'))
-    return {"trending_topics": parsed_response}
+    # msg1 = f"Successfully curated {len(parsed_response)} trends from woeid: {2000000}\n"
+    # msg2 = f"Top trends: {ctext(", ".join([f'{trend["name"]} ({trend["tweet_count"]})' for trend in parsed_response[:3]]), italic=True)}\n"
+    # logger.info(ctext(msg1 + msg2, color='white'))
+    # return {"trending_topics": parsed_response}
     
-    # try:
-    #     safe_user_config = state.get("user_config") or {}
-    #     woeid = (safe_user_config.trends_woeid if safe_user_config and safe_user_config.trends_woeid is not None 
-    #             else settings.TRENDS_WOEID
-    #         )
-    #     count = (safe_user_config.trends_count if safe_user_config and safe_user_config.trends_count is not None 
-    #             else settings.TRENDS_COUNT
-    #         )
+    try:
+        safe_user_config = state.get("user_config") or {}
+        woeid = (safe_user_config.trends_woeid if safe_user_config and safe_user_config.trends_woeid is not None 
+                else settings.TRENDS_WOEID
+            )
+        count = (safe_user_config.trends_count if safe_user_config and safe_user_config.trends_count is not None 
+                else settings.TRENDS_COUNT
+            )
 
-    #     prompt = trend_harvester_prompt.format(
-    #         woeid = woeid,
-    #         count = count
-    #     )
-    #     response = trend_harvester_agent.invoke({"messages": [("user", prompt)]})
-    #     parsed_response = response["structured_response"]
+        prompt = trend_harvester_prompt.format(
+            woeid = woeid,
+            count = count
+        )
+        response = trend_harvester_agent.invoke({"messages": [("user", prompt)]})
+        parsed_response = response["structured_response"]
 
-    #     msg1 = f"Successfully curated {len(parsed_response.trends)} trends from woeid: {woeid}\n"
-    #     msg2 = f"Top trends: {ctext(", ".join([f'{trend.name} ({trend.tweet_count})' for trend in parsed_response.trends[:10]]), italic=True)}\n"
-    #     logger.info(ctext(msg1 + msg2, color='white'))
+        msg1 = f"Successfully curated {len(parsed_response.trends)} trends from woeid: {woeid}\n"
+        msg2 = f"Top trends: {ctext(", ".join([f'{trend.name} ({trend.tweet_count})' for trend in parsed_response.trends[:10]]), italic=True)}\n"
+        logger.info(ctext(msg1 + msg2, color='white'))
 
-    #     return {"trending_topics": parsed_response.trends}
+        return {"trending_topics": parsed_response.trends}
 
-    # except Exception as e:
-    #     logger.error(f"An unexpected error occurred in the trend harvester node: {e}\n")
-    #     return {"error_message": f"An unexpected error occurred: {str(e)}"}
+    except Exception as e:
+        logger.error(f"An unexpected error occurred in the trend harvester node: {e}\n")
+        return {"error_message": f"An unexpected error occurred: {str(e)}"}

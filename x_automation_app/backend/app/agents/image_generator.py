@@ -57,41 +57,41 @@ def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]
     """
     logger.info("GENERATING CONTENT IMAGES...")
 
-    logger.info(ctext("No prompts found for image generation.", color='white'))
-    return {"generated_images": None}
+    # logger.info(ctext("No prompts found for image generation.", color='white'))
+    # return {"generated_images": None}
     
-    # try:
-    #     final_image_prompts = state.get("final_image_prompts")
-    #     if not final_image_prompts:
-    #         logger.info(ctext("No image prompts found. Skipping image generation.", color='white'))
-    #         return {"generated_images": []}
+    try:
+        final_image_prompts = state.get("final_image_prompts")
+        if not final_image_prompts:
+            logger.info(ctext("No image prompts found. Skipping image generation.", color='white'))
+            return {"generated_images": []}
 
-    #     # Handle feedback from the HiTL validation step
-    #     feedback = "No feedback provided."
-    #     validation_result = state.get("validation_result")
+        # Handle feedback from the HiTL validation step
+        feedback = "No feedback provided."
+        validation_result = state.get("validation_result")
 
-    #     if isinstance(validation_result, dict) and validation_result.get("action") == ValidationAction.REJECT:
-    #         data = validation_result.get("data")
-    #         if isinstance(data, dict):
-    #             feedback_from_data = data.get("feedback")
-    #             if feedback_from_data:
-    #                 feedback = feedback_from_data
-    #                 logger.info(ctext(f"Revising image prompts based on feedback: {feedback}\n", color='white'))
+        if isinstance(validation_result, dict) and validation_result.get("action") == ValidationAction.REJECT:
+            data = validation_result.get("data")
+            if isinstance(data, dict):
+                feedback_from_data = data.get("feedback")
+                if feedback_from_data:
+                    feedback = feedback_from_data
+                    logger.info(ctext(f"Revising image prompts based on feedback: {feedback}\n", color='white'))
 
 
-    #     prompt = image_generator_prompt.format(
-    #         final_image_prompts=final_image_prompts,
-    #         feedback=feedback,
-    #         current_timestamp=get_current_time()
-    #     )
+        prompt = image_generator_prompt.format(
+            final_image_prompts=final_image_prompts,
+            feedback=feedback,
+            current_timestamp=get_current_time()
+        )
         
-    #     response = image_generating_agent.invoke({"messages": [("user", prompt)]})
-    #     parsed_response = response["structured_response"]
+        response = image_generating_agent.invoke({"messages": [("user", prompt)]})
+        parsed_response = response["structured_response"]
 
-    #     logger.info(ctext(f"Successfully generated {len(parsed_response.images)} images.\n", color='white'))
+        logger.info(ctext(f"Successfully generated {len(parsed_response.images)} images.\n", color='white'))
 
-    #     return {"generated_images": parsed_response.images}
+        return {"generated_images": parsed_response.images}
 
-    # except Exception as e:
-    #     logger.error(f"An unexpected error occurred in the image generator node: {e}\n")
-    #     return {"error_message": f"An unexpected error occurred during image generation: {str(e)}"}
+    except Exception as e:
+        logger.error(f"An unexpected error occurred in the image generator node: {e}\n")
+        return {"error_message": f"An unexpected error occurred during image generation: {str(e)}"}
