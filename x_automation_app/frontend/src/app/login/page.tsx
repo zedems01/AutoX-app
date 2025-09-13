@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useMutation } from "@tanstack/react-query"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import { useState } from "react"
 
@@ -46,6 +46,7 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { login: authLogin } = useAuth()
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -64,7 +65,19 @@ export default function LoginPage() {
     onSuccess: (data) => {
       toast.success("Login successful!", { duration: 5000 })
       authLogin(data)
-      router.push("/")
+
+      const redirect = searchParams.get('redirect')
+      const workflowState = searchParams.get('workflowState')
+
+      if (redirect) {
+        let redirectUrl = redirect
+        if (workflowState) {
+          redirectUrl += `?workflowState=${workflowState}`
+        }
+        router.push(redirectUrl)
+      } else {
+        router.push("/")
+      }
     },
     onError: (error) => {
       toast.error(`Login failed: ${error.message}`, { duration: 15000 })

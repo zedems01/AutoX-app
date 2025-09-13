@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useMutation } from "@tanstack/react-query"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 
@@ -116,6 +116,7 @@ const woeidLocations = [
 
 export default function WorkflowConfigPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { authStatus, session, userDetails, proxy } = useAuth()
   const { setThreadId, setShowDetails } = useWorkflowContext()
 
@@ -144,6 +145,22 @@ export default function WorkflowConfigPage() {
     },
   })
 
+  useEffect(() => {
+    const workflowStateParam = searchParams.get('workflowState')
+    if (workflowStateParam) {
+      try {
+        const savedState = JSON.parse(decodeURIComponent(workflowStateParam))
+        form.reset(savedState)
+        toast.info("Your previous settings have been restored.")
+        // Clean the URL to avoid re-applying on refresh
+        router.replace('/')
+      } catch (error) {
+        console.error("Failed to parse workflow state from URL", error)
+        toast.error("Could not restore your previous settings.")
+      }
+    }
+  }, [searchParams, form, router])
+
   const mutation = useMutation({
     mutationFn: startWorkflow,
     onSuccess: (data) => {
@@ -159,7 +176,8 @@ export default function WorkflowConfigPage() {
     // Check a user needs to be logged in for the selected action
     if (values.output_destination === 'PUBLISH_X' && authStatus !== 'authenticated') {
       toast.error("You must be logged in to publish directly to X.", { duration: 15000 })
-      router.push('/login')
+      const workflowState = encodeURIComponent(JSON.stringify(values));
+      router.push(`/login?redirect=/&workflowState=${workflowState}`);
       return
     }
 

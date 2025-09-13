@@ -131,6 +131,7 @@ export interface TweetSearched {
 }
 
 export interface GeneratedImage {
+  is_generated: boolean;
   image_name: string;
   local_file_path: string;
   s3_url: string;
