@@ -14,28 +14,23 @@ from ..utils.logging_config import setup_logging, ctext
 logger = setup_logging()
 
 
-llm = ChatGoogleGenerativeAI(
+try:
+    llm = ChatOpenAI(
+        api_key=settings.OPENROUTER_API_KEY,
+        base_url=settings.OPENROUTER_BASE_URL,
+        model=settings.OPENROUTER_MODEL,
+        temperature=0.5
+    )
+except Exception as e:
+    logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
+    try:
+        llm = ChatGoogleGenerativeAI(
             model=settings.GEMINI_MODEL,
-            google_api_key=settings.GEMINI_API_KEY
+            google_api_key=settings.GEMINI_API_KEY,
+            temperature=0.5
         )
-
-# try:
-#     llm = ChatOpenAI(
-#         api_key=settings.OPENROUTER_API_KEY,
-#         base_url=settings.OPENROUTER_BASE_URL,
-#         model=settings.OPENROUTER_MODEL,
-#         temperature=0.5
-#     )
-# except Exception as e:
-#     logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
-#     try:
-#         llm = ChatGoogleGenerativeAI(
-#             model=settings.GEMINI_MODEL,
-#             google_api_key=settings.GEMINI_API_KEY,
-#             temperature=0.5
-#         )
-#     except Exception as e:
-#         logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
+    except Exception as e:
+        logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
 
 thread_composer_agent = create_react_agent(
     model=llm,
@@ -109,8 +104,7 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
                         posted_tweets.append({"status": "success", "tweet_id": tweet_id})
                         reply_to_id = tweet_id
                         if i == 0:
-                            publication_id = tweet_id  # Set publication_id to the first tweet's ID
-                        # logger.info(ctext(f"Successfully posted chunk {i+1}\nTweet ID: {tweet_id}\n", color='white'))
+                            publication_id = tweet_id
                         logger.info(ctext(f"Successfully posted chunk {i+1}\nhttps://x.com/{settings.USER_NAME}/status/{tweet_id}\n", color='white'))
                     else:
                         error_msg = f"Failed to post chunk {i+1}"
@@ -127,7 +121,6 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
                     proxy=proxy
                 )
             
-            # logger.info(ctext(f"Successfully posted to X. Publication ID: {publication_id}\n\n", color='white'))
             logger.info(ctext(f"Successfully posted to X: https://x.com/{settings.USER_NAME}/status/{publication_id}\n\n", color='white'))
 
         elif output_destination == "GET_OUTPUTS":

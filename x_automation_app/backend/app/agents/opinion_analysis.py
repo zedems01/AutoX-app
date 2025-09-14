@@ -12,26 +12,21 @@ from ..utils.logging_config import setup_logging, ctext
 logger = setup_logging()
 
 
-llm = ChatGoogleGenerativeAI(
+try:
+    llm = ChatOpenAI(
+        api_key=settings.OPENROUTER_API_KEY,
+        base_url=settings.OPENROUTER_BASE_URL,
+        model=settings.OPENROUTER_MODEL
+    )
+except Exception as e:
+    logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
+    try:
+        llm = ChatGoogleGenerativeAI(
             model=settings.GEMINI_MODEL,
             google_api_key=settings.GEMINI_API_KEY
         )
-
-# try:
-#     llm = ChatOpenAI(
-#         api_key=settings.OPENROUTER_API_KEY,
-#         base_url=settings.OPENROUTER_BASE_URL,
-#         model=settings.OPENROUTER_MODEL
-#     )
-# except Exception as e:
-#     logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
-#     try:
-#         llm = ChatGoogleGenerativeAI(
-#             model=settings.GEMINI_MODEL,
-#             google_api_key=settings.GEMINI_API_KEY
-#         )
-#     except Exception as e:
-#         logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
+    except Exception as e:
+        logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
 
 structured_llm = llm.with_structured_output(OpinionAnalysisOutput)
 
@@ -57,28 +52,17 @@ def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
         if not tweets:
             raise ValueError("No tweets found in the state to analyze.")
 
-        # tweets_json_string = json.dumps([tweet.model_dump() for tweet in tweets])
-        # prompt = opinion_analysis_prompt.format(tweets=tweets_json_string)
+        tweets_json_string = json.dumps([tweet.model_dump() for tweet in tweets])
+        prompt = opinion_analysis_prompt.format(tweets=tweets_json_string)
 
-        # analysis_result = structured_llm.invoke(prompt)
+        analysis_result = structured_llm.invoke(prompt)
 
-        # logger.info(ctext(f"Opinion analysis completed\nOverall sentiment: {analysis_result.overall_sentiment};\nRefined topic: {analysis_result.topic_from_opinion_analysis}\n", color='white'))
-
-        # return {
-        #     "opinion_summary": analysis_result.opinion_summary,
-        #     "overall_sentiment": analysis_result.overall_sentiment,
-        #     "topic_from_opinion_analysis": analysis_result.topic_from_opinion_analysis,
-        # }
-
-        logger.info(ctext(f"Opinion analysis completed !!!!!", color='white'))
+        logger.info(ctext(f"Opinion analysis completed\nOverall sentiment: {analysis_result.overall_sentiment};\nRefined topic: {analysis_result.topic_from_opinion_analysis}\n", color='white'))
 
         return {
-            "opinion_summary": "The tweets express significant concern and suspicion regarding Israel's potential actions to draw the United States into a war with Iran. There's a prevailing belief that this is a deliberate strategy, with some users even implicating figures like Donald Trump or Benjamin Netanyahu in a plot to force US military involvement. The conversation highlights anxieties about the US being manipulated into a conflict that is not in its best interest.",
-            "overall_sentiment": "negative",
-            "topic_from_opinion_analysis": "US potential involvement in an Israel-Iran conflict",
-            "has_user_provided_topic":False,
-            "is_autonomous_mode":False,
-            # "output_destination": "GET_OUTPUTS",
+            "opinion_summary": analysis_result.opinion_summary,
+            "overall_sentiment": analysis_result.overall_sentiment,
+            "topic_from_opinion_analysis": analysis_result.topic_from_opinion_analysis,
         }
 
     except Exception as e:

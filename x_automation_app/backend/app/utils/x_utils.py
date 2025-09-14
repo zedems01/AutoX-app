@@ -9,7 +9,6 @@ from typing import List, Optional
 from langchain_core.tools import tool
 import re
 import unicodedata
-import warnings
 
 from ..utils.logging_config import setup_logging, ctext
 logger = setup_logging()
@@ -50,7 +49,7 @@ def login_v2(
         data = response.json()
         if "login_cookies" in data and data["login_cookies"] != "":
             return {
-                "session_cookie": data["login_cookies"], # user session cookie
+                "session_cookie": data["login_cookies"],
                 "user_details": {"user_name": user_name, "email": email}
             }
         else:
@@ -184,51 +183,6 @@ def verify_session(login_cookies: str, proxy: str, api_key: str = settings.X_API
     Raises InvalidSessionError if the session is not valid.
     """
 
-    # Send a DM
-    # url = "https://api.twitterapi.io/twitter/send_dm_to_user"
-    # payload = {
-    #     "login_cookies": login_cookies,
-    #     "user_id": settings.USER_NAME,
-    #     "text": "test",
-    #     "proxy": proxy,
-    # }
-    # headers = {
-    #     "X-API-Key": api_key,
-    #     "Content-Type": "application/json"
-    # }
-    # try:
-    #     response = requests.post(url, json=payload, headers=headers)
-    #     response.raise_for_status()
-    #     data = response.json()
-    #     if data.get("status") == "success" and data.get("message_id"):
-    #         return {"isValid": True}
-    #     else:
-    #         raise Exception(f"Failed to send DM: {data.get('msg', 'Unknown error')}")
-    # except requests.exceptions.RequestException as e:
-    #     raise Exception(f"Network error during session validation: {e}")
-
-
-    # # Get a tweet to like
-    # try:
-    #     search_url = "https://api.twitterapi.io/twitter/tweet/advanced_search"
-    #     search_params = {"query": "Real Madrid min_faves:500", "query_type": "Latest"}
-    #     search_headers = {"X-API-Key": api_key}
-        
-    #     response = requests.get(search_url, params=search_params, headers=search_headers)
-    #     response.raise_for_status()
-    #     search_data = response.json()
-        
-    #     if not search_data.get("tweets"):
-    #         raise Exception("Could not fetch a tweet to test the like action.")
-            
-    #     tweet_id = search_data["tweets"][0].get("id")
-    #     if not tweet_id:
-    #         raise Exception("Could not find an ID for the fetched tweet.")
-
-    # except requests.exceptions.RequestException as e:
-    #     raise Exception(f"Failed to fetch a tweet for session validation: {e}")
-
-    # Try to like the tweet
     try:
         like_url = "https://api.twitterapi.io/twitter/like_tweet_v2"
         like_payload = {
@@ -244,7 +198,6 @@ def verify_session(login_cookies: str, proxy: str, api_key: str = settings.X_API
         response = requests.post(like_url, json=like_payload, headers=like_headers)
         like_data = response.json()
 
-        # A common failure message for invalid sessions is related to authentication.
         if response.status_code >= 400:
             raise InvalidSessionError("Session is invalid or expired.")
         elif like_data.get("status") == "success":
@@ -255,32 +208,6 @@ def verify_session(login_cookies: str, proxy: str, api_key: str = settings.X_API
     except requests.exceptions.RequestException as e:
         raise InvalidSessionError(f"Network error during session validation: {e}")
 
-
-# Helper functions
-def upload_image_v1(
-        session: str, image_url: str, proxy: str, api_key: str = settings.X_API_KEY
-    ) -> str:
-    """
-    Uploads media from a URL to Twitter and returns the media_id.
-    """
-
-    if not session:
-        raise Exception("Cannot upload image: User is not logged in. Call login methods first.")
-
-    url = "https://api.twitterapi.io/twitter/upload_image"
-    payload = {"auth_session": session, "image_url": image_url, "proxy": proxy}
-    headers = {"X-API-Key": api_key, "Content-Type": "application/json"}
-
-    try:
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()
-        data = response.json()
-        if data.get("status") == "success" and "media_id" in data:
-            return data["media_id"]
-        else:
-            raise Exception(f"Failed to upload media: {data.get('msg', 'Unknown error')}")
-    except requests.exceptions.RequestException as e:
-        raise Exception(f"Network error during media upload: {e}")
 
 
 def upload_image_v2(
@@ -343,114 +270,10 @@ def get_char_count(text: str) -> int:
     # Emojis count as 2, normal chars as 1, and each URL as 23
     return char_count + (emoji_count * 2) + (len(urls) * 23)
 
-def chunk_text(text: str, max_length: int = 270) -> list[str]:
-    """
-    DEPRECATED: This function is replaced by the ThreadComposerAgent.
-    Chunks a long text into a list of smaller strings, each within the max_length,
-    respecting word boundaries and Twitter's character counting rules.
-    """
-    warnings.warn("chunk_text is deprecated and will be removed in a future version. Use ThreadComposerAgent instead.", DeprecationWarning)
-    if get_char_count(text) <= max_length:
-        return [text]
-
-    chunks = []
-    words = text.split(' ')
-    current_chunk = ""
-
-    for word in words:
-        # Check if adding the next word exceeds the max length
-        if get_char_count(current_chunk + " " + word) > max_length:
-            chunks.append(current_chunk.strip())
-            current_chunk = word
-        else:
-            if current_chunk:
-                current_chunk += " " + word
-            else:
-                current_chunk = word
-    
-    # Add the last chunk
-    if current_chunk:
-        chunks.append(current_chunk.strip())
-
-    # Add numbering (e.g., 1/n)
-    num_chunks = len(chunks)
-    if num_chunks > 1:
-        for i, chunk in enumerate(chunks):
-            prefix = f"({i+1}/{num_chunks}) "
-            # Check if the prefix can be added without exceeding the limit
-            if get_char_count(prefix + chunk) <= max_length:
-                chunks[i] = prefix + chunk
-            else:
-                # This part needs a more robust implementation if chunks are already near the limit.
-                # For now, we prepend and might slightly exceed, assuming initial chunking left some space.
-                # A better way would be to account for the prefix length during initial chunking.
-                chunks[i] = prefix + chunk 
-
-    return chunks 
-
-def post_tweet_v1(
-        session: str,
-        tweet_text: str,
-        proxy: str,
-        image_url: Optional[str]=None,
-        in_reply_to_tweet_id: Optional[str]=None,
-        api_key: str = settings.X_API_KEY
-    ):
-    """
-    Posts a tweet with optional media and returns the tweet ID.
-    Requires a valid session from a successful login.
-    """
-    if not session:
-        raise Exception("Cannot post tweet: User is not logged in. Call login methods first.")
-
-    media_id = None
-    if image_url:
-        media_id = upload_image_v1(session, image_url, proxy, api_key)
-
-    url = "https://api.twitterapi.io/twitter/create_tweet"
-
-    payload = {
-        "auth_session": session,
-        "tweet_text": tweet_text,
-        "proxy": proxy
-    }
-
-    if media_id:
-        payload["media_id"] = media_id
-    if in_reply_to_tweet_id:
-        payload["in_reply_to_tweet_id"] = in_reply_to_tweet_id
-
-    headers = {
-        "X-API-Key": api_key,
-        "Content-Type": "application/json"
-    }
-
-    try:
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()
-        data = response.json()
-
-        if data.get("status") == "success":
-            path_to_id = ["data", "create_tweet", "tweet_result", "result", "rest_id"]
-            tweet_id = deep_get(data, path_to_id)
-            
-            if tweet_id:
-                return tweet_id
-            else:
-                raise Exception("Tweet ID not found in a successful API response.")
-        else:
-            raise Exception(f"Failed to post tweet: {data.get('msg', 'Unknown error')}")
-
-    except requests.exceptions.JSONDecodeError:
-        raise Exception("Failed to decode API response as JSON.")
-    except requests.exceptions.RequestException as e:
-        raise Exception(f"Network error during tweet posting: {e}") from e
-
 def post_tweet_v2(
         login_cookies: str,
         tweet_text: str,
         proxy: str,
-        # image_urls: Optional[List[str]]=None,
         image_paths: Optional[List[str]]=None,
         reply_to_tweet_id: Optional[str]=None,
         api_key: str = settings.X_API_KEY
@@ -490,8 +313,6 @@ def post_tweet_v2(
         data = response.json()
 
         if data.get("status") == "success":
-            # path_to_id = ["data", "create_tweet", "tweet_result", "result", "rest_id"]
-            # tweet_id = deep_get(data, path_to_id)
             tweet_id = data.get("tweet_id")
             
             if tweet_id:
@@ -505,56 +326,5 @@ def post_tweet_v2(
         raise Exception("Failed to decode API response as JSON.")
     except requests.exceptions.RequestException as e:
         raise Exception(f"Network error during tweet posting: {e}") from e
-
-def post_tweet_thread(
-        login_cookies: str,
-        tweet_text: str,
-        proxy: str,
-        # image_urls: Optional[List[str]]=None,
-        image_paths: Optional[List[str]]=None,
-        api_key: str = settings.X_API_KEY
-    ) -> List[dict]:
-    """
-    DEPRECATED: This function is replaced by the ThreadComposerAgent.
-    Publishes a thread of tweets.   
-    
-    Args:
-        login_cookies (str): The authenticated user session.
-        tweet_text (str): The main tweet content string.
-        proxy (str): The proxy to use for the requests.
-        image_paths (Optional[List[str]]): The paths of the images to attach to the first tweet.
-        api_key (str): The API key.
-
-    Returns:
-        List[dict]: A list of dictionaries containing the response from the API for each posted tweet.
-    """
-    warnings.warn("post_tweet_thread is deprecated and will be removed in a future version. Use ThreadComposerAgent instead.", DeprecationWarning)
-    if not login_cookies:
-        raise Exception("Cannot post tweet thread: User is not logged in.")
-
-    chunks = chunk_text(tweet_text)
-    posted_tweets = []
-    reply_to_id = None
-
-    for i, chunk in enumerate(chunks):
-        # For now, not handling multiple images accross a thread.
-        # If there are images, they will all be added to the first tweet.
-        tweet_id = post_tweet_v2(
-            login_cookies=login_cookies,
-            tweet_text=chunk,
-            proxy=proxy,
-            image_paths=image_paths if i == 0 else None,
-            reply_to_tweet_id=reply_to_id,
-            api_key=api_key
-        )
-        
-        if tweet_id:
-            posted_tweets.append({"status": "success", "tweet_id": tweet_id})
-            reply_to_id = tweet_id
-        else:
-            posted_tweets.append({"status": "error", "message": f"Failed to post chunk {i+1}"})
-            break
-            
-    return posted_tweets
 
 
