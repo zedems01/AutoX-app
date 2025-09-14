@@ -46,6 +46,9 @@ class LoginPayload(BaseModel):
     proxy: str
     totp_secret: str
 
+class DemoLoginPayload(BaseModel):
+    token: str
+
 class StartWorkflowPayload(BaseModel):
     is_autonomous_mode: bool
     output_destination: Optional[str] = None
@@ -152,11 +155,28 @@ async def login(payload: LoginPayload):
 
 
 @app.post("/auth/demo-login", tags=["Authentication"])
-async def demo_login():
+async def demo_login(payload: DemoLoginPayload):
     """
-    Handles the demo user login process using environment variables.
+    Handles the demo user login process using environment variables,
+    secured by a secret token.
     """
     logger.info("STARTING DEMO LOGIN...")
+
+    # --- Security Check ---
+    if not settings.DEMO_TOKEN:
+        logger.error("Demo token is not configured on the server.")
+        raise HTTPException(
+            status_code=500,
+            detail="Demo login is not configured correctly on the server."
+        )
+
+    if payload.token != settings.DEMO_TOKEN:
+        logger.warning("Invalid demo token received.")
+        raise HTTPException(
+            status_code=403,
+            detail="Invalid token."
+        )
+    # --- End Security Check ---
 
     # Check if all required test user credentials are set
     required_creds = [

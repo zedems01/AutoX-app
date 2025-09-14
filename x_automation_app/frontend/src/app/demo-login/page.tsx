@@ -1,9 +1,10 @@
 "use client"
 
 import { useMutation } from "@tanstack/react-query"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
-import { Loader2, ShieldCheck } from "lucide-react"
+import { Loader2, ShieldCheck, ShieldX } from "lucide-react"
+import { useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -18,10 +19,19 @@ import { useAuth } from "@/contexts/AuthContext"
 
 export default function DemoLoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { login: authLogin } = useAuth()
+  const [token, setToken] = useState<string | null>(null)
+
+  useEffect(() => {
+    const tokenFromUrl = searchParams.get('token')
+    if (tokenFromUrl) {
+      setToken(tokenFromUrl)
+    }
+  }, [searchParams])
 
   const mutation = useMutation({
-    mutationFn: demoLogin,
+    mutationFn: (token: string) => demoLogin(token),
     onSuccess: (data) => {
       toast.success("Login successful!", { duration: 5000 })
       authLogin(data)
@@ -35,7 +45,28 @@ export default function DemoLoginPage() {
   })
 
   function handleDemoLogin() {
-    mutation.mutate()
+    if (token) {
+      mutation.mutate(token)
+    }
+  }
+
+  if (!token) {
+    return (
+      <div className="flex justify-center pt-20">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto bg-destructive/10 w-fit p-3 rounded-lg mb-4">
+              <ShieldX className="h-10 w-10 text-destructive" />
+            </div>
+            <CardTitle>Access Denied</CardTitle>
+            <CardDescription>
+              This demo link is invalid or incomplete. Please use the link
+              provided by the administrator.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    )
   }
 
   return (
@@ -55,7 +86,7 @@ export default function DemoLoginPage() {
           <Button
             onClick={handleDemoLogin}
             className="w-full cursor-pointer"
-            disabled={mutation.isPending}
+            disabled={mutation.isPending || !token}
           >
             {mutation.isPending && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

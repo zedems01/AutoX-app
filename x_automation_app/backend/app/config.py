@@ -29,6 +29,8 @@ class Settings:
     TEST_USER_TOTP_SECRET=os.getenv("TEST_USER_TOTP_SECRET")
     TEST_USER_PROXY=os.getenv("TEST_USER_PROXY")
 
+    DEMO_TOKEN=os.getenv("DEMO_TOKEN")
+
     # AWS_ACCESS_KEY_ID=os.getenv("AWS_ACCESS_KEY_ID")
     # AWS_SECRET_ACCESS_KEY=os.getenv("AWS_SECRET_ACCESS_KEY")
     # AWS_DEFAULT_REGION=os.getenv("AWS_DEFAULT_REGION")
