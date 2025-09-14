@@ -51,6 +51,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   });
 
   const logout = useCallback(() => {
+    console.log('[Auth] Logging out and clearing session.');
     localStorage.removeItem(AUTH_STORAGE_KEY);
     setAuthState({
       session: null,
@@ -62,27 +63,33 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     // This effect handles the initial session verification on app load
+    console.log('[Auth] AuthProvider mounted. Verifying session...');
     const verifyUserSession = async () => {
       const storedSessionJSON = localStorage.getItem(AUTH_STORAGE_KEY);
       if (storedSessionJSON) {
+        console.log('[Auth] Found session in localStorage. Validating...');
         try {
           const storedSession: UserSession = JSON.parse(storedSessionJSON);
           const { isValid } = await validateSession({ session: storedSession.session, proxy: storedSession.proxy });
           
           if (isValid) {
+            console.log('[Auth] Session is valid. User authenticated.');
             setAuthState({
               ...storedSession,
               authStatus: 'authenticated',
             });
           } else {
+            console.log('[Auth] Session is invalid. Logging out.');
             toast.error("Your session is invalid. Please log in again.", { duration: 15000 });
             logout();
           }
         } catch (error) {
+          console.error('[Auth] Error verifying session:', error);
           toast.error("Your session has expired. Please log in again.", { duration: 15000 });
           logout();
         }
       } else {
+        console.log('[Auth] No session found in localStorage. User unauthenticated.');
         setAuthState(s => ({ ...s, authStatus: 'unauthenticated' }));
       }
     };
@@ -93,6 +100,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     // This effect listens for the global auth-error event to handle forced logouts
     const handleAuthError = () => {
+      console.log('[Auth] Global auth-error event received. Forcing logout.');
       toast.error("Authentication error. You have been logged out.", { duration: 15000 });
       logout();
     };
@@ -106,6 +114,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
 
   const login = (authData: UserSession) => {
+    console.log('[Auth] Logging in. Saving session to localStorage:', authData);
     localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authData));
     setAuthState({
       ...authData,
