@@ -110,7 +110,8 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
                         reply_to_id = tweet_id
                         if i == 0:
                             publication_id = tweet_id  # Set publication_id to the first tweet's ID
-                        logger.info(ctext(f"Successfully posted chunk {i+1}\nTweet ID: {tweet_id}\n", color='white'))
+                        # logger.info(ctext(f"Successfully posted chunk {i+1}\nTweet ID: {tweet_id}\n", color='white'))
+                        logger.info(ctext(f"Successfully posted chunk {i+1}\nhttps://x.com/{settings.USER_NAME}/status/{tweet_id}\n", color='white'))
                     else:
                         error_msg = f"Failed to post chunk {i+1}"
                         posted_tweets.append({"status": "error", "message": error_msg})
@@ -126,7 +127,8 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
                     proxy=proxy
                 )
             
-            logger.info(ctext(f"Successfully posted to X. Publication ID: {publication_id}\n\n", color='white'))
+            # logger.info(ctext(f"Successfully posted to X. Publication ID: {publication_id}\n\n", color='white'))
+            logger.info(ctext(f"Successfully posted to X: https://x.com/{settings.USER_NAME}/status/{publication_id}\n\n", color='white'))
 
         elif output_destination == "GET_OUTPUTS":
             logger.info(ctext("Destination: GET_OUTPUTS", color='white'))
