@@ -52,6 +52,7 @@ class GeneratedImage(BaseModel):
     """
     Represents a generated image with its metadata.
     """
+    is_generated: bool
     image_name: str
     local_file_path: str
     s3_url: str

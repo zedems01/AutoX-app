@@ -112,14 +112,14 @@ You are an expert trend analyst. Your task is to identify the most promising tre
 """
 
 tweet_search_prompt="""
-You are an AI assistant that generates expert-level search queries for X. Your goal is to find the most relevant and recent tweets on a given topic.
+You are an AI assistant that generates search queries for X. Your goal is to find the most relevant and recent tweets on a given topic.
 
 ================  ANALYZE THE TOPIC  ================
 
 <topic_analysis>
 
 Understand the core concepts and intent of the topic:
-{topic}
+**{topic}**
 
 </topic_analysis>
 
@@ -127,12 +127,13 @@ Understand the core concepts and intent of the topic:
 
 <query_construction>
 
-Generate a **single, expert-level search query** string for the `tweet_advanced_search` tool, following these guidelines:
+Generate a **single, targeted search query** for the `tweet_advanced_search` tool. Keep the query focused and not overly complex.
 
+Follow these guidelines:
 - Use relevant **keywords** and **hashtags** (`#`).
 - Apply Boolean operators like `OR`, and **exact match** quotes (`" "`).
-- Integrate **advanced filters**:
-  - Language: `lang:{tweets_language}`
+- Integrate **advanced filters** where appropriate:
+  - Language: `lang:en` (english), `lang:fr` (french), `lang:es` (spanish), ...
   - Engagement filters:  
     - Likes: `min_faves:N`  
     - Retweets: `min_retweets:N`  
@@ -160,9 +161,10 @@ Call the `tweet_advanced_search` tool **once** using the generated query.
 
 <output_instruction>
 
-Return **only** the full and direct result from the `tweet_advanced_search` tool.
+- Return **only** the full and direct result from the `tweet_advanced_search` tool.
+- **Your final output must be a single JSON object that conforms to the `TweetSearchResponse` schema.**
 
-❗Do **not** add any extra commentary, formatting. Do not truncate the tweets.
+❗Do **not** add any extra commentary, formatting, or summaries. Do not truncate the tweets.
 
 </output_instruction>
 """
@@ -360,12 +362,14 @@ Your primary goal is to call the `generate_and_upload_image` tool for prompt (on
     -   For each prompt, you MUST call the `generate_and_upload_image` tool.
     -   You must provide a unique `image_name` for each tool call. A good name would be a short version of the prompt plus a timestamp (e.g., `a_dog_on_a_swing_1712345678.png`).
     - Take into account the current timestamp: {current_timestamp}
+3.  **Handle Generation Failures**:
+    -   If an image for a prompt fails to generate (i.e., `is_generated` is `False` in the tool output), it is likely due to prohibited content.
+    -   You MUST modify the original prompt to remove any potentially sensitive or policy-violating content and try generating the image again with the revised prompt.
 
 **Image Prompts to Generate:**
 ```
 {final_image_prompts}
 ```
-
 **Revision Feedback (if any):**
 ```
 {feedback}
@@ -408,4 +412,5 @@ You are an Expert X Content Strategist. Your task is to deconstruct a long piece
 
 Your final output MUST be a single JSON object that strictly follows the `ThreadPlan` schema. Do not include any other text, explanations, or formatting outside of the JSON object.
 """
+
 

@@ -14,23 +14,28 @@ from ..utils.logging_config import setup_logging, ctext
 logger = setup_logging()
 
 
-try:
-    llm = ChatOpenAI(
-        api_key=settings.OPENROUTER_API_KEY,
-        base_url=settings.OPENROUTER_BASE_URL,
-        model=settings.OPENROUTER_MODEL,
-        temperature=0.5
-    )
-except Exception as e:
-    logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
-    try:
-        llm = ChatGoogleGenerativeAI(
+llm = ChatGoogleGenerativeAI(
             model=settings.GEMINI_MODEL,
-            google_api_key=settings.GEMINI_API_KEY,
-            temperature=0.5
+            google_api_key=settings.GEMINI_API_KEY
         )
-    except Exception as e:
-        logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
+
+# try:
+#     llm = ChatOpenAI(
+#         api_key=settings.OPENROUTER_API_KEY,
+#         base_url=settings.OPENROUTER_BASE_URL,
+#         model=settings.OPENROUTER_MODEL,
+#         temperature=0.5
+#     )
+# except Exception as e:
+#     logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
+#     try:
+#         llm = ChatGoogleGenerativeAI(
+#             model=settings.GEMINI_MODEL,
+#             google_api_key=settings.GEMINI_API_KEY,
+#             temperature=0.5
+#         )
+#     except Exception as e:
+#         logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
 
 thread_composer_agent = create_react_agent(
     model=llm,
@@ -83,6 +88,8 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
                 response = thread_composer_agent.invoke({"messages": [("user", prompt)]})
                 parsed_response = response["structured_response"]
 
+                logger.info(ctext(f"Thread plan completed\n{parsed_response}\n", color='white'))
+
                 # --- Execute the thread plan ---
                 posted_tweets = []
                 reply_to_id = None
@@ -103,6 +110,7 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
                         reply_to_id = tweet_id
                         if i == 0:
                             publication_id = tweet_id  # Set publication_id to the first tweet's ID
+                        logger.info(ctext(f"Successfully posted chunk {i+1}\nTweet ID: {tweet_id}\n", color='white'))
                     else:
                         error_msg = f"Failed to post chunk {i+1}"
                         posted_tweets.append({"status": "error", "message": error_msg})

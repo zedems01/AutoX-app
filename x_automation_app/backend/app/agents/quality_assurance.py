@@ -11,23 +11,28 @@ from ..utils.logging_config import setup_logging, ctext
 logger = setup_logging()
 
 
-try:
-    llm = ChatOpenAI(
-        api_key=settings.OPENROUTER_API_KEY,
-        base_url=settings.OPENROUTER_BASE_URL,
-        model=settings.OPENROUTER_MODEL,
-        temperature=0.5
-    )
-except Exception as e:
-    logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
-    try:
-        llm = ChatGoogleGenerativeAI(
+llm = ChatGoogleGenerativeAI(
             model=settings.GEMINI_MODEL,
-            google_api_key=settings.GEMINI_API_KEY,
-            temperature=0.5
+            google_api_key=settings.GEMINI_API_KEY
         )
-    except Exception as e:
-        logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
+
+# try:
+#     llm = ChatOpenAI(
+#         api_key=settings.OPENROUTER_API_KEY,
+#         base_url=settings.OPENROUTER_BASE_URL,
+#         model=settings.OPENROUTER_MODEL,
+#         temperature=0.5
+#     )
+# except Exception as e:
+#     logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
+#     try:
+#         llm = ChatGoogleGenerativeAI(
+#             model=settings.GEMINI_MODEL,
+#             google_api_key=settings.GEMINI_API_KEY,
+#             temperature=0.5
+#         )
+#     except Exception as e:
+#         logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
 
 structured_llm = llm.with_structured_output(QAOutput)
 
@@ -83,19 +88,30 @@ def quality_assurance_node(state: OverallState) -> Dict[str, Any]:
             content_language=content_language,
         )
 
-        qa_output = structured_llm.invoke(prompt)
-        final_content = qa_output.final_content
-        final_image_prompts = qa_output.final_image_prompts if isinstance(qa_output.final_image_prompts, list) else [qa_output.final_image_prompts]
+        # qa_output = structured_llm.invoke(prompt)
+        # final_content = qa_output.final_content
+        # final_image_prompts = qa_output.final_image_prompts if isinstance(qa_output.final_image_prompts, list) else [qa_output.final_image_prompts]
+
+        # logger.info(ctext("Content and prompts are finalized.\n", color='white'))
+        # if content_length in ["Short", "Medium"] and len(final_image_prompts) > 0:
+        #     logger.info(ctext(f"Content:\n{final_content}\n\nImage prompts:\n{'\n- '.join(final_image_prompts)}\n", color='white', italic=True))
+        # else:
+        #     logger.info(ctext(f"Content:\n{final_content}\n", color='white', italic=True))
+
+        # return {
+        #     "final_content": final_content,
+        #     "final_image_prompts": final_image_prompts,
+        # }
 
         logger.info(ctext("Content and prompts are finalized.\n", color='white'))
-        if content_length in ["Short", "Medium"] and len(final_image_prompts) > 0:
-            logger.info(ctext(f"Content:\n{final_content}\n\nImage prompts:\n{'\n- '.join(final_image_prompts)}\n", color='white', italic=True))
+        if content_length in ["Short", "Medium"] and len(image_prompts) > 0:
+            logger.info(ctext(f"Content:\n{content_draft}\n\nImage prompts:\n{'\n- '.join(image_prompts)}\n", color='white', italic=True))
         else:
-            logger.info(ctext(f"Content:\n{final_content}\n", color='white', italic=True))
-
+            logger.info(ctext(f"Content:\n{content_draft}\n", color='white', italic=True))
+        
         return {
-            "final_content": final_content,
-            "final_image_prompts": final_image_prompts,
+            "final_content": content_draft,
+            "final_image_prompts": image_prompts,
         }
 
     except Exception as e:

@@ -124,7 +124,7 @@ def tweet_advanced_search(
     all_tweets: List[TweetSearched] = []
     current_cursor = ""
     max_tweets_to_retrieve = int(settings.MAX_TWEETS_TO_RETRIEVE)
-    # print(f"MAX_TWEETS_TO_RETRIEVE: {max_tweets_to_retrieve}; Type: {type(max_tweets_to_retrieve)}")
+    print(f"MAX_TWEETS_TO_RETRIEVE: {max_tweets_to_retrieve}; Type: {type(max_tweets_to_retrieve)}")
     while len(all_tweets) < max_tweets_to_retrieve:
         params = {"query": query, "query_type": query_type, "cursor": current_cursor}
         headers = {"X-API-Key": api_key}
@@ -185,27 +185,27 @@ def verify_session(login_cookies: str, proxy: str, api_key: str = settings.X_API
     """
 
     # Send a DM
-    url = "https://api.twitterapi.io/twitter/send_dm_to_user"
-    payload = {
-        "login_cookies": login_cookies,
-        "user_id": settings.USER_NAME,
-        "text": "test",
-        "proxy": proxy,
-    }
-    headers = {
-        "X-API-Key": api_key,
-        "Content-Type": "application/json"
-    }
-    try:
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()
-        data = response.json()
-        if data.get("status") == "success" and data.get("message_id"):
-            return {"isValid": True}
-        else:
-            raise Exception(f"Failed to send DM: {data.get('msg', 'Unknown error')}")
-    except requests.exceptions.RequestException as e:
-        raise Exception(f"Network error during session validation: {e}")
+    # url = "https://api.twitterapi.io/twitter/send_dm_to_user"
+    # payload = {
+    #     "login_cookies": login_cookies,
+    #     "user_id": settings.USER_NAME,
+    #     "text": "test",
+    #     "proxy": proxy,
+    # }
+    # headers = {
+    #     "X-API-Key": api_key,
+    #     "Content-Type": "application/json"
+    # }
+    # try:
+    #     response = requests.post(url, json=payload, headers=headers)
+    #     response.raise_for_status()
+    #     data = response.json()
+    #     if data.get("status") == "success" and data.get("message_id"):
+    #         return {"isValid": True}
+    #     else:
+    #         raise Exception(f"Failed to send DM: {data.get('msg', 'Unknown error')}")
+    # except requests.exceptions.RequestException as e:
+    #     raise Exception(f"Network error during session validation: {e}")
 
 
     # # Get a tweet to like
@@ -228,30 +228,32 @@ def verify_session(login_cookies: str, proxy: str, api_key: str = settings.X_API
     # except requests.exceptions.RequestException as e:
     #     raise Exception(f"Failed to fetch a tweet for session validation: {e}")
 
-    # # Try to like the tweet
-    # try:
-    #     like_url = "https://api.twitterapi.io/twitter/like_tweet"
-    #     like_payload = {
-    #         "auth_session": session,
-    #         "tweet_id": tweet_id,
-    #         "proxy": proxy
-    #     }
-    #     like_headers = {
-    #         "X-API-Key": api_key,
-    #         "Content-Type": "application/json"
-    #     }
+    # Try to like the tweet
+    try:
+        like_url = "https://api.twitterapi.io/twitter/like_tweet_v2"
+        like_payload = {
+            "login_cookies": login_cookies,
+            "tweet_id": "1967212782207844463",
+            "proxy": proxy
+        }
+        like_headers = {
+            "X-API-Key": api_key,
+            "Content-Type": "application/json"
+        }
         
-    #     response = requests.post(like_url, json=like_payload, headers=like_headers)
-    #     like_data = response.json()
+        response = requests.post(like_url, json=like_payload, headers=like_headers)
+        like_data = response.json()
 
-    #     # A common failure message for invalid sessions is related to authentication.
-    #     if response.status_code >= 400 or "auth" in like_data.get("msg", "").lower():
-    #         raise InvalidSessionError("Session is invalid or expired.")
+        # A common failure message for invalid sessions is related to authentication.
+        if response.status_code >= 400:
+            raise InvalidSessionError("Session is invalid or expired.")
+        elif like_data.get("status") == "success":
+            return {"isValid": True}
+        else:
+            raise InvalidSessionError("Session is invalid or expired, unable to verify session.")
 
-    #     return {"isValid": True}
-
-    # except requests.exceptions.RequestException as e:
-    #     raise InvalidSessionError(f"Network error during session validation: {e}")
+    except requests.exceptions.RequestException as e:
+        raise InvalidSessionError(f"Network error during session validation: {e}")
 
 
 # Helper functions
@@ -444,7 +446,6 @@ def post_tweet_v1(
     except requests.exceptions.RequestException as e:
         raise Exception(f"Network error during tweet posting: {e}") from e
 
-@tool
 def post_tweet_v2(
         login_cookies: str,
         tweet_text: str,

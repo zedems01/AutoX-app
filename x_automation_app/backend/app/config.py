@@ -6,7 +6,8 @@ load_dotenv()
 class Settings:
 
     GEMINI_API_KEY=os.getenv("GEMINI_API_KEY")
-    GEMINI_RESEARCH_MODEL=os.getenv("GEMINI_RESEARCH_MODEL", "gemini-2.5-flash")
+    GEMINI_RESEARCH_MODEL=os.getenv("GEMINI_RESEARCH_MODEL", "gemini-2.5-flash-lite")
+    # GEMINI_RESEARCH_MODEL=os.getenv("GEMINI_RESEARCH_MODEL", "gemini-2.5-flash")
     GEMINI_IMAGE_MODEL=os.getenv("GEMINI_IMAGE_MODEL", "gemini-2.5-flash-image-preview")
     GEMINI_MODEL=os.getenv("GEMINI_MODEL", "gemini-2.5-pro")
 
@@ -34,7 +35,7 @@ class Settings:
 
     TRENDS_COUNT=os.getenv("TRENDS_COUNT", 30)
     TRENDS_WOEID=os.getenv("TRENDS_WOEID", 23424819)
-    MAX_TWEETS_TO_RETRIEVE=os.getenv("MAX_TWEETS_TO_RETRIEVE", 50)
+    MAX_TWEETS_TO_RETRIEVE=os.getenv("MAX_TWEETS_TO_RETRIEVE", 30)
     TWEETS_LANGUAGE=os.getenv("TWEETS_LANGUAGE", "english")
     CONTENT_LANGUAGE=os.getenv("CONTENT_LANGUAGE", "english")
 

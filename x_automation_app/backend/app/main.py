@@ -156,7 +156,7 @@ async def validate_session(payload: ValidateSessionPayload):
     Validates if a user's session is still active.
     """
     try:
-        result = x_utils.verify_session(session=payload.session, proxy=payload.proxy)
+        result = x_utils.verify_session(login_cookies=payload.session, proxy=payload.proxy)
         return result
     except InvalidSessionError as e:
         logger.warning(f"Session validation failed: {e}")
