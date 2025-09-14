@@ -4,17 +4,8 @@ import React, { createContext, useContext, useState, ReactNode, useEffect, useCa
 import { usePathname } from 'next/navigation';
 import { validateSession } from '@/lib/api';
 import { toast } from 'sonner';
+import { UserDetails, UserSession } from '@/types';
 
-// --- Type Definitions ---
-
-// A more specific type for userDetails can be created in types/index.ts later
-type UserDetails = any;
-
-interface UserSession {
-  session: string;
-  userDetails: UserDetails;
-  proxy: string;
-}
 
 type AuthStatus = 'verifying' | 'authenticated' | 'unauthenticated';
 
@@ -30,14 +21,11 @@ interface AuthContextType extends AuthState {
   logout: () => void;
 }
 
-// --- Constants ---
 const AUTH_STORAGE_KEY = 'x-auth-session';
 
-// --- Context ---
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// --- Provider Component ---
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -49,7 +37,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     session: null,
     userDetails: null,
     proxy: null,
-    authStatus: 'verifying', // Default status on initial load
+    authStatus: 'verifying',
   });
 
   const logout = useCallback(() => {
@@ -64,7 +52,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   useEffect(() => {
-    // This effect handles the initial session verification on app load
     console.log('[Auth] AuthProvider mounted. Verifying session...');
 
     // Do not run session check on the demo login page
@@ -137,7 +124,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// --- Custom Hook ---
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

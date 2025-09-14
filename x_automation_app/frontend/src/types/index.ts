@@ -98,7 +98,7 @@ export interface ValidationResult {
     feedback?: string;
     extra_data?: {
       final_content?: string;
-      [key: string]: any; // Allow other properties
+      [key: string]: any;
     };
   };
 }

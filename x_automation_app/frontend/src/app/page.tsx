@@ -173,7 +173,6 @@ export default function WorkflowConfigPage() {
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Check a user needs to be logged in for the selected action
     if (values.output_destination === 'PUBLISH_X' && authStatus !== 'authenticated') {
       toast.error("You must be logged in to publish directly to X.", { duration: 15000 })
       const workflowState = encodeURIComponent(JSON.stringify(values));
@@ -182,7 +181,6 @@ export default function WorkflowConfigPage() {
     }
 
     const cleanedValues = JSON.parse(JSON.stringify(values), (key, value) => {
-      // Keep number fields that are 0, but remove empty strings.
       if (value === "") {
         return undefined
       }
@@ -214,7 +212,6 @@ export default function WorkflowConfigPage() {
   const contentType = form.watch("x_content_type")
 
   useEffect(() => {
-    // When switching to "Publish", if the current content type isn't valid for X, reset it.
     if (outputDestination === 'PUBLISH_X') {
       if (!['SINGLE_TWEET', 'TWEET_THREAD'].includes(form.getValues('x_content_type'))) {
         form.setValue('x_content_type', 'SINGLE_TWEET');

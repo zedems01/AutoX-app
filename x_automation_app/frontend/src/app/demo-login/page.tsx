@@ -78,8 +78,7 @@ export default function DemoLoginPage() {
           </div>
           <CardTitle>AutoX Workflow Demo</CardTitle>
           <CardDescription>
-            Click the button below to log in with a demo account and try out the
-            automated workflow.
+            Click the button below to log in with a demo account and try out the workflow.
           </CardDescription>
         </CardHeader>
         <CardContent>

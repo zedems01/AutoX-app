@@ -73,12 +73,11 @@ export function useWorkflow(threadId: string | null) {
       setError("Failed to connect to workflow status.")
     },
     shouldReconnect: (closeEvent) => {
-      // Do not reconnect if the workflow has successfully completed.
       if (workflowState?.current_step === "END") {
         console.log("Workflow has ended. Not reconnecting.")
         return false
       }
-      // Otherwise, allow reconnection as default behavior.
+      // Allow reconnection as default behavior.
       return true
     },
   })
@@ -88,7 +87,6 @@ export function useWorkflow(threadId: string | null) {
     setReconnectKey((prev) => prev + 1)
   }
 
-  // Register the forceReconnect function with the context
   useEffect(() => {
     setForceReconnect(() => forceReconnect)
   }, [setForceReconnect])
@@ -97,7 +95,6 @@ export function useWorkflow(threadId: string | null) {
     if (lastJsonMessage) {
       if (isStreamEvent(lastJsonMessage)) {
         const event = lastJsonMessage
-        // Add every event to the raw event log
         setEvents((prevEvents) => [...prevEvents, event])
 
         setWorkflowState((prevState) => {
@@ -113,7 +110,6 @@ export function useWorkflow(threadId: string | null) {
               const updatedFields = stateUpdater(event.data.output)
               Object.assign(newState, updatedFields)
             }
-            // If the publicator finishes, we can consider the workflow complete
             if (event.name === "publicator") {
               newState.current_step = "END"
             }
@@ -121,7 +117,7 @@ export function useWorkflow(threadId: string | null) {
           return newState
         })
       } else {
-        // This is the initial, full state sent on connection
+        // Initial, full state sent on connection
         setWorkflowState(lastJsonMessage as OverallState)
       }
     }
