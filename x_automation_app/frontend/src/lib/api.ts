@@ -35,6 +35,14 @@ export async function login(payload: LoginPayload): Promise<LoginResponse> {
   return handleResponse<LoginResponse>(response);
 }
 
+export async function demoLogin(): Promise<LoginResponse> {
+  const response = await fetch(`${API_BASE_URL}/auth/demo-login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  });
+  return handleResponse<LoginResponse>(response);
+}
+
 export async function validateSession(payload: ValidateSessionPayload): Promise<{ isValid: boolean }> {
   const response = await fetch(`${API_BASE_URL}/auth/validate-session`, {
     method: "POST",

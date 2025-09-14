@@ -1,6 +1,7 @@
 "use client"
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import { usePathname } from 'next/navigation';
 import { validateSession } from '@/lib/api';
 import { toast } from 'sonner';
 
@@ -43,6 +44,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const pathname = usePathname()
   const [authState, setAuthState] = useState<AuthState>({
     session: null,
     userDetails: null,
@@ -64,6 +66,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     // This effect handles the initial session verification on app load
     console.log('[Auth] AuthProvider mounted. Verifying session...');
+
+    // Do not run session check on the demo login page
+    if (pathname === "/demo-login") {
+      console.log('[Auth] On demo page, skipping session verification.');
+      setAuthState((s) => ({ ...s, authStatus: 'unauthenticated' }));
+      return;
+    }
+
     const verifyUserSession = async () => {
       const storedSessionJSON = localStorage.getItem(AUTH_STORAGE_KEY);
       if (storedSessionJSON) {
@@ -95,7 +105,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
 
     verifyUserSession();
-  }, [logout]);
+  }, [logout, pathname]);
 
   useEffect(() => {
     // This effect listens for the global auth-error event to handle forced logouts

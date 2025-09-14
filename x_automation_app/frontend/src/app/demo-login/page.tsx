@@ -1,0 +1,69 @@
+"use client"
+
+import { useMutation } from "@tanstack/react-query"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+import { Loader2, ShieldCheck } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { demoLogin } from "@/lib/api"
+import { useAuth } from "@/contexts/AuthContext"
+
+export default function DemoLoginPage() {
+  const router = useRouter()
+  const { login: authLogin } = useAuth()
+
+  const mutation = useMutation({
+    mutationFn: demoLogin,
+    onSuccess: (data) => {
+      toast.success("Login successful!", { duration: 5000 })
+      authLogin(data)
+      router.push("/")
+    },
+    onError: (error) => {
+      toast.error(`Demo login failed: ${error.message}`, {
+        duration: 15000,
+      })
+    },
+  })
+
+  function handleDemoLogin() {
+    mutation.mutate()
+  }
+
+  return (
+    <div className="flex justify-center pt-20">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="mx-auto bg-primary/10 w-fit p-3 rounded-lg mb-4">
+            <ShieldCheck className="h-10 w-10 text-primary" />
+          </div>
+          <CardTitle>AutoX Workflow Demo</CardTitle>
+          <CardDescription>
+            Click the button below to log in with a demo account and try out the
+            automated workflow.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            onClick={handleDemoLogin}
+            className="w-full cursor-pointer"
+            disabled={mutation.isPending}
+          >
+            {mutation.isPending && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            Access Demo
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}

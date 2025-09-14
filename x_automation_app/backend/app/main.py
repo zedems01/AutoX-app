@@ -12,6 +12,7 @@ from .agents.state import OverallState
 from .utils.schemas import ValidationResult, Trend, UserConfigSchema, UserDetails, ValidationAction
 from .utils.json_encoder import CustomJSONEncoder
 from langgraph.types import Send
+from .config import settings
 
 # import logging
 from .utils.logging_config import setup_logging, ctext, add_file_handler, remove_file_handler
@@ -148,6 +149,51 @@ async def login(payload: LoginPayload):
     except Exception as e:
         logger.error(f"Failed to complete login: {e}")
         raise HTTPException(status_code=400, detail=f"Failed to complete login: {e}")
+
+
+@app.post("/auth/demo-login", tags=["Authentication"])
+async def demo_login():
+    """
+    Handles the demo user login process using environment variables.
+    """
+    logger.info("STARTING DEMO LOGIN...")
+
+    # Check if all required test user credentials are set
+    required_creds = [
+        settings.TEST_USER_NAME,
+        settings.TEST_USER_EMAIL,
+        settings.TEST_USER_PASSWORD,
+        settings.TEST_USER_PROXY,
+        settings.TEST_USER_TOTP_SECRET
+    ]
+    print(required_creds)
+    if not all(required_creds):
+        logger.error("Demo user credentials are not fully configured on the server.")
+        raise HTTPException(
+            status_code=500,
+            detail="Demo login is not configured correctly on the server."
+        )
+
+    try:
+        session_details = x_utils.login_v2(
+            user_name=settings.TEST_USER_NAME,
+            email=settings.TEST_USER_EMAIL,
+            password=settings.TEST_USER_PASSWORD,
+            proxy=settings.TEST_USER_PROXY,
+            totp_secret=settings.TEST_USER_TOTP_SECRET
+        )
+        username = ctext(session_details['user_details']['user_name'], italic=True)
+        logger.info(ctext(f"Successfully completed demo login. Session initialized for user {username}", color='white'))
+
+        return {
+            "session": session_details["session_cookie"],
+            "userDetails": session_details["user_details"],
+            "proxy": settings.TEST_USER_PROXY,
+        }
+
+    except Exception as e:
+        logger.error(f"Failed to complete demo login: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to complete demo login: {e}")
 
 
 @app.post("/auth/validate-session", tags=["Authentication"])
