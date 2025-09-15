@@ -541,7 +541,7 @@ function WorkflowConfig() {
                               <FormDescription className="text-xs">The main model powering the agent's reasoning.</FormDescription>
                               <FormControl>
                                 <Input
-                                  placeholder="'openai/gpt-5'"
+                                  placeholder="openai/gpt-5-mini"
                                   {...field}
                                   value={field.value ?? ""}
                                 />
@@ -559,7 +559,7 @@ function WorkflowConfig() {
                               <FormDescription className="text-xs">Fallback model if OpenRouter model is not available.</FormDescription>
                               <FormControl>
                                 <Input
-                                  placeholder="'gemini-2.5-pro'"
+                                  placeholder="gemini-2.5-flash"
                                   {...field}
                                   value={field.value ?? ""}
                                 />
