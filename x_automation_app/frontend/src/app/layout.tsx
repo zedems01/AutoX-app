@@ -4,6 +4,7 @@ import { Providers } from "@/components/shared/providers";
 import { PageHeader } from "@/components/shared/page-header";
 import { ModeToggle } from "@/components/shared/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
+import { Analytics } from "@vercel/analytics/next";
 
 
 export const metadata: Metadata = {
@@ -30,6 +31,7 @@ export default function RootLayout({
           </main>
           <Toaster richColors />
         </Providers>
+        <Analytics />
       </body>
     </html>
   );
