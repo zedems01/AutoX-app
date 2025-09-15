@@ -4,9 +4,9 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useMutation } from "@tanstack/react-query"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
-import { useState } from "react"
+import { Suspense, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -30,6 +30,7 @@ import { login } from "@/lib/api"
 import { Loader2 } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 
+
 const formSchema = z.object({
   user_name: z.string().min(1, { message: "Username is required." }),
   email: z.string().email({ message: "Invalid email address." }),
@@ -38,8 +39,9 @@ const formSchema = z.object({
   totp_secret: z.string().min(1, { message: "TOTP secret is required." }),
 })
 
-export default function LoginPage() {
+function Login() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { login: authLogin } = useAuth()
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -58,7 +60,19 @@ export default function LoginPage() {
     onSuccess: (data) => {
       toast.success("Login successful!", { duration: 5000 })
       authLogin(data)
-      router.push("/")
+
+      const redirect = searchParams.get('redirect')
+      const workflowState = searchParams.get('workflowState')
+
+      if (redirect) {
+        let redirectUrl = redirect
+        if (workflowState) {
+          redirectUrl += `?workflowState=${workflowState}`
+        }
+        router.push(redirectUrl)
+      } else {
+        router.push("/")
+      }
     },
     onError: (error) => {
       toast.error(`Login failed: ${error.message}`, { duration: 15000 })
@@ -163,5 +177,13 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Login />
+    </Suspense>
   )
 } 

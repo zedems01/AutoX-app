@@ -111,7 +111,7 @@ export function TopicSelection({ onSubmitted }: TopicSelectionProps) {
           Choose one of the current trending topics to generate content about.
         </DialogDescription>
       </DialogHeader>
-      <div className="py-4">
+      <div className="py-4 max-h-[70vh] overflow-y-auto">
         {trendingTopics.length > 0 ? (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -140,13 +140,13 @@ export function TopicSelection({ onSubmitted }: TopicSelectionProps) {
                             {trendingTopics.map((topic: Trend) => (
                               <TableRow key={topic.name}>
                                 <TableCell>
-                                  <RadioGroupItem value={topic.name} className="cursor-pointer" />
+                                  <RadioGroupItem value={topic.name} className="cursor-pointer"/>
                                 </TableCell>
                                 <TableCell className="font-medium">
                                   {topic.name}
                                 </TableCell>
                                 <TableCell className="text-right">
-                                  {topic.tweet_count.toLocaleString()}
+                                  {topic.tweet_count ? topic.tweet_count.toLocaleString() : 'N/A'}
                                 </TableCell>
                               </TableRow>
                             ))}

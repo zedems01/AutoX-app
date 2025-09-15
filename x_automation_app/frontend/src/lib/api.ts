@@ -26,10 +26,20 @@ async function handleResponse<T>(response: Response): Promise<T> {
 }
 
 export async function login(payload: LoginPayload): Promise<LoginResponse> {
+  // console.log("Payload for X login:", JSON.stringify(payload))
   const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
+  });
+  return handleResponse<LoginResponse>(response);
+}
+
+export async function demoLogin(token: string): Promise<LoginResponse> {
+  const response = await fetch(`${API_BASE_URL}/auth/demo-login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token }),
   });
   return handleResponse<LoginResponse>(response);
 }
@@ -44,7 +54,7 @@ export async function validateSession(payload: ValidateSessionPayload): Promise<
 }
 
 export async function startWorkflow(payload: StartWorkflowPayload): Promise<StartWorkflowResponse> {
-  console.log("Trying to start workflow with payload:", JSON.stringify(payload));
+  // console.log("Trying to start workflow with payload:", JSON.stringify(payload));
   const response = await fetch(`${API_BASE_URL}/workflow/start`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

@@ -52,6 +52,7 @@ class GeneratedImage(BaseModel):
     """
     Represents a generated image with its metadata.
     """
+    is_generated: bool
     image_name: str
     local_file_path: str
     s3_url: str
@@ -120,6 +121,20 @@ class TweetDrafts(BaseModel):
     drafts: List[str]
 
 
+class TweetChunk(BaseModel):
+    """
+    Represents a single tweet within a thread.
+    """
+    text: str = Field(..., description="The content of the tweet chunk.")
+    image_path: Optional[str] = Field(None, description="The local path to an image to be attached to this specific tweet.")
+
+class ThreadPlan(BaseModel):
+    """
+    Represents the entire thread structure as planned by the agent.
+    """
+    thread: List[TweetChunk] = Field(..., description="A list of TweetChunk objects, in the order they should be posted.")
+
+
 class TweetAdvancedSearchParameters(BaseModel):
     """
     Parameters for the tweet_advanced_search tool.
@@ -157,9 +172,8 @@ class UserConfigSchema(BaseModel):
     """
     Schema for user-configurable workflow parameters, overriding default environment settings.
     """
-    gemini_base_model: Optional[str] = Field(None, description="Preferred Gemini base model for general tasks.")
-    gemini_reasoning_model: Optional[str] = Field(None, description="Preferred Gemini reasoning model for complex tasks.")
-    openai_model: Optional[str] = Field(None, description="Preferred OpenAI model if used.")
+    gemini_model: Optional[str] = Field(None, description="Preferred Gemini model if used.")
+    openrouter_model: Optional[str] = Field(None, description="Preferred OpenRouter model.")
     trends_count: Optional[int] = Field(None, description="Number of trends to fetch.")
     trends_woeid: Optional[int] = Field(None, description="Where On Earth ID for trend fetching.")
     max_tweets_to_retrieve: Optional[int] = Field(None, description="Maximum number of tweets to retrieve in search.")

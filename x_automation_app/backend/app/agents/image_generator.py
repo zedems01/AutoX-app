@@ -1,7 +1,7 @@
 from langgraph.prebuilt import create_react_agent
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_anthropic import ChatAnthropic
+
 from ..utils.prompts import image_generator_prompt, get_current_time
 from typing import Dict, Any, List
 from .state import OverallState
@@ -17,18 +17,28 @@ from ..utils.logging_config import setup_logging, ctext
 logger = setup_logging()
 
 
-
 try:
-    llm = ChatOpenAI(model=settings.OPENAI_MODEL)
+    llm = ChatOpenAI(
+        api_key=settings.OPENROUTER_API_KEY,
+        base_url=settings.OPENROUTER_BASE_URL,
+        model=settings.OPENROUTER_MODEL
+    )
 except Exception as e:
-    logger.error(f"Error initializing OpenAI model: {e}")
+    logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
     try:
-        llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
+        llm = ChatGoogleGenerativeAI(
+            model=settings.GEMINI_MODEL,
+            google_api_key=settings.GEMINI_API_KEY
+        )
     except Exception as e:
-        logger.error(f"Error initializing Google Generative AI model: {e}")
-        llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
+        logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
 
-image_generating_agent = create_react_agent(model=llm, tools=[generate_and_upload_image], response_format=ImageGeneratorOutput)
+
+image_generating_agent = create_react_agent(
+    model=llm,
+    tools=[generate_and_upload_image],
+    response_format=ImageGeneratorOutput
+)
 
 def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]:
     """
@@ -45,9 +55,6 @@ def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]
         A dictionary to update the 'generated_images' key in the state.
     """
     logger.info("GENERATING CONTENT IMAGES...")
-
-    # logger.info(ctext("No prompts found for image generation.", color='white'))
-    # return {"generated_images": None}
     
     try:
         final_image_prompts = state.get("final_image_prompts")

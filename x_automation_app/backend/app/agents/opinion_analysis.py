@@ -1,7 +1,7 @@
 import json
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_anthropic import ChatAnthropic
+
 from ..utils.prompts import opinion_analysis_prompt
 from typing import Dict, Any
 from .state import OverallState
@@ -12,17 +12,22 @@ from ..utils.logging_config import setup_logging, ctext
 logger = setup_logging()
 
 
-# try:
-#     llm = ChatOpenAI(model=settings.OPENAI_MODEL)
-# except Exception as e:
-#     logger.error(f"Error initializing OpenAI model: {e}")
-#     try:
-#         llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
-#     except Exception as e:
-#         logger.error(f"Error initializing Google Generative AI model: {e}")
-#         llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
+try:
+    llm = ChatOpenAI(
+        api_key=settings.OPENROUTER_API_KEY,
+        base_url=settings.OPENROUTER_BASE_URL,
+        model=settings.OPENROUTER_MODEL
+    )
+except Exception as e:
+    logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
+    try:
+        llm = ChatGoogleGenerativeAI(
+            model=settings.GEMINI_MODEL,
+            google_api_key=settings.GEMINI_API_KEY
+        )
+    except Exception as e:
+        logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
 
-llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
 structured_llm = llm.with_structured_output(OpinionAnalysisOutput)
 
 def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
@@ -59,15 +64,6 @@ def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
             "overall_sentiment": analysis_result.overall_sentiment,
             "topic_from_opinion_analysis": analysis_result.topic_from_opinion_analysis,
         }
-
-        # return {
-        #     "opinion_summary": "The tweets express significant concern and suspicion regarding Israel's potential actions to draw the United States into a war with Iran. There's a prevailing belief that this is a deliberate strategy, with some users even implicating figures like Donald Trump or Benjamin Netanyahu in a plot to force US military involvement. The conversation highlights anxieties about the US being manipulated into a conflict that is not in its best interest.",
-        #     "overall_sentiment": "negative",
-        #     "topic_from_opinion_analysis": "US potential involvement in an Israel-Iran conflict",
-        #     "has_user_provided_topic":False,
-        #     "is_autonomous_mode":False,
-        #     "output_destination": "GET_OUTPUTS",
-        # }
 
     except Exception as e:
         logger.error(f"An error occurred in the opinion analysis node: {e}\n")

@@ -21,6 +21,7 @@ from ..utils.prompts import (
     reflection_instructions,
     answer_instructions,
 )
+from ..config import settings
 
 from ..utils.logging_config import setup_logging, ctext
 logger = setup_logging()
@@ -197,11 +198,12 @@ def get_citations(response, resolved_urls_map):
 
 
 # Google Search API tool is used to get grounding metadata
-# Ensure the API key is loaded from the environment
-api_key = os.getenv("GEMINI_API_KEY")
+# Ensure the API key is loaded from the environment, no need to pay for it as we are using the free tier
+api_key = settings.GEMINI_API_KEY
 if not api_key:
     raise ValueError("GEMINI_API_KEY environment variable not set.")
 genai_client = Client(api_key=api_key)
+model = settings.GEMINI_RESEARCH_MODEL
 
 # --- Research Loop Nodes ---
 
@@ -212,10 +214,6 @@ def generate_query(state: OverallState, config: RunnableConfig) -> QueryGenerati
     logger.info("GENERATING QUERIES FOR DEEP RESEARCH...")
 
     configurable = Configuration.from_runnable_config(config)
-    user_config = state.get("user_config") or {}
-    query_generator_model = (user_config.gemini_base_model if user_config and user_config.gemini_base_model is not None 
-        else configurable.query_generator_model
-    )
 
     # Determine the topic from the state, prioritizing the analysis result
     topic = state.get("topic_from_opinion_analysis") or state.get("user_provided_topic")
@@ -229,7 +227,7 @@ def generate_query(state: OverallState, config: RunnableConfig) -> QueryGenerati
         state["initial_search_query_count"] = configurable.number_of_initial_queries
 
     llm = ChatGoogleGenerativeAI(
-        model=query_generator_model,
+        model=model,
         temperature=1.0,
         max_retries=2,
         api_key=api_key,
@@ -249,31 +247,25 @@ def continue_to_web_research(state: QueryGenerationState):
     """
     Sends the generated search queries to the web research node for parallel execution.
     """
-    # logger.info("----CONTINUING TO WEB RESEARCH----\n")
     return [
         Send("web_research", {"search_query": search_query, "id": int(idx)})
         for idx, search_query in enumerate(state["query_list"])
     ]
 
 
-def web_research(state: WebSearchState, config: RunnableConfig) -> OverallState:
+def web_research(state: WebSearchState) -> OverallState:
     """
     Performs web research for a single query using the Google Search API tool.
     """
     logger.info(ctext(f"Performing web research for the query: {ctext(state['search_query'], color='white', italic=True)}", color='white'))
-
-    configurable = Configuration.from_runnable_config(config)
-    user_config = state.get("user_config") or {}
-    web_search_model = (user_config.gemini_base_model if user_config and user_config.gemini_base_model is not None 
-        else configurable.query_generator_model
-    )
+    
     formatted_prompt = web_searcher_instructions.format(
         current_date=get_current_date(),
         research_topic=state["search_query"],
     )
     # Uses the google genai client as the langchain client doesn't return grounding metadata
     response = genai_client.models.generate_content(
-        model=web_search_model,
+        model=model,
         contents=formatted_prompt,
         config={
             "tools": [{"google_search": {}}],
@@ -297,18 +289,13 @@ def web_research(state: WebSearchState, config: RunnableConfig) -> OverallState:
     }
 
 
-def reflection(state: OverallState, config: RunnableConfig) -> ReflectionState:
+def reflection(state: OverallState) -> ReflectionState:
     """
     Analyzes research results, identifies knowledge gaps, and generates follow-up queries.
     """
     logger.info("REFLECTING ON RESEARCH RESULTS...")
 
-    configurable = Configuration.from_runnable_config(config)
     state["research_loop_count"] = state.get("research_loop_count", 0) + 1
-    user_config = state.get("user_config") or {}
-    reasoning_model = (user_config.gemini_reasoning_model if user_config and user_config.gemini_reasoning_model is not None 
-        else configurable.reasoning_model
-    )
 
     # Determine the topic from the state for the prompt
     topic = state.get("topic_from_opinion_analysis") or state.get("user_provided_topic")
@@ -320,7 +307,7 @@ def reflection(state: OverallState, config: RunnableConfig) -> ReflectionState:
     )
 
     llm = ChatGoogleGenerativeAI(
-        model=reasoning_model,
+        model=model,
         temperature=1.0,
         max_retries=2,
         api_key=api_key,
@@ -343,7 +330,6 @@ def evaluate_research(state: ReflectionState, config: RunnableConfig) -> Overall
     Controls the research loop by deciding whether to continue gathering information
     or to finalize the summary based on the configured maximum number of research loops.
     """
-    # logger.info("----EVALUATING RESEARCH----\n")
     configurable = Configuration.from_runnable_config(config)
     max_research_loops = (
         state.get("max_research_loops")
@@ -367,7 +353,7 @@ def evaluate_research(state: ReflectionState, config: RunnableConfig) -> Overall
         ]
 
 
-def finalize_answer(state: OverallState, config: RunnableConfig):
+def finalize_answer(state: OverallState):
     """
     LangGraph node that finalizes the research summary.
 
@@ -375,12 +361,6 @@ def finalize_answer(state: OverallState, config: RunnableConfig):
     combining them with the running summary to create a well-structured
     research report with proper citations.
     """
-    configurable = Configuration.from_runnable_config(config)
-    user_config = state.get("user_config") or {}
-    reasoning_model = (user_config.gemini_reasoning_model if user_config and user_config.gemini_reasoning_model is not None 
-        else configurable.reasoning_model
-    )
-
     # Determine the topic from the state for the prompt
     topic = state.get("topic_from_opinion_analysis") or state.get("user_provided_topic")
 
@@ -391,7 +371,7 @@ def finalize_answer(state: OverallState, config: RunnableConfig):
     )
 
     llm = ChatGoogleGenerativeAI(
-        model=reasoning_model,
+        model=model,
         temperature=0,
         max_retries=2,
         api_key=api_key,

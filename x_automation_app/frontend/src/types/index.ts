@@ -83,9 +83,8 @@ export interface UserSession {
 }
 
 export interface UserConfigSchema {
-    gemini_base_model?: string;
-    gemini_reasoning_model?: string;
-    openai_model?: string;
+    gemini_model?: string;
+    openrouter_model?: string;
     trends_count?: number;
     trends_woeid?: number;
     max_tweets_to_retrieve?: number;
@@ -99,7 +98,7 @@ export interface ValidationResult {
     feedback?: string;
     extra_data?: {
       final_content?: string;
-      [key: string]: any; // Allow other properties
+      [key: string]: any;
     };
   };
 }
@@ -132,6 +131,7 @@ export interface TweetSearched {
 }
 
 export interface GeneratedImage {
+  is_generated: boolean;
   image_name: string;
   local_file_path: string;
   s3_url: string;

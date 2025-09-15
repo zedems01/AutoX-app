@@ -136,7 +136,7 @@ export function ContentValidation({ onSubmitted }: ContentValidationProps) {
           onSubmit={form.handleSubmit(onEditAndApprove)}
           className="space-y-4 pt-4"
         >
-          <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-4">
+          <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-4">
             <FormField
               control={form.control}
               name="final_content"

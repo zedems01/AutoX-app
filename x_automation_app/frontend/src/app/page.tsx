@@ -1,11 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useMutation } from "@tanstack/react-query"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 
@@ -70,9 +70,8 @@ const formSchema = z
     target_audience: z.string().optional(),
     user_config: z
       .object({
-        gemini_base_model: z.string().optional(),
-        gemini_reasoning_model: z.string().optional(),
-        openai_model: z.string().optional(),
+        gemini_model: z.string().optional(),
+        openrouter_model: z.string().optional(),
         trends_count: z.number().optional(),
         trends_woeid: z.number().optional(),
         max_tweets_to_retrieve: z.number().optional(),
@@ -115,8 +114,9 @@ const woeidLocations = [
   { name: "Spain", woeid: 23424950 },
 ]
 
-export default function WorkflowConfigPage() {
+function WorkflowConfig() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { authStatus, session, userDetails, proxy } = useAuth()
   const { setThreadId, setShowDetails } = useWorkflowContext()
 
@@ -124,18 +124,18 @@ export default function WorkflowConfigPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       is_autonomous_mode: false,
-      show_details: false,
+      show_details: true,
       has_user_provided_topic: false,
       user_provided_topic: "",
       output_destination: "GET_OUTPUTS",
-      x_content_type: "Social Media Post",
+      // x_content_type: "Social Media Post",
+      x_content_type: "SINGLE_TWEET",
       content_length: "SHORT",
       brand_voice: "",
       target_audience: "",
       user_config: {
-        gemini_base_model: "",
-        gemini_reasoning_model: "",
-        openai_model: "",
+        gemini_model: "",
+        openrouter_model: "",
         trends_count: undefined,
         trends_woeid: 1,
         max_tweets_to_retrieve: undefined,
@@ -144,6 +144,22 @@ export default function WorkflowConfigPage() {
       },
     },
   })
+
+  useEffect(() => {
+    const workflowStateParam = searchParams.get('workflowState')
+    if (workflowStateParam) {
+      try {
+        const savedState = JSON.parse(decodeURIComponent(workflowStateParam))
+        form.reset(savedState)
+        toast.info("Your previous settings have been restored.")
+        // Clean the URL to avoid re-applying on refresh
+        router.replace('/')
+      } catch (error) {
+        console.error("Failed to parse workflow state from URL", error)
+        toast.error("Could not restore your previous settings.")
+      }
+    }
+  }, [searchParams, form, router])
 
   const mutation = useMutation({
     mutationFn: startWorkflow,
@@ -157,15 +173,14 @@ export default function WorkflowConfigPage() {
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Check a user needs to be logged in for the selected action
     if (values.output_destination === 'PUBLISH_X' && authStatus !== 'authenticated') {
       toast.error("You must be logged in to publish directly to X.", { duration: 15000 })
-      router.push('/login')
+      const workflowState = encodeURIComponent(JSON.stringify(values));
+      router.push(`/login?redirect=/&workflowState=${workflowState}`);
       return
     }
 
     const cleanedValues = JSON.parse(JSON.stringify(values), (key, value) => {
-      // Keep number fields that are 0, but remove empty strings.
       if (value === "") {
         return undefined
       }
@@ -197,7 +212,6 @@ export default function WorkflowConfigPage() {
   const contentType = form.watch("x_content_type")
 
   useEffect(() => {
-    // When switching to "Publish", if the current content type isn't valid for X, reset it.
     if (outputDestination === 'PUBLISH_X') {
       if (!['SINGLE_TWEET', 'TWEET_THREAD'].includes(form.getValues('x_content_type'))) {
         form.setValue('x_content_type', 'SINGLE_TWEET');
@@ -520,14 +534,32 @@ export default function WorkflowConfigPage() {
                         </p>
                         <FormField
                           control={form.control}
-                          name="user_config.gemini_base_model"
+                          name="user_config.openrouter_model"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>OpenRouter Model</FormLabel>
+                              <FormDescription className="text-xs">The main model powering the agent's reasoning.</FormDescription>
+                              <FormControl>
+                                <Input
+                                  placeholder="'openai/gpt-5'"
+                                  {...field}
+                                  value={field.value ?? ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="user_config.gemini_model"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Gemini Model</FormLabel>
-                              <FormDescription className="text-xs">Model for deep research news and/or other tasks. (Free access to some)</FormDescription>
+                              <FormDescription className="text-xs">Fallback model if OpenRouter model is not available.</FormDescription>
                               <FormControl>
                                 <Input
-                                  placeholder="'gemini-2.5-flash-lite-preview-06-17'"
+                                  placeholder="'gemini-2.5-pro'"
                                   {...field}
                                   value={field.value ?? ""}
                                 />
@@ -554,24 +586,7 @@ export default function WorkflowConfigPage() {
                             </FormItem>
                           )}
                         /> */}
-                        <FormField
-                          control={form.control}
-                          name="user_config.openai_model"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>OpenAI Model</FormLabel>
-                              <FormDescription className="text-xs">The model powering the agent's reasoning. By default, 'gpt-image-1' is used for image generation.</FormDescription>
-                              <FormControl>
-                                <Input
-                                  placeholder="'gpt-4o'"
-                                  {...field}
-                                  value={field.value ?? ""}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                        
                         <FormField
                           control={form.control}
                           name="user_config.trends_woeid"
@@ -726,5 +741,13 @@ export default function WorkflowConfigPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function WorkflowConfigPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <WorkflowConfig />
+    </Suspense>
   )
 }

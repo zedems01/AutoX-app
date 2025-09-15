@@ -12,8 +12,8 @@ from .agents.state import OverallState
 from .utils.schemas import ValidationResult, Trend, UserConfigSchema, UserDetails, ValidationAction
 from .utils.json_encoder import CustomJSONEncoder
 from langgraph.types import Send
+from .config import settings
 
-# import logging
 from .utils.logging_config import setup_logging, ctext, add_file_handler, remove_file_handler
 logger = setup_logging()
 
@@ -45,6 +45,9 @@ class LoginPayload(BaseModel):
     proxy: str
     totp_secret: str
 
+class DemoLoginPayload(BaseModel):
+    token: str
+
 class StartWorkflowPayload(BaseModel):
     is_autonomous_mode: bool
     output_destination: Optional[str] = None
@@ -68,7 +71,6 @@ class ValidationPayload(BaseModel):
     thread_id: str
     validation_result: ValidationResult
 
-# --- Health Check Endpoint ---
 @app.get("/health", summary="Health Check", tags=["Status"])
 def health_check():
     """
@@ -76,55 +78,16 @@ def health_check():
     """
     return {"status": "oki doki"}
 
+
 # --- Authentication Endpoints ---
-
-# @app.post("/auth/start-login", tags=["Authentication"])
-# async def start_login(payload: StartLoginPayload):
-#     """
-#     Starts the 2FA login process for Twitter.
-#     This is a stateless endpoint.
-#     """
-#     try:
-#         login_data = x_utils.start_login(
-#             email=payload.email, password=payload.password, proxy=payload.proxy
-#         )
-#         logger.info("Successfully started login process.")
-#         return {"login_data": login_data}
-#     except Exception as e:
-#         logger.error(f"Failed to start login: {e}")
-#         raise HTTPException(status_code=400, detail=f"Failed to start login: {e}")
-
-# @app.post("/auth/complete-login", tags=["Authentication"])
-# async def complete_login(payload: CompleteLoginPayload):
-#     """
-#     Completes the 2FA login process using the code provided by the user.
-#     This is a stateless endpoint.
-#     """
-#     try:
-#         session_details = x_utils.complete_login(
-#             login_data=payload.login_data,
-#             two_fa_code=payload.two_fa_code,
-#             proxy=payload.proxy
-#         )
-#         logger.info("Successfully completed login process. Session initialized.")
-#         logger.info(f"Name: {session_details['user_details']['name']} \t Username: {session_details['user_details']['screen_name']}")
-
-#         return {
-#             "session": session_details["session"],
-#             "userDetails": session_details["user_details"],
-#             "proxy": payload.proxy,
-#         }
-
-#     except Exception as e:
-#         logger.error(f"Failed to complete login: {e}")
-#         raise HTTPException(status_code=400, detail=f"Failed to complete login: {e}")
-
 
 @app.post("/auth/login", tags=["Authentication"])
 async def login(payload: LoginPayload):
     """
     Handles the user login process.
     """
+    logger.info(f"STARTING LOGIN...")
+
     try:
         session_details = x_utils.login_v2(
             user_name=payload.user_name,
@@ -133,8 +96,8 @@ async def login(payload: LoginPayload):
             proxy=payload.proxy,
             totp_secret=payload.totp_secret
         )
-        logger.info("Successfully completed login process. Session initialized.")
-        logger.info(f"Username: {session_details['user_details']['user_name']} \t Email: {session_details['user_details']['email']}")
+        username = ctext(session_details['user_details']['user_name'], italic=True)
+        logger.info(ctext(f"Successfully completed login process. Session initialized for user {username}", color='white'))
 
         return {
             "session": session_details["session_cookie"],
@@ -147,13 +110,73 @@ async def login(payload: LoginPayload):
         raise HTTPException(status_code=400, detail=f"Failed to complete login: {e}")
 
 
+@app.post("/auth/demo-login", tags=["Authentication"])
+async def demo_login(payload: DemoLoginPayload):
+    """
+    Handles the demo user login process using environment variables,
+    secured by a secret token.
+    """
+    logger.info("STARTING DEMO LOGIN...")
+
+    # --- Security Check ---
+    if not settings.DEMO_TOKEN:
+        logger.error("Demo token is not configured on the server.")
+        raise HTTPException(
+            status_code=500,
+            detail="Demo login is not configured correctly on the server."
+        )
+
+    if payload.token != settings.DEMO_TOKEN:
+        logger.warning("Invalid demo token received.")
+        raise HTTPException(
+            status_code=403,
+            detail="Invalid token."
+        )
+
+    required_creds = [
+        settings.TEST_USER_NAME,
+        settings.TEST_USER_EMAIL,
+        settings.TEST_USER_PASSWORD,
+        settings.TEST_USER_PROXY,
+        settings.TEST_USER_TOTP_SECRET
+    ]
+
+    if not all(required_creds):
+        logger.error("Demo user credentials are not fully configured on the server.")
+        raise HTTPException(
+            status_code=500,
+            detail="Demo login is not configured correctly on the server."
+        )
+
+    try:
+        session_details = x_utils.login_v2(
+            user_name=settings.TEST_USER_NAME,
+            email=settings.TEST_USER_EMAIL,
+            password=settings.TEST_USER_PASSWORD,
+            proxy=settings.TEST_USER_PROXY,
+            totp_secret=settings.TEST_USER_TOTP_SECRET
+        )
+        username = ctext(session_details['user_details']['user_name'], italic=True)
+        logger.info(ctext(f"Successfully completed demo login. Session initialized for user {username}", color='white'))
+
+        return {
+            "session": session_details["session_cookie"],
+            "userDetails": session_details["user_details"],
+            "proxy": settings.TEST_USER_PROXY,
+        }
+
+    except Exception as e:
+        logger.error(f"Failed to complete demo login: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to complete demo login: {e}")
+
+
 @app.post("/auth/validate-session", tags=["Authentication"])
 async def validate_session(payload: ValidateSessionPayload):
     """
-    Validates if a user's session is still active.
+    Validates if a session is still active.
     """
     try:
-        result = x_utils.verify_session(session=payload.session, proxy=payload.proxy)
+        result = x_utils.verify_session(login_cookies=payload.session, proxy=payload.proxy)
         return result
     except InvalidSessionError as e:
         logger.warning(f"Session validation failed: {e}")

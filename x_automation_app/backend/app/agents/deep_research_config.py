@@ -10,20 +10,6 @@ from langchain_core.runnables import RunnableConfig
 class Configuration(BaseModel):
     """The configuration for the agent."""
 
-    query_generator_model: str = Field(
-        default=os.getenv("GEMINI_BASE_MODEL", "gemini-2.0-flash"),
-        metadata={
-            "description": "The name of the language model to use for the agent's query generation."
-        },
-    )
-
-    reasoning_model: str = Field(
-        default=os.getenv("GEMINI_REASONING_MODEL", "gemini-2.5-flash-lite-preview-06-17"),
-        metadata={
-            "description": "The name of the language model to use for the agent's reasoning."
-        },
-    )
-
     number_of_initial_queries: int = Field(
         default=1,
         metadata={"description": "The number of initial search queries to generate."},

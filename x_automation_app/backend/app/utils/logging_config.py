@@ -160,14 +160,3 @@ def ctext(text: str, color: str = None, bg: str = None, **styles) -> str:
         blink=styles.get("blink", False),
         reverse=styles.get("reverse", False),
     )
-
-if __name__ == "__main__":
-    logger = setup_logging()
-
-    # Test logs
-    logger.info("Default INFO message")
-    logger.warning("Default WARNING message")
-    logger.info("HTTP Request: POST https://api.anthropic.com/v1/messages \"HTTP/1.1 200 OK\"")  # Should be filtered
-    logger.info("HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite-preview-06-17:generateContent \"HTTP/1.1 200 OK\"")  # Should be filtered
-    logger.info(ctext("This is bold red", color="red", bold=True))
-    logger.info(f"Process {ctext('OK', color='green', bold=True)} completed")

@@ -1,6 +1,6 @@
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_anthropic import ChatAnthropic
+
 from ..utils.prompts import writer_prompt
 from typing import Dict, Any, Optional
 from .state import OverallState
@@ -11,15 +11,22 @@ from ..utils.logging_config import setup_logging, ctext
 logger = setup_logging()
 
 
+
 try:
-    llm = ChatOpenAI(model=settings.OPENAI_MODEL)
+    llm = ChatOpenAI(
+        api_key=settings.OPENROUTER_API_KEY,
+        base_url=settings.OPENROUTER_BASE_URL,
+        model=settings.OPENROUTER_MODEL
+    )
 except Exception as e:
-    logger.error(f"Error initializing OpenAI model: {e}")
+    logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
     try:
-        llm = ChatGoogleGenerativeAI(model=settings.GEMINI_REASONING_MODEL, google_api_key=settings.GEMINI_API_KEY)
+        llm = ChatGoogleGenerativeAI(
+            model=settings.GEMINI_MODEL,
+            google_api_key=settings.GEMINI_API_KEY
+        )
     except Exception as e:
-        logger.error(f"Error initializing Google Generative AI model: {e}")
-        llm = ChatAnthropic(model=settings.ANTHROPIC_MODEL)
+        logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
 
 structured_llm = llm.with_structured_output(WriterOutput)
 
@@ -45,6 +52,7 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
         overall_sentiment = state.get("overall_sentiment", "Neutral")
         x_content_type = state.get("x_content_type", "Article")
         content_length = state.get("content_length", "Medium")
+        content_draft = state.get("content_draft", "")  # Get existing draft for revisions
         brand_voice = state.get("brand_voice", "Professional")
         target_audience = state.get("target_audience", "General audience")
 
@@ -69,6 +77,7 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
             content_length=content_length,
             brand_voice=brand_voice,
             target_audience=target_audience,
+            content_draft=content_draft,
             feedback=feedback,
             content_language=content_language
         )
