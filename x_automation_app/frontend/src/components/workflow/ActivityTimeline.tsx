@@ -18,10 +18,13 @@ import {
 } from "lucide-react"
 
 import { useWorkflowContext } from "@/contexts/WorkflowProvider"
-import { StreamEvent } from "@/types"
+import { StreamEvent, OverallState } from "@/types"
 import { Badge } from "@/components/ui/badge"
 
-const getStepConfig = (event: StreamEvent) => {
+const getStepConfig = (
+  event: StreamEvent,
+  workflowState: OverallState | null
+) => {
   let icon = Loader2
   let title = "Processing..."
   let description = `Running: ${event.name}`
@@ -134,7 +137,12 @@ const getStepConfig = (event: StreamEvent) => {
           description =
             "Final content has been generated and formatted for viewing."
         } else if (id) {
-          description = `Content published with ID: ${id}.`
+          const username = workflowState?.user_details?.username
+          if (username) {
+            description = `Successfully posted to X: https://x.com/${username}/status/${id}`
+          } else {
+            description = `Content published with ID: ${id}.`
+          }
         } else {
           description = "Content processed and packaged for publication."
         }
@@ -168,8 +176,17 @@ const getStepConfig = (event: StreamEvent) => {
   }
 }
 
-function TimelineItem({ event }: { event: StreamEvent }) {
-  const { icon: Icon, title, description, status } = getStepConfig(event)
+function TimelineItem({
+  event,
+  workflowState,
+}: {
+  event: StreamEvent
+  workflowState: OverallState | null
+}) {
+  const { icon: Icon, title, description, status } = getStepConfig(
+    event,
+    workflowState
+  )
   const isRunning = status === "running"
   const isCompleted = status === "completed"
 
@@ -232,7 +249,7 @@ export function ActivityTimeline() {
   const latestEventsMap = new Map<string, StreamEvent>()
   events.forEach((event) => {
     // Only track our allowed events
-    if (getStepConfig(event).title !== "Processing...") {
+    if (getStepConfig(event, workflowState).title !== "Processing...") {
       latestEventsMap.set(event.run_id, event)
     }
   })
@@ -244,7 +261,7 @@ export function ActivityTimeline() {
     <div className="space-y-4 relative">
       {uniqueLatestEvents.map((event, index) => (
         <div key={`${event.run_id}-${index}`} className="relative">
-          <TimelineItem event={event} />
+          <TimelineItem event={event} workflowState={workflowState} />
           {index < uniqueLatestEvents.length - 1 && (
             <div
               className="absolute left-5 top-10 h-full border-l-2 border-border"
