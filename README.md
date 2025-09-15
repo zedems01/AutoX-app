@@ -114,7 +114,7 @@ Alternatively, you can run the entire application using Docker.
     From the root directory of the project, run the following command:
 
     ```bash
-    docker-compose up --build -d
+    docker compose up --build -d
     ```
 
     This command will build the Docker images for the frontend and backend and start the services in the background.
@@ -159,3 +159,5 @@ x_automation_app/
     │   └── lib/         # API client and utility functions
     └── package.json     # Frontend dependencies
 ```
+
+autox-app-production.up.railway.app

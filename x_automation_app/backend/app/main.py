@@ -27,6 +27,7 @@ app = FastAPI(
 # CORS Config
 origins = [
     "http://localhost:3000",  # Next.js frontend
+    "https://autox.achillengues.com",
 ]
 
 app.add_middleware(
