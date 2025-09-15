@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -114,7 +114,7 @@ const woeidLocations = [
   { name: "Spain", woeid: 23424950 },
 ]
 
-export default function WorkflowConfigPage() {
+function WorkflowConfig() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { authStatus, session, userDetails, proxy } = useAuth()
@@ -741,5 +741,13 @@ export default function WorkflowConfigPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function WorkflowConfigPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <WorkflowConfig />
+    </Suspense>
   )
 }

@@ -6,7 +6,7 @@ import * as z from "zod"
 import { useMutation } from "@tanstack/react-query"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
-import { useState } from "react"
+import { Suspense, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -39,7 +39,7 @@ const formSchema = z.object({
   totp_secret: z.string().min(1, { message: "TOTP secret is required." }),
 })
 
-export default function LoginPage() {
+function Login() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { login: authLogin } = useAuth()
@@ -177,5 +177,13 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Login />
+    </Suspense>
   )
 } 

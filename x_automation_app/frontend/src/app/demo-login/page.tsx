@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import { Loader2, ShieldCheck, ShieldX } from "lucide-react"
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -17,14 +17,14 @@ import {
 import { demoLogin } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 
-export default function DemoLoginPage() {
+function DemoLogin() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { login: authLogin } = useAuth()
   const [token, setToken] = useState<string | null>(null)
 
   useEffect(() => {
-    const tokenFromUrl = searchParams.get('token')
+    const tokenFromUrl = searchParams.get("token")
     if (tokenFromUrl) {
       setToken(tokenFromUrl)
     }
@@ -32,12 +32,12 @@ export default function DemoLoginPage() {
 
   const mutation = useMutation({
     mutationFn: (token: string) => demoLogin(token),
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success("Login successful!", { duration: 5000 })
       authLogin(data)
       router.push("/")
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Demo login failed: ${error.message}`, {
         duration: 15000,
       })
@@ -78,7 +78,8 @@ export default function DemoLoginPage() {
           </div>
           <CardTitle>AutoX Workflow Demo</CardTitle>
           <CardDescription>
-            Click the button below to log in with a demo account and try out the workflow.
+            Click the button below to log in with a demo account and try out the
+            workflow.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -95,5 +96,13 @@ export default function DemoLoginPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function DemoLoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DemoLogin />
+    </Suspense>
   )
 }
