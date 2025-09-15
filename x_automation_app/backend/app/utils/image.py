@@ -86,6 +86,17 @@ def generate_and_upload_image(prompt: str, image_name: str) -> GeneratedImage:
         relative_path = image_path.relative_to(Path(__file__).resolve().parents[0])
         logger.info(ctext(f"Image saved to {str(relative_path)}", color='white'))
         
+
+        if not all([settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY, 
+                   settings.AWS_DEFAULT_REGION, settings.BUCKET_NAME]):
+            logger.warning(ctext("AWS credentials not fully configured. Skipping S3 upload.", color='yellow'))
+            return GeneratedImage(
+                is_generated=True,
+                image_name=image_name,
+                local_file_path=str(image_path),
+                s3_url=""
+            )
+
         # Upload the image to AWS S3 to get a presigned URL
         bucket_name = settings.BUCKET_NAME
         image_key = f"images/{image_name}"

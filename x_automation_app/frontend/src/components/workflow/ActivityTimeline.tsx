@@ -137,7 +137,8 @@ const getStepConfig = (
           description =
             "Final content has been generated and formatted for viewing."
         } else if (id) {
-          const username = workflowState?.user_details?.username
+          // const username = workflowState?.user_details?.username
+          const username = "autoxtest"
           if (username) {
             description = `Successfully posted to X: https://x.com/${username}/status/${id}`
           } else {

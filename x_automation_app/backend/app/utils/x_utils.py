@@ -123,7 +123,7 @@ def tweet_advanced_search(
     all_tweets: List[TweetSearched] = []
     current_cursor = ""
     max_tweets_to_retrieve = int(settings.MAX_TWEETS_TO_RETRIEVE)
-    print(f"MAX_TWEETS_TO_RETRIEVE: {max_tweets_to_retrieve}; Type: {type(max_tweets_to_retrieve)}")
+    # print(f"MAX_TWEETS_TO_RETRIEVE: {max_tweets_to_retrieve}; Type: {type(max_tweets_to_retrieve)}")
     while len(all_tweets) < max_tweets_to_retrieve:
         params = {"query": query, "query_type": query_type, "cursor": current_cursor}
         headers = {"X-API-Key": api_key}
