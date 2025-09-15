@@ -56,25 +56,26 @@ export function WorkflowDashboard() {
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <BarChart className="h-6 w-6 text-green-500" />
-            <CardTitle>Workflow Timeline</CardTitle>
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <BarChart className="h-5 w-5 md:h-6 md:w-6 text-green-500 shrink-0" />
+            <CardTitle className="text-sm md:text-base truncate">Workflow Timeline</CardTitle>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <WorkflowStatus />
             {(workflowState?.current_step === "END" || isPublicatorCompleted) && (
-              <Button onClick={() => window.location.reload()} size="sm" className="cursor-pointer">
-                Start New Workflow
+              <Button onClick={() => window.location.reload()} size="sm" className="cursor-pointer text-xs md:text-sm">
+                <span className="hidden sm:inline">Start New Workflow</span>
+                <span className="sm:hidden">New</span>
               </Button>
             )}
           </div>
         </div>
-        <Progress value={progress} className="mt-4" />
+        <Progress value={progress} className="mt-3 md:mt-4" />
       </CardHeader>
-      <CardContent className="space-y-6 pt-4">
-        <ScrollArea className="h-[60vh] p-1">
+      <CardContent className="space-y-4 md:space-y-6 pt-2 md:pt-4 px-3 md:px-6">
+        <ScrollArea className="h-[50vh] md:h-[60vh] p-1">
           <ActivityTimeline />
         </ScrollArea>
         {!showDetails && <FinalOutput />}
@@ -83,7 +84,7 @@ export function WorkflowDashboard() {
       {/* Modals for validation */}
       <Dialog open={isTopicModalOpen} onOpenChange={setTopicModalOpen}>
         <DialogContent
-          className="max-w-4xl"
+          className="max-w-[95vw] md:max-w-4xl max-h-[90vh] overflow-auto"
           onPointerDownOutside={(e) => {
             e.preventDefault()
           }}
@@ -94,7 +95,7 @@ export function WorkflowDashboard() {
 
       <Dialog open={isContentModalOpen} onOpenChange={setContentModalOpen}>
         <DialogContent
-          className="max-w-4xl"
+          className="max-w-[95vw] md:max-w-4xl max-h-[90vh] overflow-auto"
           onPointerDownOutside={(e) => {
             e.preventDefault()
           }}
@@ -105,7 +106,7 @@ export function WorkflowDashboard() {
 
       <Dialog open={isImageModalOpen} onOpenChange={setImageModalOpen}>
         <DialogContent
-          className="max-w-4xl"
+          className="max-w-[95vw] md:max-w-4xl max-h-[90vh] overflow-auto"
           onPointerDownOutside={(e) => {
             e.preventDefault()
           }}

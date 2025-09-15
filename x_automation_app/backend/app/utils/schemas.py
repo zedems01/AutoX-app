@@ -88,24 +88,24 @@ class TweetAuthor(BaseModel):
     """
     userName: str
     name: str
-    isVerified: bool
-    followers: int
-    following: int
+    # isVerified: bool
+    # followers: int
+    # following: int
 
 class TweetSearched(BaseModel):
     """
     Represents a single tweet searched.
     """
     text: str
-    source: str
+    # source: str
     retweetCount: int
     replyCount: int
     likeCount: int
-    quoteCount: int
+    # quoteCount: int
     viewCount: int
     createdAt: str
-    lang: str
-    isReply: bool
+    # lang: str
+    # isReply: bool
     author: TweetAuthor
 
 class TweetSearchResponse(BaseModel):

@@ -111,22 +111,22 @@ export interface Trend {
 export interface TweetAuthor {
   userName: string;
   name: string;
-  isVerified: boolean;
-  followers: number;
-  following: number;
+  // isVerified: boolean;
+  // followers: number;
+  // following: number;
 }
 
 export interface TweetSearched {
   text: string;
-  source: string;
+  // source: string;
   retweetCount: number;
   replyCount: number;
   likeCount: number;
-  quoteCount: number;
+  // quoteCount: number;
   viewCount: number;
   createdAt: string;
-  lang: string;
-  isReply: boolean;
+  // lang: string;
+  // isReply: boolean;
   author: TweetAuthor;
 }
 
