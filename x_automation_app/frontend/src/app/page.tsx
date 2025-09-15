@@ -230,9 +230,9 @@ function WorkflowConfig() {
 
   return (
     <div>
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-5 mt-8 mb-8 mr-20 ml-20">
-        <div className="lg:col-span-2">
-          <Card className="w-full pl-2 pr-2">
+      <div className="grid grid-cols-1 gap-4 md:gap-6 lg:gap-8 xl:grid-cols-5 mt-4 md:mt-6 lg:mt-8 mb-8 mx-4 md:mx-8 lg:mx-12 xl:mx-20">
+        <div className="xl:col-span-2">
+          <Card className="w-full px-3 md:px-4 lg:px-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Settings className="h-5 w-5" />
@@ -247,7 +247,7 @@ function WorkflowConfig() {
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-8"
+                  className="space-y-4 md:space-y-6 lg:space-y-8"
                 >
                   {/* --- Core Settings --- */}
                   <div className="space-y-4">
@@ -735,7 +735,7 @@ function WorkflowConfig() {
             </CardContent>
           </Card>
         </div>
-        <div className="lg:col-span-3 space-y-8">
+        <div className="xl:col-span-3 space-y-4 md:space-y-6 lg:space-y-8">
           <WorkflowDashboard />
           <DetailedOutput />
         </div>

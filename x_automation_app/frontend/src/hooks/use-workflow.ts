@@ -70,7 +70,7 @@ export function useWorkflow(threadId: string | null) {
     },
     onError: (event) => {
       console.error("WebSocket error:", event)
-      setError("Failed to connect to workflow status.")
+      setError("Failed to connect to workflow status")
     },
     shouldReconnect: (closeEvent) => {
       if (workflowState?.current_step === "END") {

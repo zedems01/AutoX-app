@@ -84,25 +84,29 @@ function Login() {
   }
 
   return (
-    <div className="flex justify-center pt-10">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>X Session Login</CardTitle>
-          <CardDescription>
+    <div className="flex justify-center items-start min-h-screen px-4 py-6 md:py-12">
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader className="pb-4 md:pb-6">
+          <CardTitle className="text-lg md:text-xl text-center">X Session Login</CardTitle>
+          <CardDescription className="text-center text-sm md:text-base">
             Enter your credentials and a proxy to start the process.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 md:px-6 pb-6">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
               <FormField
                 control={form.control}
                 name="user_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Username</FormLabel>
+                    <FormLabel className="text-sm font-medium">Username</FormLabel>
                     <FormControl>
-                      <Input placeholder="your_username" {...field} />
+                      <Input 
+                        placeholder="your_username" 
+                        {...field} 
+                        className="h-10 md:h-11"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -113,9 +117,13 @@ function Login() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel className="text-sm font-medium">Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="user@example.com" {...field} />
+                      <Input 
+                        placeholder="user@example.com" 
+                        {...field} 
+                        className="h-10 md:h-11"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -126,9 +134,14 @@ function Login() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel className="text-sm font-medium">Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
+                      <Input 
+                        type="password" 
+                        placeholder="••••••••" 
+                        {...field} 
+                        className="h-10 md:h-11"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -139,11 +152,15 @@ function Login() {
                 name="proxy"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Proxy</FormLabel>
+                    <FormLabel className="text-sm font-medium">Proxy</FormLabel>
                     <FormControl>
-                      <Input placeholder="http://user:pass@ip:port" {...field} />
+                      <Input 
+                        placeholder="http://user:pass@ip:port" 
+                        {...field} 
+                        className="h-10 md:h-11"
+                      />
                     </FormControl>
-                    <FormDescription>
+                    <FormDescription className="text-xs md:text-sm text-muted-foreground">
                       Your proxy for the X connection.
                     </FormDescription>
                     <FormMessage />
@@ -155,18 +172,27 @@ function Login() {
                 name="totp_secret"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>TOTP Secret</FormLabel>
+                    <FormLabel className="text-sm font-medium">TOTP Secret</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
+                      <Input 
+                        type="password" 
+                        placeholder="••••••••" 
+                        {...field} 
+                        className="h-10 md:h-11"
+                      />
                     </FormControl>
-                    <FormDescription>
+                    <FormDescription className="text-xs md:text-sm text-muted-foreground">
                       Your Time-based One-Time Password secret.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full cursor-pointer" disabled={mutation.isPending}>
+              <Button 
+                type="submit" 
+                className="w-full cursor-pointer h-10 md:h-11 text-sm md:text-base font-medium mt-6" 
+                disabled={mutation.isPending}
+              >
                 {mutation.isPending && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}

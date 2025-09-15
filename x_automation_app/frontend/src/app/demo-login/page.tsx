@@ -52,14 +52,14 @@ function DemoLogin() {
 
   if (!token) {
     return (
-      <div className="flex justify-center pt-20">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="mx-auto bg-destructive/10 w-fit p-3 rounded-lg mb-4">
-              <ShieldX className="h-10 w-10 text-destructive" />
+      <div className="flex justify-center items-start min-h-screen px-4 py-6 md:py-12">
+        <Card className="w-full max-w-md mx-auto">
+          <CardHeader className="text-center pb-4 md:pb-6 px-4 md:px-6">
+            <div className="mx-auto bg-destructive/10 w-fit p-2 md:p-3 rounded-lg mb-3 md:mb-4">
+              <ShieldX className="h-8 w-8 md:h-10 md:w-10 text-destructive" />
             </div>
-            <CardTitle>Access Denied</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-lg md:text-xl">Access Denied</CardTitle>
+            <CardDescription className="text-sm md:text-base">
               This demo link is invalid or incomplete. Please use the link
               provided by the administrator.
             </CardDescription>
@@ -70,22 +70,22 @@ function DemoLogin() {
   }
 
   return (
-    <div className="flex justify-center pt-20">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto bg-primary/10 w-fit p-3 rounded-lg mb-4">
-            <ShieldCheck className="h-10 w-10 text-primary" />
+    <div className="flex justify-center items-start min-h-screen px-4 py-6 md:py-12">
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader className="text-center pb-4 md:pb-6 px-4 md:px-6">
+          <div className="mx-auto bg-primary/10 w-fit p-2 md:p-3 rounded-lg mb-3 md:mb-4">
+            <ShieldCheck className="h-8 w-8 md:h-10 md:w-10 text-primary" />
           </div>
-          <CardTitle>AutoX Workflow Demo</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-lg md:text-xl">AutoX Workflow Demo</CardTitle>
+          <CardDescription className="text-sm md:text-base">
             Click the button below to log in with a demo account and try out the
             workflow.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 md:px-6 pb-6">
           <Button
             onClick={handleDemoLogin}
-            className="w-full cursor-pointer"
+            className="w-full cursor-pointer h-10 md:h-11 text-sm md:text-base font-medium"
             disabled={mutation.isPending || !token}
           >
             {mutation.isPending && (

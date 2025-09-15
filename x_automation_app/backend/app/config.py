@@ -34,10 +34,10 @@ class Settings:
 
     DEMO_TOKEN=os.getenv("DEMO_TOKEN")
 
-    # AWS_ACCESS_KEY_ID=os.getenv("AWS_ACCESS_KEY_ID")
-    # AWS_SECRET_ACCESS_KEY=os.getenv("AWS_SECRET_ACCESS_KEY")
-    # AWS_DEFAULT_REGION=os.getenv("AWS_DEFAULT_REGION")
-    # BUCKET_NAME=os.getenv("BUCKET_NAME")
+    AWS_ACCESS_KEY_ID=os.getenv("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY=os.getenv("AWS_SECRET_ACCESS_KEY")
+    AWS_DEFAULT_REGION=os.getenv("AWS_DEFAULT_REGION")
+    BUCKET_NAME=os.getenv("BUCKET_NAME")
 
     LANGSMITH_TRACING=os.getenv("LANGSMITH_TRACING", "false")
     LANGSMITH_ENDPOINT=os.getenv("LANGSMITH_ENDPOINT", "https://api.smith.langchain.com")
