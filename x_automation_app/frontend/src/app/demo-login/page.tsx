@@ -41,7 +41,7 @@ function DemoLogin() {
       // toast.error(`Demo login failed: ${error.message}`, {
       //   duration: 15000,
       // })
-      toast.error(`Demo login failed !`, {
+      toast.error(`X authentification failed !`, {
         duration: 15000,
       })
       
