@@ -41,6 +41,15 @@ function DemoLogin() {
       toast.error(`Demo login failed: ${error.message}`, {
         duration: 15000,
       })
+      
+      // Redirection vers la page principale avec un message d'avertissement
+      toast.warning("You can test the application, but posting to X will not be available without authentication.", {
+        duration: 10000,
+      })
+      
+      setTimeout(() => {
+        router.push("/")
+      }, 2000)
     },
   })
 
@@ -64,6 +73,20 @@ function DemoLogin() {
               provided by the administrator.
             </CardDescription>
           </CardHeader>
+          <CardContent className="px-4 md:px-6 pb-6">
+            <Button
+              onClick={() => {
+                toast.warning("You can browse the application, but posting to X will not be available without authentication.", {
+                  duration: 10000,
+                })
+                router.push("/")
+              }}
+              className="w-full cursor-pointer h-10 md:h-11 text-sm md:text-base font-medium"
+              variant="outline"
+            >
+              Continue Without Authentication
+            </Button>
+          </CardContent>
         </Card>
       </div>
     )
