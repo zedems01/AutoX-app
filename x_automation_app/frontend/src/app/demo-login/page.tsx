@@ -37,7 +37,7 @@ function DemoLogin() {
       authLogin(data)
       router.push("/")
     },
-    onError: error => {
+    onError: () => {
       // toast.error(`Demo login failed: ${error.message}`, {
       //   duration: 15000,
       // })
