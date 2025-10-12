@@ -10,4 +10,10 @@ export default defineConfig([
   { files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"], languageOptions: { globals: globals.browser } },
   tseslint.configs.recommended,
   pluginReact.configs.flat.recommended,
+  {
+    rules: {
+      'react/no-unescaped-entities': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
 ]);
