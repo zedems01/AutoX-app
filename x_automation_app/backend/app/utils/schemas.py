@@ -73,8 +73,8 @@ class Trend(BaseModel):
     Represents a trending topic on X.
     """
     name: str = Field(description="The name of the trend.")
-    rank: Optional[int] = Field(description="The rank of the trend.")
-    tweet_count: Optional[str] = Field(description="The number of tweets associated with the trend.")
+    rank: Optional[int] = Field(default=None, description="The rank of the trend.")
+    tweet_count: Optional[str] = Field(default=None, description="The number of tweets associated with the trend.")
 
 class TrendResponse(BaseModel):
     """
