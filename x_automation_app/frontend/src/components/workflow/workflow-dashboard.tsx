@@ -1,6 +1,5 @@
 "use client"
-
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { useWorkflowContext } from "@/contexts/WorkflowProvider"
 import { useWorkflow } from "@/hooks/use-workflow"
 import { ContentValidation } from "@/components/workflow/content-validation"
