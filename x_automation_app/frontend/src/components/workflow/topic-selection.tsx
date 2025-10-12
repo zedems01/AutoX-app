@@ -44,8 +44,8 @@ import {
 } from "@/components/ui/dialog"
 
 const formSchema = z.object({
-  selected_topic: z.string({
-    required_error: "You need to select a topic to continue.",
+  selected_topic: z.string().min(1, {
+    message: "You need to select a topic to continue.",
   }),
 })
 
