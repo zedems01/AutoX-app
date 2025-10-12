@@ -1,5 +1,5 @@
 from typing import List, Optional, Dict, Any, TypedDict
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from enum import Enum
 
 class UserDetails(BaseModel):
@@ -57,8 +57,9 @@ class GeneratedImage(BaseModel):
     local_file_path: str
     s3_url: str
 
-    class Config:
-        arbitrary_types_allowed = True
+    # class Config:
+    #     arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 class ImageGeneratorOutput(BaseModel):
     """
