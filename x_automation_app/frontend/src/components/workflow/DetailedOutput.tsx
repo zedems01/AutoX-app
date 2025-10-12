@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { useWorkflowContext } from "@/contexts/WorkflowProvider"
 import { TrendingTopicsDetails } from "./details/TrendingTopicsDetails"
 import { TweetSearchResultsDetails } from "./details/TweetSearchResultsDetails"

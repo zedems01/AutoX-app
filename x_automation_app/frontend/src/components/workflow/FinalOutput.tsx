@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { ImageWithFallback } from "@/components/shared/ImageWithFallback"
 import {
   Card,
