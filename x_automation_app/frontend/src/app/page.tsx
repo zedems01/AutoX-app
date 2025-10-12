@@ -89,7 +89,7 @@ const formSchema = z
     }
   )
 
-type FormSchemaType = z.infer<typeof formSchema>
+// type FormSchemaType = z.infer<typeof formSchema>
 
 const woeidLocations = [
   { name: "Worldwide", woeid: 1 },

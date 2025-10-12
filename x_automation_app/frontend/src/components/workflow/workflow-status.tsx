@@ -4,7 +4,7 @@ import React from "react"
 import { useWorkflowContext } from "@/contexts/WorkflowProvider"
 import { Badge } from "@/components/ui/badge"
 import { Loader2 } from "lucide-react"
-import { ActivityTimeline } from "@/components/workflow/ActivityTimeline"
+// import { ActivityTimeline } from "@/components/workflow/ActivityTimeline"
 
 export function WorkflowStatus() {
   const { isConnected, error, workflowState, events } = useWorkflowContext()

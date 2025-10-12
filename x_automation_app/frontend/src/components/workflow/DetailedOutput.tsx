@@ -5,7 +5,7 @@ import { useWorkflowContext } from "@/contexts/WorkflowProvider"
 import { TrendingTopicsDetails } from "./details/TrendingTopicsDetails"
 import { TweetSearchResultsDetails } from "./details/TweetSearchResultsDetails"
 import { OpinionAnalysisDetails } from "./details/OpinionAnalysisDetails"
-import { GeneratedQueriesDetails } from "./details/GeneratedQueriesDetails"
+// import { GeneratedQueriesDetails } from "./details/GeneratedQueriesDetails"
 import { DeepResearchReport } from "./details/DeepResearchReport"
 import { FinalOutput } from "./FinalOutput"
 
