@@ -199,11 +199,13 @@ def get_citations(response, resolved_urls_map):
 
 # Google Search API tool is used to get grounding metadata
 # Ensure the API key is loaded from the environment, no need to pay for it as we are using the free tier
-api_key = settings.GEMINI_API_KEY
-if not api_key:
-    raise ValueError("GEMINI_API_KEY environment variable not set.")
-genai_client = Client(api_key=api_key)
-model = settings.GEMINI_RESEARCH_MODEL
+def get_gemini_client():
+    api_key = settings.GEMINI_API_KEY
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY environment variable not set.")
+    genai_client = Client(api_key=api_key)
+    model = settings.GEMINI_RESEARCH_MODEL
+    return api_key, genai_client, model
 
 # --- Research Loop Nodes ---
 
@@ -264,6 +266,7 @@ def web_research(state: WebSearchState) -> OverallState:
         research_topic=state["search_query"],
     )
     # Uses the google genai client as the langchain client doesn't return grounding metadata
+    api_key, genai_client, model = get_gemini_client()
     response = genai_client.models.generate_content(
         model=model,
         contents=formatted_prompt,
@@ -306,6 +309,7 @@ def reflection(state: OverallState) -> ReflectionState:
         summaries="\n\n---\n\n".join(state["web_research_result"]),
     )
 
+    api_key, genai_client, model = get_gemini_client()
     llm = ChatGoogleGenerativeAI(
         model=model,
         temperature=1.0,
@@ -370,6 +374,7 @@ def finalize_answer(state: OverallState):
         summaries="\n---\n\n".join(state["web_research_result"]),
     )
 
+    api_key, genai_client, model = get_gemini_client()
     llm = ChatGoogleGenerativeAI(
         model=model,
         temperature=0,
