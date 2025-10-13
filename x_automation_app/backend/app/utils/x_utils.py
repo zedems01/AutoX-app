@@ -1,5 +1,5 @@
 # TODO:
-# * refine the logic of the 'tweet_advanced_search' tool to give more autonomy to the agent 
+# - refine the logic of the 'tweet_advanced_search' tool to give more autonomy to the agent 
 
 
 import requests
@@ -9,6 +9,9 @@ from typing import List, Optional
 from langchain_core.tools import tool
 import re
 import unicodedata
+import csv
+import json
+from io import StringIO
 
 from ..utils.logging_config import setup_logging, ctext
 logger = setup_logging()
@@ -328,3 +331,41 @@ def post_tweet_v2(
         raise Exception(f"Network error during tweet posting: {e}") from e
 
 
+def flatten_dict(d, parent_key='', sep='.'):
+    """
+    Flatten a nested dictionary by combining keys with a separator.
+    """
+    items = []
+    for key, value in d.items():
+        new_key = f"{parent_key}{sep}{key}" if parent_key else key
+        if isinstance(value, dict):
+            items.extend(flatten_dict(value, new_key, sep).items())
+        else:
+            items.append((new_key, value))
+    return dict(items)
+
+def data_to_csv(data, delimiter='|'):
+    """
+    Convert a list of objects to a CSV string, handling nested dictionaries.
+    """
+    if isinstance(data, str):
+        data = json.loads(data)
+
+    if not isinstance(data, list) or not data:
+        raise ValueError("The data must be a non-empty list")
+
+    flattened_data = [flatten_dict(item) for item in data]
+    headers = list(flattened_data[0].keys())
+
+    output = StringIO()
+    writer = csv.DictWriter(output, fieldnames=headers, lineterminator='\n', delimiter=delimiter)
+
+    writer.writeheader()
+
+    for item in flattened_data:
+        writer.writerow(item)
+
+    csv_content = output.getvalue()
+    output.close()
+
+    return csv_content

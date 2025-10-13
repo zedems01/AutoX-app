@@ -102,11 +102,11 @@ class TweetSearched(BaseModel):
     replyCount: int
     likeCount: int
     # quoteCount: int
-    # viewCount: int
-    # createdAt: str
+    viewCount: int
+    createdAt: str
     # lang: str
     # isReply: bool
-    # author: TweetAuthor
+    author: TweetAuthor
 
 class TweetSearchResponse(BaseModel):
     """

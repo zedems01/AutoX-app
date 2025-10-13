@@ -179,9 +179,11 @@ You are an expert market and public opinion analyst. Your role is to analyze a c
 <tweets_input>
 
 You will be provided with a list of tweets related to a broad or trending topic:
-```json
+
+
 {tweets}
-```
+
+
 </tweets_input>
 
 ================  ANALYSIS TASKS  ================
