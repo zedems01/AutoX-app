@@ -150,6 +150,7 @@ x_automation_app/
 │   │   ├── agents/      # Core agent logic and graph definition
 │   │   ├── utils/       # Utilities for prompts, schemas, etc.
 │   │   └── main.py      # FastAPI application entrypoint
+│   ├── tests/           # Backend test directory
 │   └── pyproject.toml   # Backend dependencies
 └── frontend/
     ├── src/
@@ -157,7 +158,6 @@ x_automation_app/
     │   ├── components/  # Reusable React components
     │   ├── contexts/    # Global state management (Auth, Workflow)
     │   └── lib/         # API client and utility functions
+    ├── __tests__/       # Frontend test directory
     └── package.json     # Frontend dependencies
 ```
-
-autox-app-production.up.railway.app

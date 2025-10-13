@@ -1,10 +1,15 @@
-name: CI Pipeline
+name: AutoX CI Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+      - dev
+      - feature/*
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
+      - dev
 
 jobs:
   frontend-ci:
@@ -18,7 +23,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: 20
+        node-version: 22
         cache: 'npm'
         cache-dependency-path: x_automation_app/frontend/package-lock.json
 
