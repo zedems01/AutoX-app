@@ -362,6 +362,8 @@ async def validate_step(payload: ValidationPayload):
         updated_state = graph.get_state(config)
         return updated_state.values
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error during validation: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"An error occurred during validation: {e}") 

@@ -87,7 +87,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
       } else {
         console.log('[Auth] No session found in localStorage. User unauthenticated.');
-        setAuthState(s => ({ ...s, authStatus: 'unauthenticated' }));
+        setTimeout(() => {
+          setAuthState(s => ({ ...s, authStatus: 'unauthenticated' }));
+        }, 0);
       }
     };
 

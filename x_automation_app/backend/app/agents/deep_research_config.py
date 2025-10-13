@@ -12,12 +12,12 @@ class Configuration(BaseModel):
 
     number_of_initial_queries: int = Field(
         default=1,
-        metadata={"description": "The number of initial search queries to generate."},
+        json_schema_extra={"description": "The number of initial search queries to generate."},
     )
 
     max_research_loops: int = Field(
         default=1,
-        metadata={"description": "The maximum number of research loops to perform."},
+        json_schema_extra={"description": "The maximum number of research loops to perform."},
     )
 
     

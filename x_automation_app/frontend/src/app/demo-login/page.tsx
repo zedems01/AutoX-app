@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import { Loader2, ShieldCheck, ShieldX } from "lucide-react"
-import { Suspense, useEffect, useState } from "react"
+import React, { Suspense, useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -37,7 +37,7 @@ function DemoLogin() {
       authLogin(data)
       router.push("/")
     },
-    onError: error => {
+    onError: () => {
       // toast.error(`Demo login failed: ${error.message}`, {
       //   duration: 15000,
       // })

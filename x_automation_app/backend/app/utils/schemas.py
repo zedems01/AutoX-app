@@ -1,5 +1,5 @@
 from typing import List, Optional, Dict, Any, TypedDict
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from enum import Enum
 
 class UserDetails(BaseModel):
@@ -52,13 +52,13 @@ class GeneratedImage(BaseModel):
     """
     Represents a generated image with its metadata.
     """
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     is_generated: bool
     image_name: str
     local_file_path: str
     s3_url: str
 
-    class Config:
-        arbitrary_types_allowed = True
 
 class ImageGeneratorOutput(BaseModel):
     """
@@ -72,8 +72,8 @@ class Trend(BaseModel):
     Represents a trending topic on X.
     """
     name: str = Field(description="The name of the trend.")
-    rank: Optional[int] = Field(description="The rank of the trend.")
-    tweet_count: Optional[str] = Field(description="The number of tweets associated with the trend.")
+    rank: Optional[int] = Field(default=None, description="The rank of the trend.")
+    tweet_count: Optional[str] = Field(default=None, description="The number of tweets associated with the trend.")
 
 class TrendResponse(BaseModel):
     """

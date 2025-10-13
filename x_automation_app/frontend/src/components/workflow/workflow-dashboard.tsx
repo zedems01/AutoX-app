@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { useWorkflowContext } from "@/contexts/WorkflowProvider"
 import { useWorkflow } from "@/hooks/use-workflow"
 import { ContentValidation } from "@/components/workflow/content-validation"
@@ -11,13 +11,14 @@ import { FinalOutput } from "@/components/workflow/FinalOutput"
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
+  // CardDescription,
+  // CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Loader2, RefreshCw, BarChart } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { BarChart } from "lucide-react"
+// import { Loader2, RefreshCw, BarChart } from "lucide-react"
+// import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { ActivityTimeline } from "@/components/workflow/ActivityTimeline"
@@ -29,8 +30,8 @@ export function WorkflowDashboard() {
     threadId,
     workflowState,
     showDetails,
-    isConnected,
-    error,
+    // isConnected,
+    // error,
     progress,
     events,
   } = useWorkflowContext()

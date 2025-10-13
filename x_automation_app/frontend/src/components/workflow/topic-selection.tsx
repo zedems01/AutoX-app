@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -13,16 +14,16 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
+  // FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+// import {
+//   Card,
+//   CardContent,
+//   CardDescription,
+//   CardHeader,
+//   CardTitle,
+// } from "@/components/ui/card"
 import {
   Table,
   TableBody,
@@ -43,8 +44,8 @@ import {
 } from "@/components/ui/dialog"
 
 const formSchema = z.object({
-  selected_topic: z.string({
-    required_error: "You need to select a topic to continue.",
+  selected_topic: z.string().min(1, {
+    message: "You need to select a topic to continue.",
   }),
 })
 

@@ -12,24 +12,6 @@ logger = setup_logging()
 
 
 
-try:
-    llm = ChatOpenAI(
-        api_key=settings.OPENROUTER_API_KEY,
-        base_url=settings.OPENROUTER_BASE_URL,
-        model=settings.OPENROUTER_MODEL
-    )
-except Exception as e:
-    logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
-    try:
-        llm = ChatGoogleGenerativeAI(
-            model=settings.GEMINI_MODEL,
-            google_api_key=settings.GEMINI_API_KEY
-        )
-    except Exception as e:
-        logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
-
-structured_llm = llm.with_structured_output(WriterOutput)
-
 def writer_node(state: OverallState) -> Dict[str, Any]:
     """
     Generates a content draft and image prompts based on research and user requirements.
@@ -44,6 +26,25 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
     Returns:
         A dictionary to update the 'content_draft' and 'image_prompts' keys in the state.
     """
+
+    try:
+        llm = ChatOpenAI(
+            api_key=settings.OPENROUTER_API_KEY,
+            base_url=settings.OPENROUTER_BASE_URL,
+            model=settings.OPENROUTER_MODEL
+        )
+    except Exception as e:
+        logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
+        try:
+            llm = ChatGoogleGenerativeAI(
+                model=settings.GEMINI_MODEL,
+                google_api_key=settings.GEMINI_API_KEY
+            )
+        except Exception as e:
+            logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
+
+    structured_llm = llm.with_structured_output(WriterOutput)
+    
     logger.info("DRAFTING CONTENT AND IMAGE PROMPTS...")
 
     try:

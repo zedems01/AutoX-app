@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { ThemeProvider } from "@/components/shared/theme-provider"
 import { QueryProvider } from "@/components/shared/query-provider"
 import { AuthProvider } from "@/contexts/AuthContext"

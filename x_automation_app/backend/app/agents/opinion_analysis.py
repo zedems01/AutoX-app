@@ -7,28 +7,11 @@ from typing import Dict, Any
 from .state import OverallState
 from ..utils.schemas import OpinionAnalysisOutput
 from ..config import settings
+from ..utils.x_utils import data_to_csv
 
 from ..utils.logging_config import setup_logging, ctext
 logger = setup_logging()
 
-
-try:
-    llm = ChatOpenAI(
-        api_key=settings.OPENROUTER_API_KEY,
-        base_url=settings.OPENROUTER_BASE_URL,
-        model=settings.OPENROUTER_MODEL
-    )
-except Exception as e:
-    logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
-    try:
-        llm = ChatGoogleGenerativeAI(
-            model=settings.GEMINI_MODEL,
-            google_api_key=settings.GEMINI_API_KEY
-        )
-    except Exception as e:
-        logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
-
-structured_llm = llm.with_structured_output(OpinionAnalysisOutput)
 
 def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
     """
@@ -45,6 +28,26 @@ def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
         A dictionary to update the 'opinion_summary', 'overall_sentiment',
         and 'topic_from_opinion_analysis' keys in the state.
     """
+
+    try:
+        llm = ChatOpenAI(
+            api_key=settings.OPENROUTER_API_KEY,
+            base_url=settings.OPENROUTER_BASE_URL,
+            model=settings.OPENROUTER_MODEL
+        )
+    except Exception as e:
+        logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
+        try:
+            llm = ChatGoogleGenerativeAI(
+                model=settings.GEMINI_MODEL,
+                google_api_key=settings.GEMINI_API_KEY
+            )
+        except Exception as e:
+            logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
+
+    structured_llm = llm.with_structured_output(OpinionAnalysisOutput)
+
+
     logger.info("ANALYZING TWEETS CONTENT...")
 
     try:
@@ -52,8 +55,10 @@ def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
         if not tweets:
             raise ValueError("No tweets found in the state to analyze.")
 
-        tweets_json_string = json.dumps([tweet.model_dump() for tweet in tweets])
-        prompt = opinion_analysis_prompt.format(tweets=tweets_json_string)
+        data = [tweet.model_dump() for tweet in tweets]
+        csv_data = data_to_csv(data)
+        prompt = opinion_analysis_prompt.format(tweets=csv_data)
+        print(prompt)
 
         analysis_result = structured_llm.invoke(prompt)
 
@@ -67,4 +72,4 @@ def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
 
     except Exception as e:
         logger.error(f"An error occurred in the opinion analysis node: {e}\n")
-        return {"error_message": f"An unexpected error occurred during opinion analysis: {str(e)}"}
+        return {"error_message": f"An unexpected error occurred during opinion analysis: {str(e)}"} 

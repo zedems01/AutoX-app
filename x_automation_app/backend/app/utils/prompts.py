@@ -164,7 +164,7 @@ Call the `tweet_advanced_search` tool **once** using the generated query.
 - Return **only** the full and direct result from the `tweet_advanced_search` tool.
 - **Your final output must be a single JSON object that conforms to the `TweetSearchResponse` schema.**
 
-❗Do **not** add any extra commentary, formatting, or summaries. Do not truncate the tweets.
+- Do **not** add any extra commentary, formatting, or summaries. Do not truncate the tweets.
 
 </output_instruction>
 """
@@ -179,9 +179,11 @@ You are an expert market and public opinion analyst. Your role is to analyze a c
 <tweets_input>
 
 You will be provided with a list of tweets related to a broad or trending topic:
-```json
+
+
 {tweets}
-```
+
+
 </tweets_input>
 
 ================  ANALYSIS TASKS  ================
@@ -218,7 +220,7 @@ You will be provided with a list of tweets related to a broad or trending topic:
 <output_instruction>
 
 Return a **single JSON object** that strictly follows the schema provided.
-❗Do **not** add any other text, explanation, or formatting.
+Do **not** add any other text, explanation, or formatting.
 
 </output_instruction>
 """

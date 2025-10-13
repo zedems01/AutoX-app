@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import React, { useEffect, useRef } from "react"
 import {
   BrainCircuit,
   FileCheck2,
@@ -23,7 +23,7 @@ import { Badge } from "@/components/ui/badge"
 
 const getStepConfig = (
   event: StreamEvent,
-  workflowState: OverallState | null
+  // workflowState: OverallState | null
 ) => {
   let icon = Loader2
   let title = "Processing..."
@@ -179,14 +179,14 @@ const getStepConfig = (
 
 function TimelineItem({
   event,
-  workflowState,
+  // workflowState,
 }: {
   event: StreamEvent
   workflowState: OverallState | null
 }) {
   const { icon: Icon, title, description, status } = getStepConfig(
     event,
-    workflowState
+    // workflowState
   )
   const isRunning = status === "running"
   const isCompleted = status === "completed"
@@ -250,7 +250,8 @@ export function ActivityTimeline() {
   const latestEventsMap = new Map<string, StreamEvent>()
   events.forEach((event) => {
     // Only track our allowed events
-    if (getStepConfig(event, workflowState).title !== "Processing...") {
+    // if (getStepConfig(event, workflowState).title !== "Processing...") {
+      if (getStepConfig(event).title !== "Processing...") {
       latestEventsMap.set(event.run_id, event)
     }
   })

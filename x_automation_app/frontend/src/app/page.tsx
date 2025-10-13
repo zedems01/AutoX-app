@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useEffect, useState } from "react"
+import React, { Suspense, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -55,17 +55,13 @@ const formSchema = z
   .object({
     is_autonomous_mode: z.boolean(),
     show_details: z.boolean(),
-    output_destination: z.enum(["GET_OUTPUTS", "PUBLISH_X"], {
-      required_error: "You need to select an output destination.",
-    }),
+    output_destination: z.enum(["GET_OUTPUTS", "PUBLISH_X"] as const),
     has_user_provided_topic: z.boolean(),
     user_provided_topic: z.string().optional(),
     x_content_type: z.string().min(1, {
       message: "You need to select a content type.",
     }),
-    content_length: z.enum(["SHORT", "MEDIUM", "LONG"], {
-      required_error: "You need to select a content length.",
-    }),
+    content_length: z.enum(["SHORT", "MEDIUM", "LONG"] as const),
     brand_voice: z.string().optional(),
     target_audience: z.string().optional(),
     user_config: z
@@ -93,7 +89,7 @@ const formSchema = z
     }
   )
 
-type FormSchemaType = z.infer<typeof formSchema>
+// type FormSchemaType = z.infer<typeof formSchema>
 
 const woeidLocations = [
   { name: "Worldwide", woeid: 1 },

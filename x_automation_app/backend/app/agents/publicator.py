@@ -14,29 +14,7 @@ from ..utils.logging_config import setup_logging, ctext
 logger = setup_logging()
 
 
-try:
-    llm = ChatOpenAI(
-        api_key=settings.OPENROUTER_API_KEY,
-        base_url=settings.OPENROUTER_BASE_URL,
-        model=settings.OPENROUTER_MODEL,
-        temperature=0.5
-    )
-except Exception as e:
-    logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
-    try:
-        llm = ChatGoogleGenerativeAI(
-            model=settings.GEMINI_MODEL,
-            google_api_key=settings.GEMINI_API_KEY,
-            temperature=0.5
-        )
-    except Exception as e:
-        logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
 
-thread_composer_agent = create_react_agent(
-    model=llm,
-    tools=[get_char_count],
-    response_format=ThreadPlan
-)
 
 
 def publicator_node(state: OverallState) -> Dict[str, Any]:
@@ -50,6 +28,31 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
     Returns:
         A dictionary to update the 'publication_id' in the state.
     """
+
+    try:
+        llm = ChatOpenAI(
+            api_key=settings.OPENROUTER_API_KEY,
+            base_url=settings.OPENROUTER_BASE_URL,
+            model=settings.OPENROUTER_MODEL,
+            temperature=0.5
+        )
+    except Exception as e:
+        logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
+        try:
+            llm = ChatGoogleGenerativeAI(
+                model=settings.GEMINI_MODEL,
+                google_api_key=settings.GEMINI_API_KEY,
+                temperature=0.5
+            )
+        except Exception as e:
+            logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
+
+    thread_composer_agent = create_react_agent(
+        model=llm,
+        tools=[get_char_count],
+        response_format=ThreadPlan
+    )
+
     logger.info("PUBLISHING/DISPLAYING FINAL CONTENT...")
 
     try:
