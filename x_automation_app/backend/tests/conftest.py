@@ -2,9 +2,9 @@
 import pytest
 from unittest.mock import Mock, MagicMock
 from fastapi.testclient import TestClient
-from ..app.main import app
-from ..app.agents.state import OverallState
-from ..app.utils.schemas import (
+from backend.app.main import app
+from backend.app.agents.state import OverallState
+from backend.app.utils.schemas import (
     Trend, TweetSearched, TweetAuthor, ValidationResult,
     ValidationAction, ValidationData, UserDetails, UserConfigSchema
 )
