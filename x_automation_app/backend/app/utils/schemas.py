@@ -52,14 +52,13 @@ class GeneratedImage(BaseModel):
     """
     Represents a generated image with its metadata.
     """
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     is_generated: bool
     image_name: str
     local_file_path: str
     s3_url: str
 
-    # class Config:
-    #     arbitrary_types_allowed = True
-    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 class ImageGeneratorOutput(BaseModel):
     """
@@ -103,11 +102,11 @@ class TweetSearched(BaseModel):
     replyCount: int
     likeCount: int
     # quoteCount: int
-    viewCount: int
-    createdAt: str
+    # viewCount: int
+    # createdAt: str
     # lang: str
     # isReply: bool
-    author: TweetAuthor
+    # author: TweetAuthor
 
 class TweetSearchResponse(BaseModel):
     """
