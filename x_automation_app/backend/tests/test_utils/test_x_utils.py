@@ -3,7 +3,8 @@ import pytest
 from unittest.mock import Mock, mock_open
 from backend.app.utils.x_utils import (
     login_v2, verify_session, get_char_count,
-    upload_image_v2, post_tweet_v2, InvalidSessionError
+    upload_image_v2, post_tweet_v2, InvalidSessionError,
+    data_to_csv
 )
 
 
@@ -334,4 +335,51 @@ class TestPostTweetV2:
         )
 
         assert result == "reply_12345"
+
+
+class TestDataToCsv:
+    """Tests for data_to_csv function."""
+
+    def test_data_to_csv_simple_list(self):
+        """Test conversion of simple list of dicts to CSV."""
+        data = [{"name": "Alice", "age": 30}, {"name": "Bob", "age": 25}]
+        result = data_to_csv(data)
+        expected = "name|age\nAlice|30\nBob|25\n"
+        assert result == expected
+
+    def test_data_to_csv_nested_dicts(self):
+        """Test handling of nested dictionaries in data."""
+        data = [
+            {"user": {"name": "Alice", "id": 1}, "score": 90},
+            {"user": {"name": "Bob", "id": 2}, "score": 85}
+        ]
+        result = data_to_csv(data)
+        expected = "user.name|user.id|score\nAlice|1|90\nBob|2|85\n"
+        assert result == expected
+
+    def test_data_to_csv_with_delimiter(self):
+        """Test with custom delimiter."""
+        data = [{"name": "Alice", "age": 30}]
+        result = data_to_csv(data, delimiter=',')
+        expected = "name,age\nAlice,30\n"
+        assert result == expected
+
+    def test_data_to_csv_empty_list(self):
+        """Test raises ValueError for empty list."""
+        with pytest.raises(ValueError) as excinfo:
+            data_to_csv([])
+        assert "non-empty list" in str(excinfo.value)
+
+    def test_data_to_csv_invalid_type(self):
+        """Test raises ValueError for non-list input."""
+        with pytest.raises(ValueError) as excinfo:
+            data_to_csv({"not": "a list"})
+        assert "non-empty list" in str(excinfo.value)
+
+    def test_data_to_csv_json_string(self):
+        """Test conversion from JSON string input."""
+        json_str = '[{"name": "Alice", "age": 30}, {"name": "Bob", "age": 25}]'
+        result = data_to_csv(json_str)
+        expected = "name|age\nAlice|30\nBob|25\n"
+        assert result == expected
 
