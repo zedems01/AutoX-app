@@ -4,12 +4,11 @@ on:
   push:
     branches:
       - main
-      - dev
-      - feature/*
+      - 'dev/*'
   pull_request:
     branches:
       - main
-      - dev
+      - 'dev/*'
 
 jobs:
   frontend-ci:
