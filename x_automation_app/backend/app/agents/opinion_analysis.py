@@ -13,24 +13,6 @@ from ..utils.logging_config import setup_logging, ctext
 logger = setup_logging()
 
 
-try:
-    llm = ChatOpenAI(
-        api_key=settings.OPENROUTER_API_KEY,
-        base_url=settings.OPENROUTER_BASE_URL,
-        model=settings.OPENROUTER_MODEL
-    )
-except Exception as e:
-    logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
-    try:
-        llm = ChatGoogleGenerativeAI(
-            model=settings.GEMINI_MODEL,
-            google_api_key=settings.GEMINI_API_KEY
-        )
-    except Exception as e:
-        logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
-
-structured_llm = llm.with_structured_output(OpinionAnalysisOutput)
-
 def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
     """
     Analyzes tweets from the state to produce a summary, sentiment, and refined topic.
@@ -46,6 +28,26 @@ def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
         A dictionary to update the 'opinion_summary', 'overall_sentiment',
         and 'topic_from_opinion_analysis' keys in the state.
     """
+
+    try:
+        llm = ChatOpenAI(
+            api_key=settings.OPENROUTER_API_KEY,
+            base_url=settings.OPENROUTER_BASE_URL,
+            model=settings.OPENROUTER_MODEL
+        )
+    except Exception as e:
+        logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
+        try:
+            llm = ChatGoogleGenerativeAI(
+                model=settings.GEMINI_MODEL,
+                google_api_key=settings.GEMINI_API_KEY
+            )
+        except Exception as e:
+            logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
+
+    structured_llm = llm.with_structured_output(OpinionAnalysisOutput)
+
+
     logger.info("ANALYZING TWEETS CONTENT...")
 
     try:

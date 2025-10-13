@@ -16,27 +16,6 @@ logger = setup_logging()
 
 
 
-try:
-    llm = ChatOpenAI(
-        api_key=settings.OPENROUTER_API_KEY,
-        base_url=settings.OPENROUTER_BASE_URL,
-        model=settings.OPENROUTER_MODEL
-    )
-except Exception as e:
-    logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
-    try:
-        llm = ChatGoogleGenerativeAI(
-            model=settings.GEMINI_MODEL,
-            google_api_key=settings.GEMINI_API_KEY
-        )
-    except Exception as e:
-        logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
-
-tweet_search_agent = create_react_agent(
-    model=llm,
-    tools=[tweet_advanced_search],
-    response_format=TweetSearchResponse
-)
 
 def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
     """
@@ -49,6 +28,30 @@ def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
     Returns:
         A dictionary to update the 'tweet_search_results' key in the state.
     """
+
+    try:
+        llm = ChatOpenAI(
+            api_key=settings.OPENROUTER_API_KEY,
+            base_url=settings.OPENROUTER_BASE_URL,
+            model=settings.OPENROUTER_MODEL
+        )
+    except Exception as e:
+        logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
+        try:
+            llm = ChatGoogleGenerativeAI(
+                model=settings.GEMINI_MODEL,
+                google_api_key=settings.GEMINI_API_KEY
+            )
+        except Exception as e:
+            logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
+
+    tweet_search_agent = create_react_agent(
+        model=llm,
+        tools=[tweet_advanced_search],
+        response_format=TweetSearchResponse
+    )
+
+
     logger.info("TWEET SEARCH PROCESS")
 
 
