@@ -1,0 +1,10 @@
+# Prometheus data
+data/
+
+# Grafana data
+grafana-data/
+
+# Temporary files
+*.tmp
+*.log
+

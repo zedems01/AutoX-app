@@ -17,12 +17,18 @@ from .config import settings
 from .utils.logging_config import setup_logging, ctext, add_file_handler, remove_file_handler
 logger = setup_logging()
 
+# Prometheus monitoring
+from prometheus_fastapi_instrumentator import Instrumentator
+
 
 app = FastAPI(
     title="AutoX Backend",
     description="Manages the agentic workflow for content generation and publishing.",
     version="1.0.0",
 )
+
+# Initialize Prometheus metrics
+Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
 # CORS Config
 origins = [
