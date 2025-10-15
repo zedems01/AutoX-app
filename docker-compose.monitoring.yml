@@ -53,8 +53,7 @@ services:
     container_name: autox-promtail
     volumes:
       - ./monitoring/promtail:/etc/promtail
-      - ./x_automation_app/backend/app/logs:/var/log/autox
-      - /var/log:/var/log:ro
+      - ./x_automation_app/backend/app/logs:/var/log/autox:ro
     command: -config.file=/etc/promtail/promtail-config.yaml
     networks:
       - monitoring
