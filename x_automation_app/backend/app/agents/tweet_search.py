@@ -82,12 +82,14 @@ def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
                 tweets_language=tweets_language
             )    
 
-        response = structured_llm.invoke(prompt)
-        query = response.query
-        logger.info(ctext(f"Generated query: {query}\n", color='white'))
-        # parsed_response = response["structured_response"]
-        tweets = tweet_advanced_search(query)
-
+        tweets = []
+        while len(tweets) < 15:
+            response = structured_llm.invoke(prompt)
+            query = response.query
+            logger.info(ctext(f"Generated query: {query}\n", color='white'))
+            tweets = tweet_advanced_search(query)
+            tweets.extend(tweets)
+        
         logger.info(ctext(f"Successfully fetched {len(tweets)} tweets.\n", color='white'))
 
         return {"tweet_search_results": tweets}
