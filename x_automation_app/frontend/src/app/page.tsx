@@ -159,7 +159,7 @@ function WorkflowConfig() {
 
   // Stop workflow on page refresh/unmount for better metrics collection
   useEffect(() => {
-    const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
+    const handleBeforeUnload = async () => {
       if (threadId) {
         // Stop the workflow on the backend
         try {
