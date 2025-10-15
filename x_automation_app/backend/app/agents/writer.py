@@ -8,6 +8,9 @@ from ..utils.schemas import WriterOutput
 from ..config import settings
 
 from ..utils.logging_config import setup_logging, ctext
+from ..utils.metrics import CONTENT_DRAFTS_TOTAL, AGENT_EXECUTION_TIME, AGENT_INVOCATIONS_TOTAL, ERRORS_TOTAL
+import time
+
 logger = setup_logging()
 
 
@@ -26,6 +29,9 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
     Returns:
         A dictionary to update the 'content_draft' and 'image_prompts' keys in the state.
     """
+    start_time = time.time()
+    status = "success"
+    AGENT_INVOCATIONS_TOTAL.labels(agent_name="writer", status="started").inc()
 
     try:
         llm = ChatOpenAI(
@@ -89,6 +95,12 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
 
         logger.info(ctext(f"Content successfully drafted; {len(image_prompts)} image prompts created.\n", color='white'))
 
+        # Track content draft generation
+        CONTENT_DRAFTS_TOTAL.labels(
+            content_type=x_content_type,
+            content_length=content_length
+        ).inc()
+
         return {
             "content_draft": content_draft,
             "image_prompts": image_prompts,
@@ -96,4 +108,11 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
 
     except Exception as e:
         logger.error(f"An error occurred in the writer node: {e}\n")
+        status = "error"
+        ERRORS_TOTAL.labels(error_type=type(e).__name__, component="agent_writer").inc()
         return {"error_message": f"An unexpected error occurred during content writing: {str(e)}"}
+    
+    finally:
+        duration = time.time() - start_time
+        AGENT_EXECUTION_TIME.labels(agent_name="writer", status=status).observe(duration)
+        AGENT_INVOCATIONS_TOTAL.labels(agent_name="writer", status=status).inc()

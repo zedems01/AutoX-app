@@ -14,6 +14,9 @@ from ..utils.image import generate_and_upload_image
 from ..config import settings
 
 from ..utils.logging_config import setup_logging, ctext
+from ..utils.metrics import IMAGES_GENERATED_TOTAL, AGENT_EXECUTION_TIME, AGENT_INVOCATIONS_TOTAL, ERRORS_TOTAL
+import time
+
 logger = setup_logging()
 
 
@@ -58,6 +61,10 @@ def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]
 
     logger.info("GENERATING CONTENT IMAGES...")
     
+    start_time = time.time()
+    status = "success"
+    AGENT_INVOCATIONS_TOTAL.labels(agent_name="image_generator", status="started").inc()
+    
     try:
         final_image_prompts = state.get("final_image_prompts")
         if not final_image_prompts:
@@ -88,8 +95,20 @@ def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]
 
         logger.info(ctext(f"Successfully generated {len(parsed_response.images)} images.\n", color='white'))
 
+        # Track image generation
+        for _ in parsed_response.images:
+            IMAGES_GENERATED_TOTAL.labels(status="success").inc()
+
         return {"generated_images": parsed_response.images}
 
     except Exception as e:
         logger.error(f"An unexpected error occurred in the image generator node: {e}\n")
+        status = "error"
+        IMAGES_GENERATED_TOTAL.labels(status="failure").inc()
+        ERRORS_TOTAL.labels(error_type=type(e).__name__, component="agent_image_generator").inc()
         return {"error_message": f"An unexpected error occurred during image generation: {str(e)}"}
+    
+    finally:
+        duration = time.time() - start_time
+        AGENT_EXECUTION_TIME.labels(agent_name="image_generator", status=status).observe(duration)
+        AGENT_INVOCATIONS_TOTAL.labels(agent_name="image_generator", status=status).inc()

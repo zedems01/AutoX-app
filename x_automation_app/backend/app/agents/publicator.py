@@ -11,6 +11,9 @@ from ..config import settings
 
 
 from ..utils.logging_config import setup_logging, ctext
+from ..utils.metrics import PUBLICATIONS_TOTAL, AGENT_EXECUTION_TIME, AGENT_INVOCATIONS_TOTAL, ERRORS_TOTAL
+import time
+
 logger = setup_logging()
 
 
@@ -54,6 +57,10 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
     )
 
     logger.info("PUBLISHING/DISPLAYING FINAL CONTENT...")
+
+    start_time = time.time()
+    status = "success"
+    AGENT_INVOCATIONS_TOTAL.labels(agent_name="publicator", status="started").inc()
 
     try:
         output_destination = state.get("output_destination")
@@ -125,11 +132,13 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
                 )
             
             logger.info(ctext(f"Successfully posted to X: https://x.com/{settings.USER_NAME}/status/{publication_id}\n\n", color='white'))
+            PUBLICATIONS_TOTAL.labels(destination="X", status="success").inc()
 
         elif output_destination == "GET_OUTPUTS":
             logger.info(ctext("Destination: GET_OUTPUTS", color='white'))
             publication_id = "Content processed and available for viewing"
             logger.info(ctext("Content displayed successfully.\n\n", color='white'))
+            PUBLICATIONS_TOTAL.labels(destination="draft", status="success").inc()
 
         else:
             raise ValueError(f"Unknown output destination: {output_destination}")
@@ -138,4 +147,16 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
 
     except Exception as e:
         logger.error(f"An error occurred in the publicator node: {e}\n")
+        status = "error"
+        destination = state.get("output_destination", "unknown")
+        PUBLICATIONS_TOTAL.labels(
+            destination="X" if destination == "PUBLISH_X" else "draft",
+            status="failure"
+        ).inc()
+        ERRORS_TOTAL.labels(error_type=type(e).__name__, component="agent_publicator").inc()
         return {"error_message": f"An unexpected error occurred during publication: {str(e)}"}
+    
+    finally:
+        duration = time.time() - start_time
+        AGENT_EXECUTION_TIME.labels(agent_name="publicator", status=status).observe(duration)
+        AGENT_INVOCATIONS_TOTAL.labels(agent_name="publicator", status=status).inc()

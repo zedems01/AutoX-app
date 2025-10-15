@@ -19,6 +19,14 @@ logger = setup_logging()
 
 # Prometheus monitoring
 from prometheus_fastapi_instrumentator import Instrumentator
+from .utils.metrics import (
+    WORKFLOW_STARTS_TOTAL, WORKFLOW_COMPLETIONS_TOTAL, ACTIVE_WORKFLOWS,
+    LOGIN_ATTEMPTS_TOTAL, SESSION_VALIDATIONS_TOTAL,
+    TOPICS_SELECTED_TOTAL, CONTENT_DRAFTS_TOTAL, PUBLICATIONS_TOTAL,
+    VALIDATION_REQUESTS_TOTAL, VALIDATION_RESPONSES_TOTAL,
+    ACTIVE_WEBSOCKETS, WEBSOCKET_DISCONNECTIONS_TOTAL,
+    ERRORS_TOTAL
+)
 
 
 app = FastAPI(
@@ -106,6 +114,9 @@ async def login(payload: LoginPayload):
         username = ctext(session_details['user_details']['user_name'], italic=True)
         logger.info(ctext(f"Successfully completed login process. Session initialized for user {username}", color='white'))
 
+        # Track successful login
+        LOGIN_ATTEMPTS_TOTAL.labels(login_type="normal", status="success").inc()
+
         return {
             "session": session_details["session_cookie"],
             "userDetails": session_details["user_details"],
@@ -114,6 +125,7 @@ async def login(payload: LoginPayload):
 
     except Exception as e:
         logger.error(f"Failed to complete login: {e}")
+        LOGIN_ATTEMPTS_TOTAL.labels(login_type="normal", status="failure").inc()
         raise HTTPException(status_code=400, detail=f"Failed to complete login: {e}")
 
 
@@ -166,6 +178,9 @@ async def demo_login(payload: DemoLoginPayload):
         username = ctext(session_details['user_details']['user_name'], italic=True)
         logger.info(ctext(f"Successfully completed demo login. Session initialized for user {username}", color='white'))
 
+        # Track successful demo login
+        LOGIN_ATTEMPTS_TOTAL.labels(login_type="demo", status="success").inc()
+
         return {
             "session": session_details["session_cookie"],
             "userDetails": session_details["user_details"],
@@ -174,6 +189,7 @@ async def demo_login(payload: DemoLoginPayload):
 
     except Exception as e:
         logger.error(f"Failed to complete demo login: {e}")
+        LOGIN_ATTEMPTS_TOTAL.labels(login_type="demo", status="failure").inc()
         raise HTTPException(status_code=500, detail=f"Failed to complete demo login: {e}")
 
 
@@ -184,12 +200,15 @@ async def validate_session(payload: ValidateSessionPayload):
     """
     try:
         result = x_utils.verify_session(login_cookies=payload.session, proxy=payload.proxy)
+        SESSION_VALIDATIONS_TOTAL.labels(status="valid").inc()
         return result
     except InvalidSessionError as e:
         logger.warning(f"Session validation failed: {e}")
+        SESSION_VALIDATIONS_TOTAL.labels(status="invalid").inc()
         raise HTTPException(status_code=401, detail=str(e))
     except Exception as e:
         logger.error(f"An unexpected error occurred during session validation: {e}")
+        SESSION_VALIDATIONS_TOTAL.labels(status="error").inc()
         raise HTTPException(status_code=500, detail="An unexpected error occurred.")
 
 
@@ -205,6 +224,14 @@ async def start_workflow(payload: StartWorkflowPayload):
     add_file_handler(thread_id)
 
     logger.info(f"STARTING WORKFLOW... --- thread_id: {ctext(thread_id, color='white', italic=True)}")
+
+    # Track workflow start
+    WORKFLOW_STARTS_TOTAL.labels(
+        autonomous_mode=str(payload.is_autonomous_mode),
+        output_destination=payload.output_destination or "DRAFT",
+        content_type=payload.x_content_type or "unknown"
+    ).inc()
+    ACTIVE_WORKFLOWS.inc()
 
     try:
         # Prepare the initial state from the payload
@@ -260,6 +287,12 @@ async def start_workflow(payload: StartWorkflowPayload):
 
     except Exception as e:
         logger.error(f"An error occurred during workflow execution: {e}")
+        ACTIVE_WORKFLOWS.dec()
+        WORKFLOW_COMPLETIONS_TOTAL.labels(
+            status="error",
+            autonomous_mode=str(payload.is_autonomous_mode)
+        ).inc()
+        ERRORS_TOTAL.labels(error_type=type(e).__name__, component="workflow_start").inc()
         raise HTTPException(status_code=500, detail=f"An error occurred during workflow execution: {e}")
 
 
@@ -271,6 +304,8 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
     Handles WebSocket connections for real-time workflow status updates.
     """
     await websocket.accept()
+    ACTIVE_WEBSOCKETS.inc()
+    
     config = {"configurable": {"thread_id": thread_id}}
     ALLOWED_EVENTS = ["on_chain_start", "on_chain_end"]
     ALLOWED_NAMES = [
@@ -299,12 +334,28 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
         final_state_of_run = graph.get_state(config)
         if final_state_of_run:
             await websocket.send_text(json.dumps(final_state_of_run.values, cls=CustomJSONEncoder))
+            
+            # Track workflow completion
+            error_msg = final_state_of_run.values.get("error_message")
+            status = "error" if error_msg else "success"
+            autonomous = final_state_of_run.values.get("is_autonomous_mode", False)
+            
+            WORKFLOW_COMPLETIONS_TOTAL.labels(
+                status=status,
+                autonomous_mode=str(autonomous)
+            ).inc()
+            ACTIVE_WORKFLOWS.dec()
 
     except WebSocketDisconnect:
         print(f"WebSocket disconnected for thread: {thread_id}\n")
+        ACTIVE_WEBSOCKETS.dec()
+        WEBSOCKET_DISCONNECTIONS_TOTAL.labels(reason="client").inc()
         remove_file_handler(thread_id)
     except Exception as e:
         # print(f"Error in WebSocket for thread {thread_id}: {e}\n")
+        ACTIVE_WEBSOCKETS.dec()
+        WEBSOCKET_DISCONNECTIONS_TOTAL.labels(reason="error").inc()
+        ERRORS_TOTAL.labels(error_type=type(e).__name__, component="websocket").inc()
         await websocket.close(code=1011, reason=str(e))
 
 
@@ -327,6 +378,12 @@ async def validate_step(payload: ValidationPayload):
         next_step = current_state.values.get("next_human_input_step")
         if not next_step:
             raise HTTPException(status_code=400, detail="No human input is currently awaited for this workflow.")
+        
+        # Track validation response
+        VALIDATION_RESPONSES_TOTAL.labels(
+            validation_step=next_step,
+            action=payload.validation_result.action.value
+        ).inc()
         
         # Storing which step was validated in the result itself, then clearing the
         # human input step to signal to the frontend that the step is "in progress".
