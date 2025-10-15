@@ -32,6 +32,34 @@ services:
       - monitoring
     depends_on:
       - prometheus
+      - loki
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:latest
+    container_name: autox-loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./monitoring/loki:/etc/loki
+      - loki-data:/loki
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: autox-promtail
+    volumes:
+      - ./monitoring/promtail:/etc/promtail
+      - ./x_automation_app/backend/app/logs:/var/log/autox
+      - /var/log:/var/log:ro
+    command: -config.file=/etc/promtail/promtail-config.yaml
+    networks:
+      - monitoring
+    depends_on:
+      - loki
     restart: unless-stopped
 
 networks:
@@ -41,4 +69,5 @@ networks:
 volumes:
   prometheus-data:
   grafana-data:
+  loki-data:
 
