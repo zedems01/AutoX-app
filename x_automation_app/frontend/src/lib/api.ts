@@ -71,3 +71,12 @@ export async function validateStep(payload: ValidationPayload): Promise<OverallS
   });
   return handleResponse<OverallState>(response);
 }
+
+export async function stopWorkflow(threadId: string): Promise<{ success: boolean }> {
+  const response = await fetch(`${API_BASE_URL}/workflow/stop`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ thread_id: threadId }),
+  });
+  return handleResponse<{ success: boolean }>(response);
+}

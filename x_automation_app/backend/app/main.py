@@ -86,6 +86,9 @@ class ValidationPayload(BaseModel):
     thread_id: str
     validation_result: ValidationResult
 
+class StopWorkflowPayload(BaseModel):
+    thread_id: str
+
 @app.get("/health", summary="Health Check", tags=["Status"])
 def health_check():
     """
@@ -429,5 +432,49 @@ async def validate_step(payload: ValidationPayload):
         raise
     except Exception as e:
         logger.error(f"Error during validation: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"An error occurred during validation: {e}") 
+        raise HTTPException(status_code=500, detail=f"An error occurred during validation: {e}")
+
+
+# --- Stop Workflow Endpoint ---
+
+@app.post("/workflow/stop", tags=["Workflow"])
+async def stop_workflow(payload: StopWorkflowPayload):
+    """
+    Stops a running workflow and updates metrics.
+    """
+    logger.info(f"STOPPING WORKFLOW... --- thread_id: {ctext(payload.thread_id, color='white', italic=True)}")
     
+    config = {"configurable": {"thread_id": payload.thread_id}}
+
+    try:
+        # Check if workflow exists
+        current_state = graph.get_state(config)
+        if not current_state:
+            raise HTTPException(status_code=404, detail="Workflow thread not found.")
+
+        # Mark the workflow as stopped by updating the state
+        update_data = {
+            "current_step": "STOPPED",
+            "error_message": "Workflow was stopped by user"
+        }
+        graph.update_state(config, update_data)
+        
+        # Update metrics
+        autonomous = current_state.values.get("is_autonomous_mode", False)
+        WORKFLOW_COMPLETIONS_TOTAL.labels(
+            status="stopped",
+            autonomous_mode=str(autonomous)
+        ).inc()
+        ACTIVE_WORKFLOWS.dec()
+        
+        # Clean up file handler
+        remove_file_handler(payload.thread_id)
+        
+        logger.info(ctext(f"Workflow {payload.thread_id} successfully stopped.", color='white'))
+        return {"success": True}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error stopping workflow: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"An error occurred while stopping the workflow: {e}")

@@ -27,7 +27,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { startWorkflow } from "@/lib/api"
+import { startWorkflow, stopWorkflow } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
@@ -114,7 +114,7 @@ function WorkflowConfig() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { authStatus, session, userDetails, proxy } = useAuth()
-  const { setThreadId, setShowDetails } = useWorkflowContext()
+  const { threadId, setThreadId, setShowDetails } = useWorkflowContext()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -156,6 +156,29 @@ function WorkflowConfig() {
       }
     }
   }, [searchParams, form, router])
+
+  // Stop workflow on page refresh/unmount for better metrics collection
+  useEffect(() => {
+    const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
+      if (threadId) {
+        // Stop the workflow on the backend
+        try {
+          await stopWorkflow(threadId)
+          console.log(`Workflow ${threadId} stopped due to page refresh`)
+        } catch (error) {
+          console.error('Failed to stop workflow:', error)
+        }
+      }
+    }
+
+    // Add the event listener
+    window.addEventListener('beforeunload', handleBeforeUnload)
+
+    // Cleanup function to remove the event listener
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [threadId])
 
   const mutation = useMutation({
     mutationFn: startWorkflow,
