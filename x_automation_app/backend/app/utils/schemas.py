@@ -81,6 +81,12 @@ class TrendResponse(BaseModel):
     """
     trends: List[Trend]
 
+class TweetQuery(BaseModel):
+    """
+    Represents a tweet query.
+    """
+    query: str
+
 
 class TweetAuthor(BaseModel):
     """

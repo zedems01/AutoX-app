@@ -145,30 +145,29 @@ Follow these guidelines:
 
 </query_construction>
 
-================  TOOL CALL  ================
-
-<tool_call>
-
-Call the `tweet_advanced_search` tool **once** using the generated query.
-
-- Required parameters:
-  - `query`: your constructed query string.
-  - `query_type`: `"Latest"` *(default)* or `"Top"`, based on the topic's needs.
-
-</tool_call>
-
 ================  OUTPUT FORMAT  ================
 
 <output_instruction>
 
-- Return **only** the full and direct result from the `tweet_advanced_search` tool.
-- **Your final output must be a single JSON object that conforms to the `TweetSearchResponse` schema.**
-
-- Do **not** add any extra commentary, formatting, or summaries. Do not truncate the tweets.
+- **Your final output must be a single JSON object that conforms to the `TweetQuery` schema.**
+- Do **not** add any extra commentary, formatting, or summaries.
 
 </output_instruction>
 """
 # *   Be careful with the nested quotes, make sure to use the correct number of quotes, and don't use double quotes inside single quotes, or double quotes inside double quotes.
+# ================  TOOL CALL  ================
+
+# <tool_call>
+
+# Call the `tweet_advanced_search` tool **once** using the generated query.
+
+# - Required parameters:
+#   - `query`: your constructed query string.
+#   - `query_type`: `"Latest"` *(default)* or `"Top"`, based on the topic's needs.
+
+# </tool_call>
+
+# - Return **only** the full and direct result from the `tweet_advanced_search` tool.
 
 
 opinion_analysis_prompt = """
