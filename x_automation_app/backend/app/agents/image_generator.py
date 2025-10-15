@@ -36,18 +36,18 @@ def image_generator_node(state: OverallState) -> Dict[str, List[GeneratedImage]]
     """
 
     try:
-        llm = ChatOpenAI(
+        llm = ChatGoogleGenerativeAI(
+                model=settings.GEMINI_MODEL,
+                google_api_key=settings.GEMINI_API_KEY
+            )
+    except Exception as e:
+        logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
+        try:
+            llm = ChatOpenAI(
             api_key=settings.OPENROUTER_API_KEY,
             base_url=settings.OPENROUTER_BASE_URL,
             model=settings.OPENROUTER_MODEL
         )
-    except Exception as e:
-        logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
-        try:
-            llm = ChatGoogleGenerativeAI(
-                model=settings.GEMINI_MODEL,
-                google_api_key=settings.GEMINI_API_KEY
-            )
         except Exception as e:
             logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
 
