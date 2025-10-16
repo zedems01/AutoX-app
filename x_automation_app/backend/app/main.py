@@ -37,7 +37,10 @@ app = FastAPI(
 )
 
 # Initialize Prometheus metrics
-Instrumentator().instrument(app).expose(app, endpoint="/metrics")
+# Instrumentator().instrument(app).expose(app, endpoint="/metrics")
+instrumentator = Instrumentator()
+instrumentator.instrument(app)
+instrumentator.expose(app, endpoint="/metrics")
 
 # CORS Config
 origins = [
