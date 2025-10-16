@@ -27,6 +27,7 @@ from .utils.metrics import (
     ACTIVE_WEBSOCKETS, WEBSOCKET_DISCONNECTIONS_TOTAL,
     ERRORS_TOTAL
 )
+from .utils.metrics_manager import metrics_manager
 
 
 app = FastAPI(
@@ -95,6 +96,27 @@ def health_check():
     Endpoint to check if the server is running.
     """
     return {"status": "oki doki"}
+
+@app.post("/metrics/reset", summary="Reset Metrics", tags=["Status"])
+def reset_metrics():
+    """
+    Reset all metrics to zero. Useful for debugging and testing.
+    """
+    metrics_manager.reset_metrics()
+    return {"status": "metrics reset successfully"}
+
+@app.get("/metrics/status", summary="Get Metrics Status", tags=["Status"])
+def get_metrics_status():
+    """
+    Get current status of active metrics for debugging.
+    """
+    return {
+        "active_workflows_count": metrics_manager.get_active_workflows_count(),
+        "active_websockets_count": metrics_manager.get_active_websockets_count(),
+        "active_workflows_actual": ACTIVE_WORKFLOWS._value._value,
+        "active_websockets_actual": ACTIVE_WEBSOCKETS._value._value,
+        "stale_workflows": list(metrics_manager.get_stale_workflows(max_age_seconds=300))  # 5 minutes
+    }
 
 
 # --- Authentication Endpoints ---
@@ -228,13 +250,13 @@ async def start_workflow(payload: StartWorkflowPayload):
 
     logger.info(f"STARTING WORKFLOW... --- thread_id: {ctext(thread_id, color='white', italic=True)}")
 
-    # Track workflow start
+    # Track workflow start using metrics manager
+    metrics_manager.start_workflow(thread_id)
     WORKFLOW_STARTS_TOTAL.labels(
         autonomous_mode=str(payload.is_autonomous_mode),
         output_destination=payload.output_destination or "DRAFT",
         content_type=payload.x_content_type or "unknown"
     ).inc()
-    ACTIVE_WORKFLOWS.inc()
 
     try:
         # Prepare the initial state from the payload
@@ -290,7 +312,7 @@ async def start_workflow(payload: StartWorkflowPayload):
 
     except Exception as e:
         logger.error(f"An error occurred during workflow execution: {e}")
-        ACTIVE_WORKFLOWS.dec()
+        metrics_manager.stop_workflow(thread_id)
         WORKFLOW_COMPLETIONS_TOTAL.labels(
             status="error",
             autonomous_mode=str(payload.is_autonomous_mode)
@@ -307,7 +329,7 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
     Handles WebSocket connections for real-time workflow status updates.
     """
     await websocket.accept()
-    ACTIVE_WEBSOCKETS.inc()
+    metrics_manager.start_websocket(thread_id)
     
     config = {"configurable": {"thread_id": thread_id}}
     ALLOWED_EVENTS = ["on_chain_start", "on_chain_end"]
@@ -347,16 +369,18 @@ async def workflow_ws(websocket: WebSocket, thread_id: str):
                 status=status,
                 autonomous_mode=str(autonomous)
             ).inc()
-            ACTIVE_WORKFLOWS.dec()
+            metrics_manager.stop_workflow(thread_id)
 
     except WebSocketDisconnect:
         print(f"WebSocket disconnected for thread: {thread_id}\n")
-        ACTIVE_WEBSOCKETS.dec()
+        metrics_manager.stop_websocket(thread_id)
+        metrics_manager.stop_workflow(thread_id)
         WEBSOCKET_DISCONNECTIONS_TOTAL.labels(reason="client").inc()
         remove_file_handler(thread_id)
     except Exception as e:
         # print(f"Error in WebSocket for thread {thread_id}: {e}\n")
-        ACTIVE_WEBSOCKETS.dec()
+        metrics_manager.stop_websocket(thread_id)
+        metrics_manager.stop_workflow(thread_id)
         WEBSOCKET_DISCONNECTIONS_TOTAL.labels(reason="error").inc()
         ERRORS_TOTAL.labels(error_type=type(e).__name__, component="websocket").inc()
         await websocket.close(code=1011, reason=str(e))
@@ -459,13 +483,13 @@ async def stop_workflow(payload: StopWorkflowPayload):
         }
         graph.update_state(config, update_data)
         
-        # Update metrics
+        # Update metrics using metrics manager
         autonomous = current_state.values.get("is_autonomous_mode", False)
         WORKFLOW_COMPLETIONS_TOTAL.labels(
             status="stopped",
             autonomous_mode=str(autonomous)
         ).inc()
-        ACTIVE_WORKFLOWS.dec()
+        metrics_manager.stop_workflow(payload.thread_id)
         
         # Clean up file handler
         remove_file_handler(payload.thread_id)
