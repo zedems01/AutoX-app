@@ -1,0 +1,151 @@
+services:
+  # ============================================
+  # Backend Service
+  # ============================================
+  backend:
+    image: ${DOCKERHUB_USERNAME}/autox-backend:${IMAGE_TAG:-latest}
+    container_name: autox-backend
+    ports:
+      - "8000:8000"
+    environment:
+      # Application settings
+      - APP_ENV=production
+      - LOG_LEVEL=INFO
+      
+      # API Keys (use AWS Secrets Manager in production)
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - SERPER_API_KEY=${SERPER_API_KEY}
+      - COMPOSIO_API_KEY=${COMPOSIO_API_KEY}
+      
+      # Demo/Test credentials
+      - DEMO_TOKEN=${DEMO_TOKEN}
+      - TEST_USER_NAME=${TEST_USER_NAME}
+      - TEST_USER_EMAIL=${TEST_USER_EMAIL}
+      - TEST_USER_PASSWORD=${TEST_USER_PASSWORD}
+      - TEST_USER_PROXY=${TEST_USER_PROXY}
+      - TEST_USER_TOTP_SECRET=${TEST_USER_TOTP_SECRET}
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - autox-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    volumes:
+      - backend-logs:/code/app/logs
+
+  # ============================================
+  # Monitoring Stack
+  # ============================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: autox-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.aws.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - autox-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: autox-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3001
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - autox-network
+    depends_on:
+      - prometheus
+      - loki
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  loki:
+    image: grafana/loki:latest
+    container_name: autox-loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./monitoring/loki/local-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+    networks:
+      - autox-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3100/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: autox-promtail
+    volumes:
+      - ./monitoring/promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml:ro
+      - backend-logs:/var/log/autox:ro
+      - /var/log:/var/log:ro  # Host system logs (optional)
+    command: -config.file=/etc/promtail/promtail-config.yaml
+    networks:
+      - autox-network
+    depends_on:
+      - loki
+    restart: unless-stopped
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  autox-network:
+    driver: bridge
+
+# ============================================
+# Volumes (use EFS for AWS persistence)
+# ============================================
+volumes:
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  loki-data:
+    driver: local
+  backend-logs:
+    driver: local
+
