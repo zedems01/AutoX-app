@@ -1,0 +1,290 @@
+{
+  "family": "autox-monitoring-stack",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "1024",
+  "memory": "2048",
+  "executionRoleArn": "REPLACE_WITH_TASK_EXECUTION_ROLE_ARN",
+  "taskRoleArn": "REPLACE_WITH_TASK_ROLE_ARN",
+  "containerDefinitions": [
+    {
+      "name": "prometheus",
+      "image": "prom/prometheus:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 9090,
+          "protocol": "tcp"
+        }
+      ],
+      "command": [
+        "--config.file=/etc/prometheus/prometheus.yml",
+        "--storage.tsdb.path=/prometheus",
+        "--storage.tsdb.retention.time=7d",
+        "--web.console.libraries=/usr/share/prometheus/console_libraries",
+        "--web.console.templates=/usr/share/prometheus/consoles"
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/autox-prometheus",
+          "awslogs-region": "eu-west-3",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": ["CMD-SHELL", "wget --spider -q http://localhost:9090/-/healthy || exit 1"],
+        "interval": 30,
+        "timeout": 10,
+        "retries": 3,
+        "startPeriod": 60
+      },
+      "mountPoints": [
+        {
+          "sourceVolume": "prometheus-data",
+          "containerPath": "/prometheus",
+          "readOnly": false
+        },
+        {
+          "sourceVolume": "prometheus-config",
+          "containerPath": "/etc/prometheus",
+          "readOnly": true
+        }
+      ]
+    },
+    {
+      "name": "grafana",
+      "image": "grafana/grafana:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "protocol": "tcp"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "GF_SECURITY_ADMIN_USER",
+          "valueFrom": "REPLACE_WITH_SECRET_ARN:GRAFANA_ADMIN_USER::"
+        },
+        {
+          "name": "GF_SECURITY_ADMIN_PASSWORD",
+          "valueFrom": "REPLACE_WITH_SECRET_ARN:GRAFANA_ADMIN_PASSWORD::"
+        }
+      ],
+      "environment": [
+        {
+          "name": "GF_USERS_ALLOW_SIGN_UP",
+          "value": "false"
+        },
+        {
+          "name": "GF_SERVER_ROOT_URL",
+          "value": "http://localhost:3000"
+        },
+        {
+          "name": "GF_INSTALL_PLUGINS",
+          "value": "grafana-piechart-panel"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/autox-grafana",
+          "awslogs-region": "eu-west-3",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": ["CMD-SHELL", "wget --spider -q http://localhost:3000/api/health || exit 1"],
+        "interval": 30,
+        "timeout": 10,
+        "retries": 3,
+        "startPeriod": 60
+      },
+      "dependsOn": [
+        {
+          "containerName": "prometheus",
+          "condition": "HEALTHY"
+        },
+        {
+          "containerName": "loki",
+          "condition": "HEALTHY"
+        }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "grafana-data",
+          "containerPath": "/var/lib/grafana",
+          "readOnly": false
+        },
+        {
+          "sourceVolume": "grafana-provisioning",
+          "containerPath": "/etc/grafana/provisioning",
+          "readOnly": true
+        }
+      ]
+    },
+    {
+      "name": "loki",
+      "image": "grafana/loki:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 3100,
+          "protocol": "tcp"
+        }
+      ],
+      "command": ["-config.file=/etc/loki/local-config.yaml"],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/autox-loki",
+          "awslogs-region": "eu-west-3",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": ["CMD-SHELL", "wget --spider -q http://localhost:3100/ready || exit 1"],
+        "interval": 30,
+        "timeout": 10,
+        "retries": 3,
+        "startPeriod": 60
+      },
+      "mountPoints": [
+        {
+          "sourceVolume": "loki-data",
+          "containerPath": "/loki",
+          "readOnly": false
+        },
+        {
+          "sourceVolume": "loki-config",
+          "containerPath": "/etc/loki",
+          "readOnly": true
+        }
+      ]
+    },
+    {
+      "name": "promtail",
+      "image": "grafana/promtail:latest",
+      "essential": false,
+      "command": ["-config.file=/etc/promtail/promtail-config.yaml"],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/autox-promtail",
+          "awslogs-region": "eu-west-3",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "dependsOn": [
+        {
+          "containerName": "loki",
+          "condition": "HEALTHY"
+        }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "backend-logs",
+          "containerPath": "/var/log/autox",
+          "readOnly": true
+        },
+        {
+          "sourceVolume": "promtail-config",
+          "containerPath": "/etc/promtail",
+          "readOnly": true
+        }
+      ]
+    }
+  ],
+  "volumes": [
+    {
+      "name": "prometheus-data",
+      "efsVolumeConfiguration": {
+        "fileSystemId": "REPLACE_WITH_EFS_ID",
+        "transitEncryption": "ENABLED",
+        "authorizationConfig": {
+          "iam": "ENABLED"
+        },
+        "rootDirectory": "/prometheus-data"
+      }
+    },
+    {
+      "name": "prometheus-config",
+      "efsVolumeConfiguration": {
+        "fileSystemId": "REPLACE_WITH_EFS_ID",
+        "transitEncryption": "ENABLED",
+        "authorizationConfig": {
+          "iam": "ENABLED"
+        },
+        "rootDirectory": "/prometheus-config"
+      }
+    },
+    {
+      "name": "grafana-data",
+      "efsVolumeConfiguration": {
+        "fileSystemId": "REPLACE_WITH_EFS_ID",
+        "transitEncryption": "ENABLED",
+        "authorizationConfig": {
+          "iam": "ENABLED"
+        },
+        "rootDirectory": "/grafana-data"
+      }
+    },
+    {
+      "name": "loki-data",
+      "efsVolumeConfiguration": {
+        "fileSystemId": "REPLACE_WITH_EFS_ID",
+        "transitEncryption": "ENABLED",
+        "authorizationConfig": {
+          "iam": "ENABLED"
+        },
+        "rootDirectory": "/loki-data"
+      }
+    },
+    {
+      "name": "backend-logs",
+      "efsVolumeConfiguration": {
+        "fileSystemId": "REPLACE_WITH_EFS_ID",
+        "transitEncryption": "ENABLED",
+        "authorizationConfig": {
+          "iam": "ENABLED"
+        },
+        "rootDirectory": "/backend-logs"
+      }
+    },
+    {
+      "name": "grafana-provisioning",
+      "efsVolumeConfiguration": {
+        "fileSystemId": "REPLACE_WITH_EFS_ID",
+        "transitEncryption": "ENABLED",
+        "authorizationConfig": {
+          "iam": "ENABLED"
+        },
+        "rootDirectory": "/grafana-provisioning"
+      }
+    },
+    {
+      "name": "loki-config",
+      "efsVolumeConfiguration": {
+        "fileSystemId": "REPLACE_WITH_EFS_ID",
+        "transitEncryption": "ENABLED",
+        "authorizationConfig": {
+          "iam": "ENABLED"
+        },
+        "rootDirectory": "/loki-config"
+      }
+    },
+    {
+      "name": "promtail-config",
+      "efsVolumeConfiguration": {
+        "fileSystemId": "REPLACE_WITH_EFS_ID",
+        "transitEncryption": "ENABLED",
+        "authorizationConfig": {
+          "iam": "ENABLED"
+        },
+        "rootDirectory": "/promtail-config"
+      }
+    }
+  ]
+}
+

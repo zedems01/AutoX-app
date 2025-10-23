@@ -24,7 +24,7 @@ pipeline {
         NODEJS_TOOL = 'node22'
         
         // AWS
-        AWS_REGION = 'us-east-1'  // Update with your AWS region
+        AWS_REGION = 'eu-west-3'  // Update with your AWS region if different
         AWS_ACCOUNT_ID = credentials('aws-account-id')  // Store in Jenkins credentials
         ECR_BACKEND_REPO = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${BACKEND_IMAGE_NAME}"
     }

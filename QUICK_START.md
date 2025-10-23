@@ -27,6 +27,7 @@ After this implementation, you have:
 | `Jenkinsfile` | **CI/CD pipeline** | Automatically runs on git push |
 | `docker-compose.aws.yml` | **Docker services config** | Deploy backend + monitoring on AWS |
 | `prometheus.aws.yml` | **Prometheus config** | Used by monitoring stack |
+| `monitoring-stack-task-definition.json` | **Monitoring task definition** | ECS task for Prometheus, Grafana, Loki, Promtail |
 | `.env.aws.template` | **Environment variables** | Copy to `.env` and fill in values |
 | `aws-setup-helper.sh` | **Track AWS resource IDs** | Run during AWS setup to organize resource IDs |
 
@@ -225,23 +226,23 @@ aws elbv2 describe-target-health \
 
 ## 💰 Cost Estimate
 
-**Minimal Setup:** ~$95-105/month
-- ECS Fargate (2 tasks)
-- Application Load Balancer
-- NAT Gateway
-- EFS storage
-- CloudWatch logs
+**Your Setup (Single Instance + FARGATE_SPOT):** ~$68-80/month
+- Backend: 1 task (FARGATE_SPOT) - ~$5-7/month
+- Monitoring Stack: 1 task (FARGATE_SPOT) - ~$5-7/month
+- Application Load Balancer - ~$16-20/month
+- NAT Gateway - ~$32-35/month
+- EFS storage - ~$3/month
+- CloudWatch logs - ~$2.5/month
 
-**Production Setup:** ~$166-241/month
-- Auto-scaling (2-10 tasks)
-- Container Insights
-- Enhanced monitoring
-- EFS snapshots
+**Even Lower Cost (without NAT Gateway):** ~$33-45/month
+- Remove NAT Gateway if external API calls aren't needed
+- Use VPC Endpoints for AWS services
 
-**Cost Optimization:**
-- Use Fargate Spot (70% savings)
-- Set CloudWatch log retention to 7 days
-- Scale down dev environments when not in use
+**Cost Optimization (Already Applied):**
+- ✅ Using FARGATE_SPOT (70% savings on compute)
+- ✅ Single instances (minimal task count)
+- ✅ 7-day log retention
+- Consider disabling Container Insights if not needed
 
 ---
 

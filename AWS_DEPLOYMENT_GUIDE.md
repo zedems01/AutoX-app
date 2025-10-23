@@ -35,7 +35,7 @@ Before starting, ensure you have:
 # Create VPC
 aws ec2 create-vpc \
   --cidr-block 10.0.0.0/16 \
-  --tag-specifications 'ResourceType=vpc,Tags=[{Key=Name,Value=autox-vpc}]' \
+  --tag-specifications ResourceType=vpc,Tags=[{Key=Name,Value=autox-vpc}] \
   --region eu-west-3
 
 # Note the VPC ID from the output (e.g., vpc-xxxxx)
@@ -43,7 +43,7 @@ export VPC_ID=vpc-xxxxx
 
 # Create Internet Gateway
 aws ec2 create-internet-gateway \
-  --tag-specifications 'ResourceType=internet-gateway,Tags=[{Key=Name,Value=autox-igw}]' \
+  --tag-specifications ResourceType=internet-gateway,Tags=[{Key=Name,Value=autox-igw}] \
   --region eu-west-3
 
 # Note the IGW ID
@@ -60,7 +60,7 @@ aws ec2 create-subnet \
   --vpc-id $VPC_ID \
   --cidr-block 10.0.1.0/24 \
   --availability-zone eu-west-3a \
-  --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=autox-public-subnet-1}]' \
+  --tag-specifications ResourceType=subnet,Tags=[{Key=Name,Value=autox-public-subnet-1}] \
   --region eu-west-3
 
 export PUBLIC_SUBNET_1=subnet-xxxxx
@@ -70,7 +70,7 @@ aws ec2 create-subnet \
   --vpc-id $VPC_ID \
   --cidr-block 10.0.2.0/24 \
   --availability-zone eu-west-3b \
-  --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=autox-public-subnet-2}]' \
+  --tag-specifications ResourceType=subnet,Tags=[{Key=Name,Value=autox-public-subnet-2}] \
   --region eu-west-3
 
 export PUBLIC_SUBNET_2=subnet-xxxxx
@@ -80,7 +80,7 @@ aws ec2 create-subnet \
   --vpc-id $VPC_ID \
   --cidr-block 10.0.10.0/24 \
   --availability-zone eu-west-3a \
-  --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=autox-private-subnet-1}]' \
+  --tag-specifications ResourceType=subnet,Tags=[{Key=Name,Value=autox-private-subnet-1}] \
   --region eu-west-3
 
 export PRIVATE_SUBNET_1=subnet-xxxxx
@@ -90,7 +90,7 @@ aws ec2 create-subnet \
   --vpc-id $VPC_ID \
   --cidr-block 10.0.11.0/24 \
   --availability-zone eu-west-3b \
-  --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=autox-private-subnet-2}]' \
+  --tag-specifications ResourceType=subnet,Tags=[{Key=Name,Value=autox-private-subnet-2}] \
   --region eu-west-3
 
 export PRIVATE_SUBNET_2=subnet-xxxxx
@@ -99,7 +99,7 @@ export PRIVATE_SUBNET_2=subnet-xxxxx
 # First, allocate Elastic IP
 aws ec2 allocate-address \
   --domain vpc \
-  --tag-specifications 'ResourceType=elastic-ip,Tags=[{Key=Name,Value=autox-nat-eip}]' \
+  --tag-specifications ResourceType=elastic-ip,Tags=[{Key=Name,Value=autox-nat-eip}] \
   --region eu-west-3
 
 export EIP_ALLOC_ID=eipalloc-xxxxx
@@ -120,7 +120,7 @@ aws ec2 wait nat-gateway-available --nat-gateway-ids $NAT_GATEWAY_ID --region eu
 # Public route table
 aws ec2 create-route-table \
   --vpc-id $VPC_ID \
-  --tag-specifications 'ResourceType=route-table,Tags=[{Key=Name,Value=autox-public-rt}]' \
+  --tag-specifications ResourceType=route-table,Tags=[{Key=Name,Value=autox-public-rt}] \
   --region eu-west-3
 
 export PUBLIC_RT_ID=rtb-xxxxx
@@ -138,6 +138,8 @@ aws ec2 associate-route-table \
   --subnet-id $PUBLIC_SUBNET_1 \
   --region eu-west-3
 
+# aws ec2 associate-route-table --route-table-id $PUBLIC_RT_ID --subnet-id $PUBLIC_SUBNET_1 --region eu-west-3
+
 aws ec2 associate-route-table \
   --route-table-id $PUBLIC_RT_ID \
   --subnet-id $PUBLIC_SUBNET_2 \
@@ -146,8 +148,10 @@ aws ec2 associate-route-table \
 # Private route table
 aws ec2 create-route-table \
   --vpc-id $VPC_ID \
-  --tag-specifications 'ResourceType=route-table,Tags=[{Key=Name,Value=autox-private-rt}]' \
+  --tag-specifications ResourceType=route-table,Tags=[{Key=Name,Value=autox-private-rt}] \
   --region eu-west-3
+
+# aws ec2 create-route-table --vpc-id vpc-0472bf980ee52dcff --tag-specifications ResourceType=route-table,Tags=[{Key=Name,Value=autox-private-rt}] --region eu-west-3
 
 export PRIVATE_RT_ID=rtb-xxxxx
 
@@ -190,6 +194,8 @@ aws ec2 authorize-security-group-ingress \
   --cidr 0.0.0.0/0 \
   --region eu-west-3
 
+# aws ec2 authorize-security-group-ingress --group-id sg-09a7046e7a1b2b7a7 --protocol tcp --port 80 --cidr 0.0.0.0/0 --region eu-west-3
+
 aws ec2 authorize-security-group-ingress \
   --group-id $ALB_SG_ID \
   --protocol tcp \
@@ -221,6 +227,8 @@ aws ec2 authorize-security-group-ingress \
   --port 8000 \
   --source-group $ALB_SG_ID \
   --region eu-west-3
+
+# aws ec2 authorize-security-group-ingress --group-id sg-067ca9c7a97d8c38d --protocol tcp --port 8000 --source-group sg-09a7046e7a1b2b7a7 --region eu-west-3
 
 # Allow internal traffic between ECS tasks (for service discovery)
 aws ec2 authorize-security-group-ingress \
@@ -258,6 +266,8 @@ aws efs create-file-system \
   --tags Key=Name,Value=autox-efs \
   --region eu-west-3
 
+# aws efs create-file-system --creation-token autox-efs-$(date +%s) --performance-mode generalPurpose --throughput-mode bursting --encrypted --tags Key=Name,Value=autox-efs --region eu-west-3
+
 export EFS_ID=fs-xxxxx
 
 # Create EFS Mount Targets in private subnets
@@ -272,6 +282,8 @@ aws efs create-mount-target \
   --subnet-id $PRIVATE_SUBNET_2 \
   --security-groups $ECS_SG_ID \
   --region eu-west-3
+
+# aws efs create-mount-target --file-system-id fs-0be9d512838a932d1 --subnet-id subnet-0f652746ad52b3c12 --security-groups sg-067ca9c7a97d8c38d --region eu-west-3
 
 # Wait for mount targets to become available
 sleep 30
@@ -370,20 +382,21 @@ echo "Task Role ARN: $TASK_ROLE_ARN"
 # Create secret for environment variables
 cat > autox-secrets.json << EOF
 {
-  "ANTHROPIC_API_KEY": "your_anthropic_api_key",
-  "OPENAI_API_KEY": "your_openai_api_key",
-  "GROQ_API_KEY": "your_groq_api_key",
-  "GOOGLE_API_KEY": "your_google_api_key",
-  "SERPER_API_KEY": "your_serper_api_key",
-  "COMPOSIO_API_KEY": "your_composio_api_key",
-  "DEMO_TOKEN": "your_secure_demo_token",
-  "TEST_USER_NAME": "your_test_username",
-  "TEST_USER_EMAIL": "your_test_email",
-  "TEST_USER_PASSWORD": "your_test_password",
-  "TEST_USER_PROXY": "your_test_proxy",
-  "TEST_USER_TOTP_SECRET": "your_test_totp_secret",
-  "GRAFANA_ADMIN_USER": "admin",
-  "GRAFANA_ADMIN_PASSWORD": "change_me_in_production"
+  "GEMINI_API_KEY": "",
+  "OPENROUTER_API_KEY": "",
+  "OPENAI_API_KEY": "",
+  "LANGSMITH_TRACING": true,
+  "LANGSMITH_API_KEY": "",
+  "X_API_KEY": "",
+  "TEST_USER_EMAIL": "",
+  "TEST_USER_PASSWORD": "",
+  "TEST_USER_PROXY": "",
+  "TEST_USER_TOTP_SECRET": "",
+  "DEMO_TOKEN": "",
+  "AWS_ACCESS_KEY_ID": "",
+  "AWS_SECRET_ACCESS_KEY": "",
+  "GRAFANA_ADMIN_USER": "",
+  "GRAFANA_ADMIN_PASSWORD": ""
 }
 EOF
 
@@ -440,7 +453,7 @@ rm autox-secrets.json secrets-access-policy.json
 aws ecs create-cluster \
   --cluster-name autox-cluster \
   --capacity-providers FARGATE FARGATE_SPOT \
-  --default-capacity-provider-strategy capacityProvider=FARGATE,weight=1 \
+  --default-capacity-provider-strategy capacityProvider=FARGATE_SPOT,weight=1 \
   --region eu-west-3
 
 # Enable CloudWatch Container Insights (optional but recommended)
@@ -748,61 +761,163 @@ aws ecs register-task-definition \
 
 ### Step 3.2: Monitoring Stack Task Definition
 
-For simplicity, I'm showing how to deploy backend. For production, you'd create similar task definitions for Prometheus, Grafana, Loki, and Promtail, or use a single task with multiple containers.
+Create a file named `monitoring-stack-task-definition.json` (this file is already provided in the repository):
 
-**Alternative:** You can deploy the monitoring stack on a separate EC2 instance or use AWS-managed services like Amazon Managed Prometheus and Amazon Managed Grafana.
+This task definition includes all monitoring components in a single task:
+- Prometheus (metrics collection)
+- Grafana (visualization)
+- Loki (log aggregation)
+- Promtail (log shipping)
+
+**Important:** Before registering, you need to upload all your monitoring configurations to EFS.
+
+#### Upload Monitoring Configurations to EFS
+
+This step ensures your custom dashboards, datasources, and other settings are loaded by the services.
+
+First, you need a way to access the EFS volume. The easiest method is to use a temporary EC2 instance.
+
+```bash
+# Option: Using a temporary EC2 instance in the same VPC
+# 1. Launch a small EC2 instance (t2.micro is fine) in one of your private subnets.
+# 2. Assign it the ECS security group (`autox-ecs-sg`) to allow EFS access.
+# 3. SSH into the EC2 instance and run the following commands:
+
+# Install EFS mount helper
+sudo yum install -y amazon-efs-utils
+
+# Mount the EFS volume
+sudo mkdir -p /mnt/efs
+sudo mount -t efs -o tls $EFS_ID:/ /mnt/efs
+
+# Create directories for all configurations
+sudo mkdir -p /mnt/efs/prometheus-config
+sudo mkdir -p /mnt/efs/grafana-provisioning
+sudo mkdir -p /mnt/efs/loki-config
+sudo mkdir -p /mnt/efs/promtail-config
+
+# Now, from your local machine, copy your config files to the EC2 instance
+# Replace `ec2-user@xx.xx.xx.xx` with your EC2 details
+scp -i your-key.pem -r ./monitoring/grafana/provisioning ec2-user@xx.xx.xx.xx:~/
+scp -i your-key.pem ./monitoring/loki/local-config.yaml ec2-user@xx.xx.xx.xx:~/
+scp -i your-key.pem ./monitoring/promtail/promtail-config.yaml ec2-user@xx.xx.xx.xx:~/
+scp -i your-key.pem ./prometheus.aws.yml ec2-user@xx.xx.xx.xx:~/
+
+# Back on the EC2 instance, move the files into EFS
+sudo mv ~/prometheus.aws.yml /mnt/efs/prometheus-config/prometheus.yml
+sudo mv ~/provisioning/* /mnt/efs/grafana-provisioning/
+sudo mv ~/local-config.yaml /mnt/efs/loki-config/
+sudo mv ~/promtail-config.yaml /mnt/efs/promtail-config/
+
+# Verify the files are in place
+sudo ls -lR /mnt/efs/
+
+# Clean up
+sudo umount /mnt/efs
+# You can now terminate the temporary EC2 instance.
+```
+
+**Note:** For production, you should automate this step or use AWS Systems Manager to manage configurations.
+
+Register the monitoring stack task definition:
+
+```bash
+# Replace placeholders in the task definition
+sed -i "s|REPLACE_WITH_TASK_EXECUTION_ROLE_ARN|$TASK_EXECUTION_ROLE_ARN|g" monitoring-stack-task-definition.json
+sed -i "s|REPLACE_WITH_TASK_ROLE_ARN|$TASK_ROLE_ARN|g" monitoring-stack-task-definition.json
+sed -i "s|REPLACE_WITH_SECRET_ARN|$SECRET_ARN|g" monitoring-stack-task-definition.json
+sed -i "s|REPLACE_WITH_EFS_ID|$EFS_ID|g" monitoring-stack-task-definition.json
+
+# Register the task definition
+aws ecs register-task-definition \
+  --cli-input-json file://monitoring-stack-task-definition.json \
+  --region eu-west-3
+```
 
 ---
 
 ## Part 4: Create ECS Services
 
-### Step 4.1: Create Backend Service
+### Step 4.1: Create Backend Service (FARGATE_SPOT, Single Instance)
 
 ```bash
-# Create backend service with ALB integration
+# Create backend service with ALB integration using FARGATE_SPOT
 aws ecs create-service \
   --cluster autox-cluster \
   --service-name autox-backend-service \
   --task-definition autox-backend \
-  --desired-count 2 \
-  --launch-type FARGATE \
+  --desired-count 1 \
+  --capacity-provider-strategy capacityProvider=FARGATE_SPOT,weight=1 \
   --platform-version LATEST \
   --network-configuration "awsvpcConfiguration={subnets=[$PRIVATE_SUBNET_1,$PRIVATE_SUBNET_2],securityGroups=[$ECS_SG_ID],assignPublicIp=DISABLED}" \
   --load-balancers "targetGroupArn=$BACKEND_TG_ARN,containerName=backend,containerPort=8000" \
   --service-registries "registryArn=$BACKEND_SD_ARN" \
   --health-check-grace-period-seconds 60 \
-  --deployment-configuration "maximumPercent=200,minimumHealthyPercent=100,deploymentCircuitBreaker={enable=true,rollback=true}" \
+  --deployment-configuration "maximumPercent=200,minimumHealthyPercent=0,deploymentCircuitBreaker={enable=true,rollback=true}" \
   --enable-execute-command \
   --region eu-west-3
 ```
 
-### Step 4.2: Enable Auto Scaling (Optional)
+**Note:** 
+- Using `FARGATE_SPOT` saves up to 70% on compute costs
+- `desired-count=1` runs a single instance
+- `minimumHealthyPercent=0` allows the service to stop the old task before starting a new one (acceptable for single instance)
+
+### Step 4.2: Create Monitoring Stack Service (FARGATE_SPOT, Single Instance)
+
+First, create service discovery for Grafana (optional, for internal access):
 
 ```bash
-# Register the service as a scalable target
+aws servicediscovery create-service \
+  --name grafana \
+  --dns-config "NamespaceId=$NAMESPACE_ID,DnsRecords=[{Type=A,TTL=60}]" \
+  --health-check-custom-config FailureThreshold=1 \
+  --region eu-west-3
+
+export GRAFANA_SD_ARN=$(aws servicediscovery list-services \
+  --region eu-west-3 \
+  --query "Services[?Name=='grafana'].Arn" \
+  --output text)
+```
+
+Now create the monitoring stack service:
+
+```bash
+# Create monitoring stack service with ALB integration for Grafana
+aws ecs create-service \
+  --cluster autox-cluster \
+  --service-name autox-monitoring-service \
+  --task-definition autox-monitoring-stack \
+  --desired-count 1 \
+  --capacity-provider-strategy capacityProvider=FARGATE_SPOT,weight=1 \
+  --platform-version LATEST \
+  --network-configuration "awsvpcConfiguration={subnets=[$PRIVATE_SUBNET_1,$PRIVATE_SUBNET_2],securityGroups=[$ECS_SG_ID],assignPublicIp=DISABLED}" \
+  --load-balancers "targetGroupArn=$GRAFANA_TG_ARN,containerName=grafana,containerPort=3000" \
+  --service-registries "registryArn=$GRAFANA_SD_ARN" \
+  --health-check-grace-period-seconds 120 \
+  --deployment-configuration "maximumPercent=200,minimumHealthyPercent=0,deploymentCircuitBreaker={enable=true,rollback=true}" \
+  --enable-execute-command \
+  --region eu-west-3
+```
+
+**Note:**
+- This single task runs all monitoring components (Prometheus, Grafana, Loki, Promtail)
+- `health-check-grace-period-seconds=120` gives more time for all containers to start
+- Grafana is exposed via ALB for external access
+- Prometheus is accessible internally via service discovery
+
+### Step 4.3: Enable Auto Scaling (Optional - Skip for Single Instance Setup)
+
+**For this setup with single instances, auto-scaling is not needed.** If you want to scale in the future:
+
+```bash
+# Backend auto-scaling example (not recommended for single instance)
 aws application-autoscaling register-scalable-target \
   --service-namespace ecs \
   --resource-id service/autox-cluster/autox-backend-service \
   --scalable-dimension ecs:service:DesiredCount \
-  --min-capacity 2 \
-  --max-capacity 10 \
-  --region eu-west-3
-
-# Create scaling policy based on CPU utilization
-aws application-autoscaling put-scaling-policy \
-  --service-namespace ecs \
-  --resource-id service/autox-cluster/autox-backend-service \
-  --scalable-dimension ecs:service:DesiredCount \
-  --policy-name autox-backend-cpu-scaling \
-  --policy-type TargetTrackingScaling \
-  --target-tracking-scaling-policy-configuration '{
-    "TargetValue": 70.0,
-    "PredefinedMetricSpecification": {
-      "PredefinedMetricType": "ECSServiceAverageCPUUtilization"
-    },
-    "ScaleInCooldown": 300,
-    "ScaleOutCooldown": 60
-  }' \
+  --min-capacity 1 \
+  --max-capacity 3 \
   --region eu-west-3
 ```
 
@@ -1100,22 +1215,68 @@ aws logs filter-log-events \
 
 ## Part 10: Cost Optimization
 
-### Recommendations:
+### Current Setup Cost Estimate (Single Instance with FARGATE_SPOT):
 
-1. **Use Fargate Spot for non-critical workloads** (can save up to 70%)
-2. **Enable Container Insights only if needed** (adds ~$2-3/month per task)
-3. **Use S3 for logs long-term storage** (cheaper than CloudWatch)
-4. **Set up CloudWatch log retention** (e.g., 7 days)
-5. **Use AWS Budget Alerts** to monitor costs
-6. **Consider Reserved Capacity** for predictable workloads
+**Monthly Cost Breakdown:**
+- **Backend Task (1 instance, 1 vCPU, 2GB RAM, FARGATE_SPOT):** ~$5-7/month
+- **Monitoring Stack (1 instance, 1 vCPU, 2GB RAM, FARGATE_SPOT):** ~$5-7/month
+- **Application Load Balancer:** ~$16-20/month
+- **NAT Gateway:** ~$32-35/month (if needed for external API calls)
+- **EFS Storage (10GB estimated):** ~$3/month
+- **CloudWatch Logs (7-day retention, 5GB/month):** ~$2.5/month
+- **Data Transfer:** ~$5/month
+
+**Total Estimated Cost: ~$68-80/month**
+
+### Additional Cost Optimization Tips:
+
+1. ✅ **Already Using FARGATE_SPOT** - Saving up to 70% on compute
+2. ✅ **Single Instances** - Minimal task count for small projects
+3. **Disable Container Insights if not needed** (saves ~$4-6/month)
+4. **Set CloudWatch log retention to 7 days** (implemented below)
+5. **Consider removing NAT Gateway** if your app doesn't need external API calls (saves ~$35/month)
+6. **Use S3 for long-term log storage** (much cheaper than CloudWatch)
+7. **Set up AWS Budget Alerts** to monitor costs
 
 ```bash
-# Set log retention to 7 days
+# Set log retention to 7 days for all log groups
 aws logs put-retention-policy \
   --log-group-name /ecs/autox-backend \
   --retention-in-days 7 \
   --region eu-west-3
+
+aws logs put-retention-policy \
+  --log-group-name /ecs/autox-prometheus \
+  --retention-in-days 7 \
+  --region eu-west-3
+
+aws logs put-retention-policy \
+  --log-group-name /ecs/autox-grafana \
+  --retention-in-days 7 \
+  --region eu-west-3
+
+aws logs put-retention-policy \
+  --log-group-name /ecs/autox-loki \
+  --retention-in-days 7 \
+  --region eu-west-3
+
+aws logs put-retention-policy \
+  --log-group-name /ecs/autox-promtail \
+  --retention-in-days 7 \
+  --region eu-west-3
+
+# Set up a budget alert
+aws budgets create-budget \
+  --account-id $AWS_ACCOUNT_ID \
+  --budget file://budget-config.json \
+  --notifications-with-subscribers file://budget-notifications.json \
+  --region eu-west-3
 ```
+
+**For even lower costs (if NAT Gateway isn't needed):**
+- Remove NAT Gateway: **~$35/month savings**
+- Use VPC Endpoints for AWS services instead
+- **New Total: ~$33-45/month**
 
 ---
 
@@ -1236,12 +1397,13 @@ You now have:
 - Automatically deploys to AWS ECS on `main` branch push
 
 ✅ **AWS ECS Fargate deployment** with:
-- Backend service running in private subnets
+- **Backend service** running in private subnets (FARGATE_SPOT, 1 instance)
+- **Monitoring stack** with Prometheus, Grafana, Loki, and Promtail (FARGATE_SPOT, 1 instance)
 - Application Load Balancer for public access
-- Monitoring stack (Prometheus, Grafana, Loki, Promtail)
 - Persistent storage using EFS
 - Secrets managed in AWS Secrets Manager
-- Auto-scaling based on CPU utilization
+- Cost-optimized with FARGATE_SPOT (~70% savings)
+- Estimated cost: **~$68-80/month** (or ~$33-45/month without NAT Gateway)
 
 ✅ **CI/CD automation** with:
 - GitHub webhook triggering Jenkins on push/PR
@@ -1250,13 +1412,28 @@ You now have:
 
 ✅ **Frontend on Vercel** (already deployed)
 
+### Architecture Summary:
+
+```
+Backend Service:
+- 1 task with 1 vCPU, 2GB RAM (FARGATE_SPOT)
+- Exposed via ALB on port 80
+- Service discovery: backend.autox.local
+
+Monitoring Stack:
+- 1 task with 1 vCPU, 2GB RAM (FARGATE_SPOT)
+- Contains: Prometheus, Grafana, Loki, Promtail
+- Grafana exposed via ALB
+- Prometheus accessible internally
+```
+
 ### Next Steps:
 
-1. Set up custom domain and SSL certificate
-2. Configure CloudWatch alarms for monitoring
-3. Implement backup strategy for EFS volumes
-4. Set up multi-region deployment (optional)
-5. Implement blue-green or canary deployment strategies
+1. Set up custom domain and SSL certificate (optional)
+2. Configure CloudWatch alarms for critical metrics
+3. Implement EFS backup strategy
+4. Consider scaling if traffic increases
+5. Monitor costs with AWS Budget Alerts
 
 ---
 
