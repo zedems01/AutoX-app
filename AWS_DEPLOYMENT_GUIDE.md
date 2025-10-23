@@ -663,44 +663,8 @@ Create a file named `backend-task-definition.json`:
           "valueFrom": "REPLACE_WITH_SECRET_ARN:OPENAI_API_KEY::"
         },
         {
-          "name": "GROQ_API_KEY",
-          "valueFrom": "REPLACE_WITH_SECRET_ARN:GROQ_API_KEY::"
-        },
-        {
-          "name": "GOOGLE_API_KEY",
-          "valueFrom": "REPLACE_WITH_SECRET_ARN:GOOGLE_API_KEY::"
-        },
-        {
-          "name": "SERPER_API_KEY",
-          "valueFrom": "REPLACE_WITH_SECRET_ARN:SERPER_API_KEY::"
-        },
-        {
-          "name": "COMPOSIO_API_KEY",
-          "valueFrom": "REPLACE_WITH_SECRET_ARN:COMPOSIO_API_KEY::"
-        },
-        {
-          "name": "DEMO_TOKEN",
-          "valueFrom": "REPLACE_WITH_SECRET_ARN:DEMO_TOKEN::"
-        },
-        {
-          "name": "TEST_USER_NAME",
-          "valueFrom": "REPLACE_WITH_SECRET_ARN:TEST_USER_NAME::"
-        },
-        {
-          "name": "TEST_USER_EMAIL",
-          "valueFrom": "REPLACE_WITH_SECRET_ARN:TEST_USER_EMAIL::"
-        },
-        {
-          "name": "TEST_USER_PASSWORD",
-          "valueFrom": "REPLACE_WITH_SECRET_ARN:TEST_USER_PASSWORD::"
-        },
-        {
-          "name": "TEST_USER_PROXY",
-          "valueFrom": "REPLACE_WITH_SECRET_ARN:TEST_USER_PROXY::"
-        },
-        {
-          "name": "TEST_USER_TOTP_SECRET",
-          "valueFrom": "REPLACE_WITH_SECRET_ARN:TEST_USER_TOTP_SECRET::"
+          "name": "......",
+          "valueFrom": "........."
         }
       ],
       "logConfiguration": {
