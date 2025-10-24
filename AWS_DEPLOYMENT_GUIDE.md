@@ -910,7 +910,7 @@ On your OVH Jenkins server:
 
    **Docker Hub:**
    - Type: Username with password
-   - ID: `dockerhub-autox`
+   - ID: `dockerhub-token`
    - Username: Your Docker Hub username
    - Password: Your Docker Hub password/token
 

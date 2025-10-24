@@ -95,7 +95,7 @@ aws --version  # If not installed, install AWS CLI
 
 ### 3.2 Jenkins Setup
 - [ ] Install required plugins (Docker, AWS Steps, AWS Credentials, Git, Pipeline)
-- [ ] Add Docker Hub credentials (`dockerhub-autox`)
+- [ ] Add Docker Hub credentials (`dockerhub-token`)
 - [ ] Add AWS credentials:
   - `aws-account-id` (Secret text)
   - `aws-access-key-id` (Secret text)

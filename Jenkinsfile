@@ -14,14 +14,14 @@ pipeline {
         FRONTEND_DIR = 'x_automation_app/frontend'
         
         // Python
-        PYTHON_VENV = '.venv'
+        PYTHON_VENV = 'venv'
         
         // Docker images
         BACKEND_IMAGE_NAME = 'autox-backend'
         FRONTEND_IMAGE_NAME = 'autox-frontend'
         
         // Node.js
-        NODEJS_TOOL = 'node22'
+        NODEJS_TOOL = 'nodejs-22.20.0'
         
         // AWS
         AWS_REGION = 'eu-west-3'  // Update with your AWS region if different
@@ -62,9 +62,9 @@ pipeline {
                     sh '''
                         python3 -m venv ${PYTHON_VENV}
                         . ${PYTHON_VENV}/bin/activate
-                        pip install --upgrade pip
-                        pip install uv
-                        uv pip install .
+                        python3 -m pip install --upgrade pip
+                        pip3 install uv
+                        uv pip install --system .
                     '''
                 }
             }
@@ -86,7 +86,7 @@ pipeline {
                 stage('Push to Docker Hub') {
                     steps {
                         withCredentials([usernamePassword(
-                            credentialsId: 'dockerhub-autox',
+                            credentialsId: 'dockerhub-token',
                             usernameVariable: 'DOCKERHUB_USERNAME',
                             passwordVariable: 'DOCKERHUB_PASSWORD'
                         )]) {
@@ -175,7 +175,7 @@ pipeline {
             }
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-autox',
+                    credentialsId: 'dockerhub-token',
                     usernameVariable: 'DOCKERHUB_USERNAME',
                     passwordVariable: 'DOCKERHUB_PASSWORD'
                 )]) {

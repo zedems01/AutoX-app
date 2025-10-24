@@ -28,7 +28,7 @@ This implementation provides a complete CI/CD and deployment solution for the Au
 - Parallel execution where possible for faster builds
 
 **Configuration Required:**
-- Jenkins credentials: `dockerhub-autox`, `aws-account-id`, `aws-access-key-id`, `aws-secret-access-key`
+- Jenkins credentials: `dockerhub-token`, `aws-account-id`, `aws-access-key-id`, `aws-secret-access-key`
 - Update `AWS_REGION` if not using `us-east-1`
 - Ensure Node.js tool `node22` is configured in Jenkins
 

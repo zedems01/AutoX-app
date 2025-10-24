@@ -132,7 +132,7 @@ curl http://YOUR_ALB_DNS/metrics
 
 ### Jenkins Configuration:
 - [ ] Add Jenkins credentials:
-  - [ ] `dockerhub-autox` (username/password)
+  - [ ] `dockerhub-token` (username/password)
   - [ ] `aws-account-id` (secret text)
   - [ ] `aws-access-key-id` (secret text)
   - [ ] `aws-secret-access-key` (secret text)
