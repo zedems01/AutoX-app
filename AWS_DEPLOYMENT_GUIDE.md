@@ -751,7 +751,7 @@ First, you need a way to access the EFS volume. The easiest method is to use a t
 sudo yum install -y amazon-efs-utils
 
 # Mount the EFS volume
-sudo mkdir -p /mnt/efs
+  sudo mkdir -p /mnt/efs
 sudo mount -t efs -o tls $EFS_ID:/ /mnt/efs
 
 # Create directories for all configurations
