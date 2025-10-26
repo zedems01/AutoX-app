@@ -228,6 +228,7 @@ def generate_query(state: OverallState, config: RunnableConfig) -> QueryGenerati
     if state.get("initial_search_query_count") is None:
         state["initial_search_query_count"] = configurable.number_of_initial_queries
 
+    api_key, genai_client, model = get_gemini_client()
     llm = ChatGoogleGenerativeAI(
         model=model,
         temperature=1.0,

@@ -1,0 +1,66 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # Backend logs
+  - job_name: autox-backend
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: autox-backend
+          app: autox
+          component: backend
+          __path__: /var/log/autox/*.log
+    
+    pipeline_stages:
+      - regex:
+          expression: '^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \[(?P<level>\w+)\] (?P<message>.*)$'
+      
+      - timestamp:
+          source: timestamp
+          format: '2006-01-02 15:04:05'
+      
+      - labels:
+          level:
+      
+      - regex:
+          source: message
+          expression: 'thread_id: (?P<thread_id>[a-f0-9-]+)'
+      
+      - labels:
+          thread_id:
+      
+      - regex:
+          source: message
+          expression: '(trend_harvester|tweet_searcher|opinion_analyzer|writer|quality_assurer|image_generator|publicator)'
+      
+      - match:
+          selector: '{job="autox-backend"} |~ "(?i)(http|afc)"'
+          action: drop
+
+  # System logs
+  - job_name: system
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: varlogs
+          __path__: /var/log/*log
+    
+    pipeline_stages:
+      - match:
+          selector: '{job="varlogs"}'
+          stages:
+            - regex:
+                expression: '^(?P<timestamp>\S+\s+\S+\s+\S+) (?P<message>.*)$'
+            - labels:
+                timestamp:
+

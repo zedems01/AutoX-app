@@ -58,7 +58,6 @@ def opinion_analysis_node(state: OverallState) -> Dict[str, Any]:
         data = [tweet.model_dump() for tweet in tweets]
         csv_data = data_to_csv(data)
         prompt = opinion_analysis_prompt.format(tweets=csv_data)
-        print(prompt)
 
         analysis_result = structured_llm.invoke(prompt)
 
