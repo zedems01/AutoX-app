@@ -6,7 +6,7 @@ global:
     environment: 'production'
 
 scrape_configs:
-  # Backend (FastAPI) metrics scraped via AWS Service Discovery
+  # Backend metrics scraped via AWS Service Discovery
   - job_name: 'autox-backend'
     static_configs:
       - targets: ['backend.autox.local:8000']  # Using AWS Service Discovery DNS name

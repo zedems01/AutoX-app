@@ -9,7 +9,7 @@ clients:
   - url: http://loki:3100/loki/api/v1/push
 
 scrape_configs:
-  # AutoX Backend Application Logs
+  # Backend logs
   - job_name: autox-backend
     static_configs:
       - targets:
@@ -21,39 +21,32 @@ scrape_configs:
           __path__: /var/log/autox/*.log
     
     pipeline_stages:
-      # Parse timestamp and level from log format: "YYYY-MM-DD HH:MM:SS [LEVEL] message"
       - regex:
           expression: '^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \[(?P<level>\w+)\] (?P<message>.*)$'
       
-      # Convert timestamp to proper format
       - timestamp:
           source: timestamp
           format: '2006-01-02 15:04:05'
       
-      # Add level as a label
       - labels:
           level:
       
-      # Extract thread_id from message if present
       - regex:
           source: message
           expression: 'thread_id: (?P<thread_id>[a-f0-9-]+)'
       
-      # Add thread_id as label if found
       - labels:
           thread_id:
       
-      # Extract agent names from message
       - regex:
           source: message
           expression: '(trend_harvester|tweet_searcher|opinion_analyzer|writer|quality_assurer|image_generator|publicator)'
       
-      # Drop HTTP request logs (already filtered in Python but extra safety)
       - match:
           selector: '{job="autox-backend"} |~ "(?i)(http|afc)"'
           action: drop
 
-  # System logs (optional - for debugging container issues)
+  # System logs
   - job_name: system
     static_configs:
       - targets:
