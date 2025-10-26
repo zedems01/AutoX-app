@@ -1,0 +1,129 @@
+{
+    "family": "autox-backend",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": ["FARGATE"],
+    "cpu": "1024",
+    "memory": "2048",
+    "executionRoleArn": "$TASK_EXECUTION_ROLE_ARN",
+    "taskRoleArn": "$TASK_ROLE_ARN",
+    "containerDefinitions": [
+      {
+        "name": "backend",
+        "image": "$ECR_REPO_URL/autox-backend",
+        "essential": true,
+        "portMappings": [
+          {
+            "containerPort": 8000,
+            "protocol": "tcp"
+          }
+        ],
+        "environment": [
+          {
+            "name": "APP_ENV",
+            "value": "production"
+          },
+          {
+            "name": "LOG_LEVEL",
+            "value": "INFO"
+          }
+        ],
+        "secrets": [
+          {
+            "name": "GEMINI_API_KEY",
+            "valueFrom": "$SECRET_ARN:GEMINI_API_KEY::"
+          },
+          {
+            "name": "OPENROUTER_API_KEY",
+            "valueFrom": "$SECRET_ARN:OPENROUTER_API_KEY::"
+          },
+          {
+            "name": "OPENAI_API_KEY",
+            "valueFrom": "$SECRET_ARN:OPENAI_API_KEY::"
+          },
+          {
+            "name": "LANGSMITH_TRACING",
+            "valueFrom": "$SECRET_ARN:LANGSMITH_TRACING::"
+          },
+          {
+            "name": "LANGSMITH_API_KEY",
+            "valueFrom": "$SECRET_ARN:LANGSMITH_API_KEY::"
+          },
+          {
+            "name": "X_API_KEY",
+            "valueFrom": "$SECRET_ARN:X_API_KEY::"
+          },
+          {
+            "name": "TEST_USER_EMAIL",
+            "valueFrom": "$SECRET_ARN:TEST_USER_EMAIL::"
+          },
+          {
+            "name": "TEST_USER_PASSWORD",
+            "valueFrom": "$SECRET_ARN:TEST_USER_PASSWORD::"
+          },
+          {
+            "name": "TEST_USER_PROXY",
+            "valueFrom": "$SECRET_ARN:TEST_USER_PROXY::"
+          },
+          {
+            "name": "TEST_USER_TOTP_SECRET",
+            "valueFrom": "$SECRET_ARN:TEST_USER_TOTP_SECRET::"
+          },
+          {
+            "name": "DEMO_TOKEN",
+            "valueFrom": "$SECRET_ARN:DEMO_TOKEN::"
+          },
+          {
+            "name": "AWS_ACCESS_KEY_ID",
+            "valueFrom": "$SECRET_ARN:AWS_ACCESS_KEY_ID::"
+          },
+          {
+            "name": "AWS_SECRET_ACCESS_KEY",
+            "valueFrom": "$SECRET_ARN:AWS_SECRET_ACCESS_KEY::"
+          },
+          {
+            "name": "GRAFANA_ADMIN_USER",
+            "valueFrom": "$SECRET_ARN:GRAFANA_ADMIN_USER::"
+          },
+          {
+            "name": "GRAFANA_ADMIN_PASSWORD",
+            "valueFrom": "$SECRET_ARN:GRAFANA_ADMIN_PASSWORD::"
+          }
+        ],
+        "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+            "awslogs-group": "/ecs/autox-backend",
+            "awslogs-region": "eu-west-3",
+            "awslogs-stream-prefix": "ecs"
+          }
+        },
+        "healthCheck": {
+          "command": ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"],
+          "interval": 30,
+          "timeout": 5,
+          "retries": 3,
+          "startPeriod": 60
+        },
+        "mountPoints": [
+          {
+            "sourceVolume": "backend-logs",
+            "containerPath": "/code/app/logs",
+            "readOnly": false
+          }
+        ]
+      }
+    ],
+    "volumes": [
+      {
+        "name": "backend-logs",
+        "efsVolumeConfiguration": {
+          "fileSystemId": "$EFS_ID",
+          "transitEncryption": "ENABLED",
+          "authorizationConfig": {
+            "iam": "ENABLED"
+          },
+          "rootDirectory": "/backend-logs"
+        }
+      }
+    ]
+  }
