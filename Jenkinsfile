@@ -39,7 +39,7 @@ pipeline {
                     def rawBranch = env.BRANCH_NAME ?: env.GIT_BRANCH ?: 'detached'
                     rawBranch = rawBranch.replaceFirst(/^origin\//, '')
                     rawBranch = rawBranch.replaceAll('/', '-')
-                    env.IMAGE_TAG = rawBranch == 'main' ? 'latest' : "dev-${rawBranch}"
+                    env.IMAGE_TAG = rawBranch == 'main' ? 'latest' : "${rawBranch}"
                     env.IMAGE_TAG = env.IMAGE_TAG.replaceAll('[^A-Za-z0-9._-]', '-')
                     echo "Resolved image tag: ${env.IMAGE_TAG}"
                 }
