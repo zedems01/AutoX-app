@@ -9,7 +9,11 @@ class TestStartWorkflow:
 
     def test_start_workflow_with_valid_payload(self, client, mocker, mock_user_details, mock_user_config):
         """Test starting workflow with valid payload."""
-        mock_update = mocker.patch("backend.app.main.graph.update_state")
+        mocker.patch("backend.app.main.graph.update_state")
+        mock_get_state = mocker.patch("backend.app.main.graph.get_state")
+        mock_state = MagicMock()
+        mock_state.values = {"is_autonomous_mode": False}
+        mock_get_state.return_value = mock_state
         
         payload = {
             "is_autonomous_mode": False,
@@ -35,9 +39,17 @@ class TestStartWorkflow:
         assert data["initial_state"]["is_autonomous_mode"] is False
         assert data["initial_state"]["output_destination"] == "DOWNLOAD"
 
+        # Stop the workflow to clean up resources
+        stop_response = client.post("/workflow/stop", json={"thread_id": data["thread_id"]})
+        assert stop_response.status_code == 200
+
     def test_start_workflow_creates_unique_thread_id(self, client, mocker, mock_user_details, mock_user_config):
         """Test that each workflow gets a unique thread_id."""
         mocker.patch("backend.app.main.graph.update_state")
+        mock_get_state = mocker.patch("backend.app.main.graph.get_state")
+        mock_state = MagicMock()
+        mock_state.values = {"is_autonomous_mode": True}
+        mock_get_state.return_value = mock_state
         
         payload = {
             "is_autonomous_mode": True,
@@ -68,9 +80,19 @@ class TestStartWorkflow:
         uuid.UUID(data1["thread_id"])
         uuid.UUID(data2["thread_id"])
 
+        # Stop workflows to clean up resources
+        stop_response1 = client.post("/workflow/stop", json={"thread_id": data1["thread_id"]})
+        assert stop_response1.status_code == 200
+        stop_response2 = client.post("/workflow/stop", json={"thread_id": data2["thread_id"]})
+        assert stop_response2.status_code == 200
+
     def test_start_workflow_initializes_state_correctly(self, client, mocker, mock_user_details, mock_user_config):
         """Test that workflow initializes state with correct default values."""
-        mock_update = mocker.patch("backend.app.main.graph.update_state")
+        mocker.patch("backend.app.main.graph.update_state")
+        mock_get_state = mocker.patch("backend.app.main.graph.get_state")
+        mock_state = MagicMock()
+        mock_state.values = {"is_autonomous_mode": False}
+        mock_get_state.return_value = mock_state
         
         payload = {
             "is_autonomous_mode": False,
@@ -102,9 +124,17 @@ class TestStartWorkflow:
         assert initial_state["research_loop_count"] == 0
         assert initial_state["max_research_loops"] == 3
 
+        # Stop the workflow to clean up resources
+        stop_response = client.post("/workflow/stop", json={"thread_id": data["thread_id"]})
+        assert stop_response.status_code == 200
+
     def test_start_workflow_with_user_provided_topic(self, client, mocker, mock_user_details, mock_user_config):
         """Test workflow start with user-provided topic."""
         mocker.patch("backend.app.main.graph.update_state")
+        mock_get_state = mocker.patch("backend.app.main.graph.get_state")
+        mock_state = MagicMock()
+        mock_state.values = {"is_autonomous_mode": False}
+        mock_get_state.return_value = mock_state
         
         payload = {
             "is_autonomous_mode": False,
@@ -127,6 +157,10 @@ class TestStartWorkflow:
         data = response.json()
         assert data["initial_state"]["has_user_provided_topic"] is True
         assert data["initial_state"]["user_provided_topic"] == "Machine Learning Trends"
+
+        # Stop the workflow to clean up resources
+        stop_response = client.post("/workflow/stop", json={"thread_id": data["thread_id"]})
+        assert stop_response.status_code == 200
 
     def test_start_workflow_handles_error(self, client, mocker, mock_user_details, mock_user_config):
         """Test workflow start handles errors gracefully."""

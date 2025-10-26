@@ -316,6 +316,7 @@ async def start_workflow(payload: StartWorkflowPayload):
     except Exception as e:
         logger.error(f"An error occurred during workflow execution: {e}")
         metrics_manager.stop_workflow(thread_id)
+        remove_file_handler(thread_id)
         WORKFLOW_COMPLETIONS_TOTAL.labels(
             status="error",
             autonomous_mode=str(payload.is_autonomous_mode)
