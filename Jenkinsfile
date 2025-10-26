@@ -9,24 +9,17 @@ pipeline {
     }
 
     environment {
-        // Directories
         BACKEND_DIR = 'x_automation_app/backend'
         FRONTEND_DIR = 'x_automation_app/frontend'
         
-        // Python
         PYTHON_VENV = 'venv'
         
-        // Docker images
         BACKEND_IMAGE_NAME = 'autox-backend'
         FRONTEND_IMAGE_NAME = 'autox-frontend'
         
-        // Node.js
         NODEJS_TOOL = 'nodejs-22.20.0'
         
-        // AWS
-        AWS_REGION = 'eu-west-3'  // Update with your AWS region if different
-        AWS_ACCOUNT_ID = credentials('aws-account-id')  // Store in Jenkins credentials
-        ECR_BACKEND_REPO = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${BACKEND_IMAGE_NAME}"
+        AWS_REGION = 'eu-west-3'
     }
 
     tools {
@@ -53,9 +46,7 @@ pipeline {
             }
         }
 
-        // ============================================
         // BACKEND CI/CD
-        // ============================================
         stage('Backend: Set Up Python Environment') {
             steps {
                 dir(env.BACKEND_DIR) {
@@ -64,7 +55,7 @@ pipeline {
                         . ${PYTHON_VENV}/bin/activate
                         python3 -m pip install --upgrade pip
                         pip3 install uv
-                        uv pip install --system .
+                        uv pip install .
                     '''
                 }
             }
@@ -73,70 +64,98 @@ pipeline {
         stage('Backend: Run Tests') {
             steps {
                 dir(env.BACKEND_DIR) {
-                    sh '''
+                    sh """
+                        set -e
                         . ${PYTHON_VENV}/bin/activate
-                        pytest -v
-                    '''
+                        pytest
+                        echo "Tests completed."
+                    """
                 }
             }
         }
 
-        stage('Backend: Docker Build & Push') {
-            parallel {
-                stage('Push to Docker Hub') {
-                    steps {
-                        withCredentials([usernamePassword(
-                            credentialsId: 'dockerhub-token',
-                            usernameVariable: 'DOCKERHUB_USERNAME',
-                            passwordVariable: 'DOCKERHUB_PASSWORD'
-                        )]) {
-                            dir(env.BACKEND_DIR) {
-                                sh '''
-                                    set -e
-                                    echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
-                                    docker build -t "$DOCKERHUB_USERNAME"/${BACKEND_IMAGE_NAME}:${IMAGE_TAG} .
-                                    docker push "$DOCKERHUB_USERNAME"/${BACKEND_IMAGE_NAME}:${IMAGE_TAG}
-                                '''
-                            }
-                        }
-                    }
-                }
-
-                stage('Push to AWS ECR') {
-                    steps {
-                        withCredentials([
-                            string(credentialsId: 'aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
-                            string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY')
-                        ]) {
-                            dir(env.BACKEND_DIR) {
-                                sh '''
-                                    set -e
-                                    # Login to AWS ECR
-                                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_BACKEND_REPO}
-                                    
-                                    # Build and tag for ECR
-                                    docker build -t ${BACKEND_IMAGE_NAME}:${IMAGE_TAG} .
-                                    docker tag ${BACKEND_IMAGE_NAME}:${IMAGE_TAG} ${ECR_BACKEND_REPO}:${IMAGE_TAG}
-                                    
-                                    # Push to ECR
-                                    docker push ${ECR_BACKEND_REPO}:${IMAGE_TAG}
-                                '''
-                            }
+        stage('Backend: Build Docker Image') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-token',
+                    usernameVariable: 'DOCKERHUB_USERNAME',
+                    passwordVariable: 'DOCKERHUB_PASSWORD'
+                )]) {
+                    dir(env.BACKEND_DIR) {
+                        script {
+                            def dockerHubImage = "${DOCKERHUB_USERNAME}/${BACKEND_IMAGE_NAME}:${IMAGE_TAG}"
+                            sh "docker build -t ${dockerHubImage} ."
                         }
                     }
                 }
             }
+        }
 
+        stage('Backend: Push to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-token',
+                    usernameVariable: 'DOCKERHUB_USERNAME',
+                    passwordVariable: 'DOCKERHUB_PASSWORD'
+                )]) {
+                    dir(env.BACKEND_DIR) {
+                        script {
+                            def dockerHubImage = "${DOCKERHUB_USERNAME}/${BACKEND_IMAGE_NAME}:${IMAGE_TAG}"
+                            sh """
+                                set -e
+                                echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+                                docker push ${dockerHubImage}
+                            """
+                        }
+                    }
+                }
+            }
             post {
                 always {
-                    sh 'docker logout || true'
+                    sh 'docker logout'
                 }
             }
         }
 
-        // ============================================
+
+        stage('Backend: Push to AWS ECR') {
+            steps {
+                withCredentials([
+                    string(credentialsId: 'aws-account-id', variable: 'AWS_ACCOUNT_ID'),
+                    string(credentialsId: 'aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
+                    string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY'),
+                    usernamePassword(
+                        credentialsId: 'dockerhub-token',
+                        usernameVariable: 'DOCKERHUB_USERNAME',
+                        passwordVariable: 'DOCKERHUB_PASSWORD'
+                    )
+                ]) {
+                    dir(env.BACKEND_DIR) {
+                        script {
+                            def dockerHubImage = "${DOCKERHUB_USERNAME}/${BACKEND_IMAGE_NAME}:${IMAGE_TAG}"
+                            def ecrRepo = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+                            def ecrImage = "${ecrRepo}/${BACKEND_IMAGE_NAME}:${IMAGE_TAG}"
+                            
+                            sh """
+                                set -e
+                                aws --version
+
+                                aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ecrRepo}
+                                docker tag ${dockerHubImage} ${ecrImage}
+                                docker push ${ecrImage}
+                            """
+                        }
+                    }
+                }
+            }
+            post {
+                always {
+                    sh "docker logout"
+                }
+            }
+        }
+
         // FRONTEND CI/CD
-        // ============================================
         stage('Frontend: Install Dependencies') {
             steps {
                 dir(env.FRONTEND_DIR) {
@@ -161,14 +180,6 @@ pipeline {
             }
         }
 
-        stage('Frontend: Build App') {
-            steps {
-                dir(env.FRONTEND_DIR) {
-                    sh 'npm run build'
-                }
-            }
-        }
-
         stage('Frontend: Docker Build & Push') {
             when {
                 expression { fileExists("${env.FRONTEND_DIR}/Dockerfile") }
@@ -180,20 +191,22 @@ pipeline {
                     passwordVariable: 'DOCKERHUB_PASSWORD'
                 )]) {
                     dir(env.FRONTEND_DIR) {
-                        sh '''
-                            set -e
-                            REGISTRY=${DOCKERHUB_NAMESPACE:-$DOCKERHUB_USERNAME}
-                            echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
-                            docker build -t "$REGISTRY"/${FRONTEND_IMAGE_NAME}:${IMAGE_TAG} .
-                            docker push "$REGISTRY"/${FRONTEND_IMAGE_NAME}:${IMAGE_TAG}
-                        '''
+                        script {
+                            def dockerHubImage = "${DOCKERHUB_USERNAME}/${FRONTEND_IMAGE_NAME}:${IMAGE_TAG}"
+                            sh """
+                                set -e
+                                echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+                                docker build -t ${dockerHubImage} .
+                                docker push ${dockerHubImage}
+                            """
+                        }
                     }
                 }
             }
 
             post {
                 always {
-                    sh 'docker logout || true'
+                    sh 'docker logout'
                 }
             }
         }
@@ -206,9 +219,7 @@ pipeline {
             }
         }
 
-        // ============================================
-        // DEPLOYMENT TRIGGER (for main branch only)
-        // ============================================
+        // DEPLOYMENT TRIGGER for main branch
         stage('Trigger AWS ECS Deployment') {
             when {
                 branch 'main'
@@ -218,7 +229,7 @@ pipeline {
                     string(credentialsId: 'aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
                     string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY')
                 ]) {
-                    sh '''
+                    sh """
                         # Force ECS service to use the new task definition
                         aws ecs update-service \
                             --cluster autox-cluster \
@@ -227,7 +238,7 @@ pipeline {
                             --region ${AWS_REGION}
                         
                         echo "ECS deployment triggered successfully"
-                    '''
+                    """
                 }
             }
         }
@@ -242,11 +253,11 @@ pipeline {
         }
 
         success {
-            echo "✅ Pipeline completed successfully!"
+            echo "+++++ Pipeline completed successfully! +++++"
         }
 
         failure {
-            echo "❌ Pipeline failed. Check logs for details."
+            echo "----- Pipeline failed. Check logs for details. -----"
         }
     }
 }
