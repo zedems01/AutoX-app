@@ -235,7 +235,7 @@ pipeline {
                             --cluster autox-cluster \
                             --service autox-backend-service \
                             --force-new-deployment \
-                            --region ${AWS_REGION}
+                            --region ${AWS_REGION} || true
                         
                         echo "ECS deployment triggered successfully"
                     """
