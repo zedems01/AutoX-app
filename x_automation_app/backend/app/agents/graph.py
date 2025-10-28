@@ -18,22 +18,26 @@ from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 
 from .state import OverallState
+from ..utils.metrics import VALIDATION_REQUESTS_TOTAL, TOPICS_SELECTED_TOTAL
 
 
 def await_topic_selection(state: OverallState) -> dict:
     """Node to await the topic selection."""
+    VALIDATION_REQUESTS_TOTAL.labels(validation_step="await_topic_selection").inc()
     return {
         "next_human_input_step": "await_topic_selection",
     }
 
 def await_content_validation(state: OverallState) -> dict:
     """Node to await the generated content validation."""
+    VALIDATION_REQUESTS_TOTAL.labels(validation_step="await_content_validation").inc()
     return {
         "next_human_input_step": "await_content_validation",
     }
 
 def await_image_validation(state: OverallState) -> dict:
     """Node to await the generated images validation."""
+    VALIDATION_REQUESTS_TOTAL.labels(validation_step="await_image_validation").inc()
     return {
         "next_human_input_step": "await_image_validation",
     }
@@ -42,6 +46,7 @@ def auto_select_topic(state: OverallState) -> dict:
     """Node to automatically select the top trending topic in autonomous mode."""
     if state.get("trending_topics"):
         selected_topic = state["trending_topics"][0]
+        TOPICS_SELECTED_TOTAL.labels(topic_type="trending_auto").inc()
         return {"selected_topic": selected_topic}
     return {}
 

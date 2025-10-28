@@ -41,12 +41,16 @@ function DemoLogin() {
       // toast.error(`Demo login failed: ${error.message}`, {
       //   duration: 15000,
       // })
-      toast.error(`X authentification failed !`, {
-        duration: 15000,
-      })
+      // toast.error(`X authentification failed !`, {
+      //   duration: 15000,
+      // })
       
       // Redirection vers la page principale avec un message d'avertissement
-      toast.warning("You can test the application, but posting to X will not be available without authentication.", {
+      // toast.warning("You can test the application, but posting to X will not be available without authentication.", {
+      //   duration: 10000,
+      // })
+
+      toast.info("You can test the application, but posting to X will not be available.", {
         duration: 10000,
       })
       

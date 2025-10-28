@@ -114,14 +114,43 @@ Alternatively, you can run the entire application using Docker.
     From the root directory of the project, run the following command:
 
     ```bash
+    # start backend + frontend
     docker compose up --build -d
+
+    # start monitoring stack
+    docker compose -f docker-compose.monitoring.yml up -d
     ```
 
-    This command will build the Docker images for the frontend and backend and start the services in the background.
+    These commands will build the Docker images for the frontend, backend, and monitoring stack, and start the services in the background.
 
     The application will be accessible at the same URLs:
     -   Frontend: **http://localhost:3000**
     -   Backend: **http://localhost:8000**
+    -   Prometheus: **http://localhost:9090**
+    -   Grafana: **http://localhost:3001**
+
+#### Access Prometheus
+1. Open: **http://localhost:9090**
+2. Go to **Status → Targets**
+3. `autox-backend` should be **UP**
+
+#### Access Grafana
+1. Open: **http://localhost:3001**
+2. Login:
+   - **Username:** `admin`
+   - **Password:** `admin`
+
+- Datasources verification
+  - Go to **Connections → Data Sources**, click on **Prometheus** then **Save & Test**
+  - Go back and click on **Loki**, then **Save & Test**
+
+#### View Pre-configured Dashboards
+- ***AutoX Custom Metrics Dashboard (Auto-loaded)***    
+The custom metrics dashboard is automatically provisioned! To view it: **Dashboards → Browse → "AutoX Custom Metrics"**
+
+- ***Import Additional Pre-built Dashboard***   
+Go to **Dashboards → New → Import**; Enter dashboard ID: `22676` (or `18739`) (FastAPI Observability) → Click **Load** → Select **Prometheus** as datasource → Click **Import**
+
 
 ## 🤖 Backend Agent Team
 
@@ -144,20 +173,32 @@ The workflow is composed of several specialized agents and nodes that collaborat
 ## Project Structure
 
 ```
-x_automation_app/
-├── backend/
-│   ├── app/
-│   │   ├── agents/      # Core agent logic and graph definition
-│   │   ├── utils/       # Utilities for prompts, schemas, etc.
-│   │   └── main.py      # FastAPI application entrypoint
-│   ├── tests/           # Backend test directory
-│   └── pyproject.toml   # Backend dependencies
-└── frontend/
-    ├── src/
-    │   ├── app/         # Next.js pages and routing
-    │   ├── components/  # Reusable React components
-    │   ├── contexts/    # Global state management (Auth, Workflow)
-    │   └── lib/         # API client and utility functions
-    ├── __tests__/       # Frontend test directory
-    └── package.json     # Frontend dependencies
+AutoX/
+├── monitoring/
+│   ├── grafana/
+│   ├── loki/
+│   ├── prometheus/
+│   └── promtail/
+├── x_automation_app/
+│   ├── backend/
+│   │   ├── app/
+│   │   │   ├── agents/      # Core agent logic and graph definition
+│   │   │   ├── utils/       # Utilities for prompts, schemas, etc.
+│   │   │   └── main.py      # FastAPI application entrypoint
+│   │   ├── tests/           # Backend test directory
+│   │   ├── pyproject.toml   # Backend dependencies
+│   │   └── Dockerfile       
+│   └── frontend/
+│       ├── src/
+│       │   ├── app/         # Next.js pages and routing
+│       │   ├── components/  # Reusable React components
+│       │   ├── contexts/    # Global state management (Auth, Workflow)
+│       │   └── lib/         # API client and utility functions
+│       ├── __tests__/       # Frontend test directory
+│       ├── package.json     # Frontend dependencies
+│       └── Dockerfile       
+├── docker-compose.monitoring.yml
+├── docker-compose.yml
+├── Jenkinsfile
+└── README.md
 ```

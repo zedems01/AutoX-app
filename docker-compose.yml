@@ -3,6 +3,7 @@ services:
     build:
       context: ./x_automation_app/backend
       dockerfile: Dockerfile
+    image: autox-backend-image
     container_name: autox-backend
     ports:
       - "8000:8000"
@@ -23,6 +24,7 @@ services:
     build:
       context: ./x_automation_app/frontend
       dockerfile: Dockerfile
+    image: autox-frontend-image
     container_name: autox-frontend
     ports:
       - "3000:3000"

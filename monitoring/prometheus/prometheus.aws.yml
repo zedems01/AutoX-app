@@ -1,0 +1,25 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'autox-cluster'
+    environment: 'production'
+
+scrape_configs:
+  # Backend metrics scraped via AWS Service Discovery
+  - job_name: 'autox-backend'
+    static_configs:
+      - targets: ['backend.autox.local:8000']  # Using AWS Service Discovery DNS name
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+    scrape_timeout: 5s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'autox-backend'
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+

@@ -1,0 +1,23 @@
+# Prometheus data
+data/
+prometheus-data/
+
+# Grafana data
+grafana-data/
+grafana/data/
+
+# Loki data
+loki-data/
+loki/data/
+
+# Promtail positions
+promtail/positions.yaml
+
+# Temporary files
+*.tmp
+*.log
+
+# Backup files
+*.bak
+*.backup
+
