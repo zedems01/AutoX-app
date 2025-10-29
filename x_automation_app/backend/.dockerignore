@@ -8,6 +8,9 @@ Dockerfile
 
 # Environment
 .env
+.env.*
+.env*.local
+
 .venv
 __pycache__
 *.pyc

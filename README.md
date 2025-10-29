@@ -1,9 +1,9 @@
 # AutoX Content Creator 🚀
 
-An autonomous AI agent team for real-time, trend-driven content creation.
+An autonomous AI agent for real-time, trend-driven content creation.
 
 <p style="text-align: center;">
-  <img src="./x_automation_app/app.png" alt="workflow images" width="700" />
+  <img src="./x_automation_app/images/app.png" alt="app_capture_screen" width="700" />
 </p>
 
 ## 🌟 About The Project
@@ -52,7 +52,7 @@ Follow these steps to set up and run the project locally.
 
 -   Node.js and npm
 -   Python 3.12+ and [UV](https://github.com/astral-sh/uv)
--   [Docker](https://www.docker.com/get-started) and [Docker Compose](https://docs.docker.com/compose/install/) (for containerized setup)
+-   🐳[Docker](https://www.docker.com/get-started) and [Docker Compose](https://docs.docker.com/compose/install/) (for containerized setup)
 
 ### Option 1: Manual Setup
 
@@ -136,7 +136,7 @@ Alternatively, you can run the entire application using Docker.
 
 #### Access Grafana
 1. Open: **http://localhost:3001**
-2. Login:
+2. Login (default):
    - **Username:** `admin`
    - **Password:** `admin`
 
@@ -152,12 +152,12 @@ The custom metrics dashboard is automatically provisioned! To view it: **Dashboa
 Go to **Dashboards → New → Import**; Enter dashboard ID: `22676` (or `18739`) (FastAPI Observability) → Click **Load** → Select **Prometheus** as datasource → Click **Import**
 
 
-## 🤖 Backend Agent Team
+## 🤖 Backend Agent Structure
 
 The workflow is composed of several specialized agents and nodes that collaborate to generate and publish content.
 
 <p style="text-align: center;">
-  <img src="./x_automation_app/autoX-workflow-graph.png" alt="workflow images" width="700" />
+  <img src="./x_automation_app/images/autoX-workflow-graph.png" alt="workflow_graph" width="700" />
 </p>
 
 -   **🔎 Trend Harvester**: Identifies trending topics on X for a specified location.
@@ -170,6 +170,14 @@ The workflow is composed of several specialized agents and nodes that collaborat
 -   **🧠 Deep Research Sub-Graph**: An embedded workflow that performs deep web searches to create a comprehensive research report on a topic.
 -   **🙋‍♂️ Human Validation Nodes**: These nodes pause the graph and await user input for topic selection, content approval, and image validation.
 
+
+## ☁️ Project Deployment
+
+<p style="text-align: center;">
+  <img src="./x_automation_app/images/autox_aws_architecture.png" alt="aws_architecture" width="700" />
+</p>
+
+
 ## Project Structure
 
 ```
@@ -179,6 +187,7 @@ AutoX/
 │   ├── loki/
 │   ├── prometheus/
 │   └── promtail/
+├── terraform/               # Infrastructure as Code (IaC) - Terraform configuration
 ├── x_automation_app/
 │   ├── backend/
 │   │   ├── app/
