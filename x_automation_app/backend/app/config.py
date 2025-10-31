@@ -6,7 +6,7 @@ load_dotenv()
 class Settings:
 
     GEMINI_API_KEY=os.getenv("GEMINI_API_KEY")
-    GEMINI_RESEARCH_MODEL=os.getenv("GEMINI_RESEARCH_MODEL", "gemini-2.5-flash")
+    GEMINI_RESEARCH_MODEL=os.getenv("GEMINI_RESEARCH_MODEL", "gemini-flash-latest")
     GEMINI_IMAGE_MODEL=os.getenv("GEMINI_IMAGE_MODEL", "gemini-2.5-flash-image")
     GEMINI_MODEL=os.getenv("GEMINI_MODEL", "gemini-flash-latest")
 

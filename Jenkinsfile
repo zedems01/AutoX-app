@@ -198,6 +198,7 @@ pipeline {
                                 echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
                                 docker build -t ${dockerHubImage} .
                                 docker push ${dockerHubImage}
+                                docker image prune
                             """
                         }
                     }

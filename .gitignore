@@ -114,6 +114,7 @@ htmlcov/
 .cache
 nosetests.xml
 docker-compose.ovh.yml
+Caddyfile
 coverage.xml
 *.cover
 .hypothesis/
