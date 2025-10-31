@@ -155,6 +155,30 @@ pipeline {
             }
         }
 
+        stage('Trigger Local Deployment') {
+            when {
+                branch 'main'
+            }
+            steps {
+                withCredentials([
+                    string(credentialsId: 'project-path', variable: 'PROJECT_PATH')
+                ]) {
+                    dir(env.PROJECT_PATH) {
+                        script {
+                            sh """
+                                set -e
+                                git pull origin main
+                                docker compose -f docker-compose.ovh.yml pull backend
+                                docker compose -f docker-compose.ovh.yml up -d --force-recreate backend
+
+                                echo "--- Local deployment triggered successfully ---"
+                            """
+                        }
+                    }
+                }
+            }
+        }
+
         // FRONTEND CI/CD
         stage('Frontend: Install Dependencies') {
             steps {
@@ -198,7 +222,7 @@ pipeline {
                                 echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
                                 docker build -t ${dockerHubImage} .
                                 docker push ${dockerHubImage}
-                                docker image prune
+                                docker image prune -f
                             """
                         }
                     }
@@ -212,13 +236,13 @@ pipeline {
             }
         }
 
-        stage('Frontend: Archive Artifacts') {
-            steps {
-                dir(env.FRONTEND_DIR) {
-                    archiveArtifacts artifacts: '.next/standalone/**', allowEmptyArchive: true
-                }
-            }
-        }
+        // stage('Frontend: Archive Artifacts') {
+        //     steps {
+        //         dir(env.FRONTEND_DIR) {
+        //             archiveArtifacts artifacts: '.next/standalone/**', allowEmptyArchive: true
+        //         }
+        //     }
+        // }
 
         // DEPLOYMENT TRIGGER for main branch
         stage('Trigger AWS ECS Deployment') {
