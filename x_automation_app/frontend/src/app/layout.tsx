@@ -11,6 +11,9 @@ import React from "react";
 export const metadata: Metadata = {
   title: "AutoX Content Creator",
   description: "Automate your X content workflow",
+  icons: {
+    icon: "/new_favicon.ico",
+  },
 };
 
 export default function RootLayout({
