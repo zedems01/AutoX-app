@@ -154,30 +154,7 @@ pipeline {
                 }
             }
         }
-
-        stage('Trigger Local Deployment') {
-            when {
-                branch 'main'
-            }
-            steps {
-                withCredentials([
-                    string(credentialsId: 'project-path', variable: 'PROJECT_PATH')
-                ]) {
-                    dir(env.PROJECT_PATH) {
-                        script {
-                            sh """
-                                set -e
-                                git pull origin main
-                                docker compose -f docker-compose.ovh.yml pull backend
-                                docker compose -f docker-compose.ovh.yml up -d --force-recreate backend
-
-                                echo "--- Local deployment triggered successfully ---"
-                            """
-                        }
-                    }
-                }
-            }
-        }
+        
 
         // FRONTEND CI/CD
         stage('Frontend: Install Dependencies') {
