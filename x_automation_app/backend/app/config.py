@@ -11,10 +11,6 @@ class Settings:
     GEMINI_MODEL=os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
     GEMINI_IMAGE_MODEL=os.getenv("GEMINI_IMAGE_MODEL", "gemini-2.5-flash-image")
 
-    # OPENROUTER_API_KEY=os.getenv("OPENROUTER_API_KEY")
-    # OPENROUTER_BASE_URL=os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
-    # OPENROUTER_MODEL=os.getenv("OPENROUTER_MODEL", "openai/gpt-5-mini")
-
     OPENAI_API_KEY=os.getenv("OPENAI_API_KEY")
     OPENAI_MODEL=os.getenv("OPENAI_MODEL", "gpt-5-mini")
     OPENAI_IMAGE_MODEL=os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1")

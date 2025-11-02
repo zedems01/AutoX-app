@@ -1,8 +1,6 @@
-# from langchain_openai import ChatOpenAI
-# from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chat_models import init_chat_model
 from ..utils.prompts import writer_prompt
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from .state import OverallState
 from ..utils.schemas import WriterOutput
 from ..config import settings
@@ -38,11 +36,6 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
         model = init_chat_model(llm)
         # llm = f"google_genai:{settings.GEMINI_MODEL}"
         # model = init_chat_model(llm, api_key=settings.GEMINI_API_KEY)
-        # llm = ChatOpenAI(
-        #     api_key=settings.OPENROUTER_API_KEY,
-        #     base_url=settings.OPENROUTER_BASE_URL,
-        #     model=settings.OPENROUTER_MODEL
-        # )
     except Exception as e:
         logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
         try:
@@ -50,10 +43,6 @@ def writer_node(state: OverallState) -> Dict[str, Any]:
             # model = init_chat_model(llm)
             llm = f"google_genai:{settings.GEMINI_MODEL}"
             model = init_chat_model(llm, api_key=settings.GEMINI_API_KEY)
-            # llm = ChatGoogleGenerativeAI(
-            #     model=settings.GEMINI_MODEL,
-            #     google_api_key=settings.GEMINI_API_KEY
-            # )
         except Exception as e:
             logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
 

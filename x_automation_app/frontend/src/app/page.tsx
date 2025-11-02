@@ -67,7 +67,6 @@ const formSchema = z
     user_config: z
       .object({
         gemini_model: z.string().optional(),
-        // openrouter_model: z.string().optional(),
         openai_model: z.string().optional(),
         trends_count: z.number().optional(),
         trends_woeid: z.number().optional(),
@@ -132,7 +131,6 @@ function WorkflowConfig() {
       target_audience: "",
       user_config: {
         gemini_model: "",
-        // openrouter_model: "",
         openai_model: "",
         trends_count: undefined,
         trends_woeid: 23424819,
@@ -557,7 +555,6 @@ function WorkflowConfig() {
                         </p>
                         <FormField
                           control={form.control}
-                          // name="user_config.openrouter_model"
                           name="user_config.openai_model"
                           render={({ field }) => (
                             <FormItem>
@@ -566,7 +563,6 @@ function WorkflowConfig() {
                               <FormControl>
                                 <Input
                                   placeholder="gpt-5-mini"
-                                  // placeholder="openai/gpt-5-mini"
                                   {...field}
                                   value={field.value ?? ""}
                                 />
@@ -686,7 +682,7 @@ function WorkflowConfig() {
                               <FormControl>
                                 <Input
                                   type="number"
-                                  placeholder="50"
+                                  placeholder="30"
                                   {...field}
                                   value={field.value ?? ""}
                                   onChange={(e) => {

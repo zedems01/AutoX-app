@@ -1,5 +1,3 @@
-# from langchain_openai import ChatOpenAI
-# from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chat_models import init_chat_model
 
 from ..utils.prompts import quality_assurance_prompt
@@ -30,22 +28,11 @@ def quality_assurance_node(state: OverallState) -> Dict[str, Any]:
     try:
         llm = f"google_genai:{settings.GEMINI_MODEL}"
         model = init_chat_model(llm, api_key=settings.GEMINI_API_KEY)
-        # llm = ChatOpenAI(
-        #     api_key=settings.OPENROUTER_API_KEY,
-        #     base_url=settings.OPENROUTER_BASE_URL,
-        #     model=settings.OPENROUTER_MODEL,
-        #     temperature=0.5
-        # )
     except Exception as e:
         logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
         try:
             llm = f"openai:{settings.OPENAI_MODEL}"
             model = init_chat_model(llm)
-            # llm = ChatGoogleGenerativeAI(
-            #     model=settings.GEMINI_MODEL,
-            #     google_api_key=settings.GEMINI_API_KEY,
-            #     temperature=0.5
-            # )
         except Exception as e:
             logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
 

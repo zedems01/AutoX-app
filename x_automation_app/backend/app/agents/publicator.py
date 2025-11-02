@@ -3,13 +3,8 @@ from .state import OverallState
 from ..utils.x_utils import get_char_count, post_tweet_v2
 from ..utils.prompts import thread_composer_prompt
 from ..utils.schemas import ThreadPlan, GeneratedImage
-
-# from langchain_openai import ChatOpenAI
-# from langchain_google_genai import ChatGoogleGenerativeAI
-# from langgraph.prebuilt import create_react_agent
 from langchain.agents import create_agent
 from langchain.chat_models import init_chat_model
-# from langchain.agents.structured_output import ProviderStrategy
 from ..config import settings
 
 
@@ -38,30 +33,13 @@ def publicator_node(state: OverallState) -> Dict[str, Any]:
     try:
         llm = f"google_genai:{settings.GEMINI_MODEL}"
         model = init_chat_model(llm, api_key=settings.GEMINI_API_KEY)
-        # llm = ChatOpenAI(
-        #     api_key=settings.OPENROUTER_API_KEY,
-        #     base_url=settings.OPENROUTER_BASE_URL,
-        #     model=settings.OPENROUTER_MODEL,
-        #     temperature=0.5
-        # )
     except Exception as e:
         logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
         try:
             llm = f"openai:{settings.OPENAI_MODEL}"
             model = init_chat_model(llm)
-            # llm = ChatGoogleGenerativeAI(
-            #     model=settings.GEMINI_MODEL,
-            #     google_api_key=settings.GEMINI_API_KEY,
-            #     temperature=0.5
-            # )
         except Exception as e:
             logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
-
-    # thread_composer_agent = create_react_agent(
-    #     model=llm,
-    #     tools=[get_char_count],
-    #     response_format=ThreadPlan
-    # )
 
     thread_composer_agent = create_agent(
         model=model,

@@ -180,7 +180,6 @@ class UserConfigSchema(BaseModel):
     """
     gemini_model: Optional[str] = Field(None, description="Preferred Gemini model if used.")
     openai_model: Optional[str] = Field(None, description="Preferred OpenAI model if used.")
-    openrouter_model: Optional[str] = Field(None, description="Preferred OpenRouter model.")
     trends_count: Optional[int] = Field(None, description="Number of trends to fetch.")
     trends_woeid: Optional[int] = Field(None, description="Where On Earth ID for trend fetching.")
     max_tweets_to_retrieve: Optional[int] = Field(None, description="Maximum number of tweets to retrieve in search.")
