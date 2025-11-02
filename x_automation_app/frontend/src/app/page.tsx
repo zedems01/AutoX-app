@@ -67,7 +67,7 @@ const formSchema = z
     user_config: z
       .object({
         gemini_model: z.string().optional(),
-        openrouter_model: z.string().optional(),
+        openai_model: z.string().optional(),
         trends_count: z.number().optional(),
         trends_woeid: z.number().optional(),
         max_tweets_to_retrieve: z.number().optional(),
@@ -124,16 +124,16 @@ function WorkflowConfig() {
       has_user_provided_topic: false,
       user_provided_topic: "",
       output_destination: "GET_OUTPUTS",
-      // x_content_type: "Social Media Post",
       x_content_type: "SINGLE_TWEET",
       content_length: "SHORT",
       brand_voice: "",
       target_audience: "",
       user_config: {
         gemini_model: "",
-        openrouter_model: "",
+        openai_model: "",
         trends_count: undefined,
         trends_woeid: 1,
+        // trends_woeid: 23424819,
         max_tweets_to_retrieve: undefined,
         tweets_language: "",
         content_language: "",
@@ -148,7 +148,6 @@ function WorkflowConfig() {
         const savedState = JSON.parse(decodeURIComponent(workflowStateParam))
         form.reset(savedState)
         toast.info("Your previous settings have been restored.")
-        // Clean the URL to avoid re-applying on refresh
         router.replace('/')
       } catch (error) {
         console.error("Failed to parse workflow state from URL", error)
@@ -173,10 +172,8 @@ function WorkflowConfig() {
       }
     }
 
-    // Add the event listener
     window.addEventListener('beforeunload', handleBeforeUnload)
 
-    // Cleanup function to remove the event listener
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload)
     }
@@ -208,7 +205,6 @@ function WorkflowConfig() {
       return value
     })
 
-    // If user_config becomes an empty object after cleaning, set it to undefined
     if (
       cleanedValues.user_config &&
       Object.keys(cleanedValues.user_config).length === 0
@@ -216,7 +212,6 @@ function WorkflowConfig() {
       cleanedValues.user_config = undefined
     }
     
-    // Set the detail view state before starting the workflow
     setShowDetails(cleanedValues.show_details)
 
     const payload = {
@@ -231,6 +226,22 @@ function WorkflowConfig() {
   const hasUserProvidedTopic = form.watch("has_user_provided_topic")
   const outputDestination = form.watch("output_destination")
   const contentType = form.watch("x_content_type")
+  const trendsWoeid = form.watch("user_config.trends_woeid")
+
+  // French WOEIDs
+  const frenchWoeids = [
+    23424819, // France
+    615702,   // Paris
+    580778,   // Bordeaux
+    608105,   // Lille
+    609125,   // Lyon
+    610264,   // Marseille
+    612977,   // Montpellier
+    613858,   // Nantes
+    619163,   // Rennes
+    627791,   // Strasbourg
+    628886,   // Toulouse
+  ]
 
   useEffect(() => {
     if (outputDestination === 'PUBLISH_X') {
@@ -239,6 +250,20 @@ function WorkflowConfig() {
       }
     }
   }, [outputDestination, form]);
+
+  // Auto-fill tweets language to French
+  useEffect(() => {
+    if (trendsWoeid) {
+      if (frenchWoeids.includes(trendsWoeid)) {
+        form.setValue('user_config.tweets_language', 'French')
+      } else {
+        const currentLanguage = form.getValues('user_config.tweets_language')
+        if (currentLanguage === 'French') {
+          form.setValue('user_config.tweets_language', '')
+        }
+      }
+    }
+  }, [trendsWoeid, form]);
 
   if (authStatus === 'verifying') {
     return (
@@ -397,115 +422,117 @@ function WorkflowConfig() {
                         )}
                       />
                     )}
-                    <FormField
-                      control={form.control}
-                      name="x_content_type"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Content Type</FormLabel>
-                          <Select
-                            onValueChange={(value) => {
-                              if (value === "OTHER") {
-                                field.onChange("")
-                              } else {
-                                field.onChange(value)
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="x_content_type"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Content Type</FormLabel>
+                            <Select
+                              onValueChange={(value) => {
+                                if (value === "OTHER") {
+                                  field.onChange("")
+                                } else {
+                                  field.onChange(value)
+                                }
+                              }}
+                              value={
+                                field.value &&
+                                ![
+                                  "Blog Post",
+                                  "Social Media Post",
+                                  "Newsletter",
+                                  "SINGLE_TWEET",
+                                  "TWEET_THREAD",
+                                ].includes(field.value)
+                                  ? "OTHER"
+                                  : field.value
                               }
-                            }}
-                            value={
-                              field.value &&
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a content type" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {outputDestination === "PUBLISH_X" ? (
+                                  <>
+                                    <SelectItem value="SINGLE_TWEET">
+                                      Single Tweet
+                                    </SelectItem>
+                                    <SelectItem value="TWEET_THREAD">
+                                      Tweet Thread
+                                    </SelectItem>
+                                  </>
+                                ) : (
+                                  <>
+                                    <SelectItem value="Blog Post">
+                                      Blog Post
+                                    </SelectItem>
+                                    <SelectItem value="Social Media Post">
+                                      Social Media Post
+                                    </SelectItem>
+                                    <SelectItem value="Newsletter">
+                                      Newsletter
+                                    </SelectItem>
+                                    <SelectItem value="SINGLE_TWEET">
+                                      Single Tweet
+                                    </SelectItem>
+                                    <SelectItem value="TWEET_THREAD">
+                                      Tweet Thread
+                                    </SelectItem>
+                                    <SelectItem value="OTHER">Other...</SelectItem>
+                                  </>
+                                )}
+                              </SelectContent>
+                            </Select>
+                            {contentType !== undefined &&
+                              outputDestination !== "PUBLISH_X" &&
                               ![
                                 "Blog Post",
                                 "Social Media Post",
-                                "Newsletter",
                                 "SINGLE_TWEET",
                                 "TWEET_THREAD",
-                              ].includes(field.value)
-                                ? "OTHER"
-                                : field.value
-                            }
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select a content type" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {outputDestination === "PUBLISH_X" ? (
-                                <>
-                                  <SelectItem value="SINGLE_TWEET">
-                                    Single Tweet
-                                  </SelectItem>
-                                  <SelectItem value="TWEET_THREAD">
-                                    Tweet Thread
-                                  </SelectItem>
-                                </>
-                              ) : (
-                                <>
-                                  <SelectItem value="Blog Post">
-                                    Blog Post
-                                  </SelectItem>
-                                  <SelectItem value="Social Media Post">
-                                    Social Media Post
-                                  </SelectItem>
-                                  <SelectItem value="Newsletter">
-                                    Newsletter
-                                  </SelectItem>
-                                  <SelectItem value="SINGLE_TWEET">
-                                    Single Tweet
-                                  </SelectItem>
-                                  <SelectItem value="TWEET_THREAD">
-                                    Tweet Thread
-                                  </SelectItem>
-                                  <SelectItem value="OTHER">Other...</SelectItem>
-                                </>
+                              ].includes(contentType) && (
+                                <FormControl>
+                                  <Input
+                                    placeholder="e.g., 'Newsletter'"
+                                    {...field}
+                                    className="mt-2"
+                                  />
+                                </FormControl>
                               )}
-                            </SelectContent>
-                          </Select>
-                          {contentType !== undefined &&
-                            outputDestination !== "PUBLISH_X" &&
-                            ![
-                              "Blog Post",
-                              "Social Media Post",
-                              "SINGLE_TWEET",
-                              "TWEET_THREAD",
-                            ].includes(contentType) && (
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="content_length"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Content Length</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
                               <FormControl>
-                                <Input
-                                  placeholder="e.g., 'Newsletter'"
-                                  {...field}
-                                  className="mt-2"
-                                />
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select content length" />
+                                </SelectTrigger>
                               </FormControl>
-                            )}
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="content_length"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Content Length</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select content length" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="SHORT">Short</SelectItem>
-                              <SelectItem value="MEDIUM">Medium</SelectItem>
-                              <SelectItem value="LONG">Long</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                              <SelectContent>
+                                <SelectItem value="SHORT">Short</SelectItem>
+                                <SelectItem value="MEDIUM">Medium</SelectItem>
+                                <SelectItem value="LONG">Long</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                   </div>
 
                   {/* --- Voice & Audience --- */}
@@ -518,7 +545,7 @@ function WorkflowConfig() {
                           <FormLabel>Brand Voice</FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="Describe the tone and style, e.g., 'Informative, witty, and slightly informal'"
+                              placeholder="Describe the tone and style, e.g., 'Informative, witty, slightly informal, ironic, etc.'"
                               {...field}
                             />
                           </FormControl>
@@ -534,7 +561,7 @@ function WorkflowConfig() {
                           <FormLabel>Target Audience</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="e.g., 'General audience, Tech enthusiasts'"
+                              placeholder="e.g., 'Common X users, Tech enthusiasts'"
                               {...field}
                             />
                           </FormControl>
@@ -553,190 +580,192 @@ function WorkflowConfig() {
                           Optional: Override default agent settings. Leave blank
                           to use defaults.
                         </p>
-                        <FormField
-                          control={form.control}
-                          name="user_config.openrouter_model"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>OpenRouter Model</FormLabel>
-                              <FormDescription className="text-xs">The main model powering the agent's reasoning.</FormDescription>
-                              <FormControl>
-                                <Input
-                                  placeholder="openai/gpt-5-mini"
-                                  {...field}
-                                  value={field.value ?? ""}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="user_config.gemini_model"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Gemini Model</FormLabel>
-                              <FormDescription className="text-xs">Fallback model if OpenRouter model is not available.</FormDescription>
-                              <FormControl>
-                                <Input
-                                  placeholder="gemini-2.5-flash"
-                                  {...field}
-                                  value={field.value ?? ""}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        {/* <FormField
-                          control={form.control}
-                          name="user_config.gemini_reasoning_model"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Gemini Reasoning Model</FormLabel>
-                              <FormDescription>The model for complex reasoning and analysis.</FormDescription>
-                              <FormControl>
-                                <Input
-                                  placeholder="e.g., 'gemini-1.5-pro-latest'"
-                                  {...field}
-                                  value={field.value ?? ""}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        /> */}
-                        
-                        <FormField
-                          control={form.control}
-                          name="user_config.trends_woeid"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Trends Location</FormLabel>
-                              <FormDescription className="text-xs">
-                                Location for trends (Yahoo! Where On Earth ID). More details <a href="https://gist.github.com/tedyblood/5bb5a9f78314cc1f478b3dd7cde790b9" target="_blank" rel="noopener noreferrer" className="text-blue-500">here</a>.
-                              </FormDescription>
-                              <Select
-                                onValueChange={(value) =>
-                                  field.onChange(
-                                    value ? parseInt(value, 10) : undefined,
-                                  )
-                                }
-                                defaultValue={field.value?.toString()}
-                              >
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="user_config.openai_model"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>OpenAI Model</FormLabel>
+                                <FormDescription className="text-xs">The main model powering the agent's reasoning.</FormDescription>
                                 <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select a location" />
-                                  </SelectTrigger>
+                                  <Input
+                                    placeholder="gpt-5-mini"
+                                    {...field}
+                                    value={field.value ?? ""}
+                                  />
                                 </FormControl>
-                                <SelectContent>
-                                  {woeidLocations.map((location) => (
-                                    <SelectItem
-                                      key={location.woeid}
-                                      value={location.woeid.toString()}
-                                    >
-                                      {`${location.name}  -  ${location.woeid}`}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="user_config.trends_count"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Trends Count</FormLabel>
-                              <FormDescription className="text-xs">Number of trending topics to fetch. Default is 30. Min is 30.</FormDescription>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="30"
-                                  {...field}
-                                  value={field.value ?? ""}
-                                  onChange={(e) => {
-                                    const value = e.target.value
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="user_config.gemini_model"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Gemini Model</FormLabel>
+                                <FormDescription className="text-xs">Fallback model if OpenRouter model is not available.</FormDescription>
+                                <FormControl>
+                                  <Input
+                                    placeholder="gemini-2.5-flash"
+                                    {...field}
+                                    value={field.value ?? ""}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          {/* <FormField
+                            control={form.control}
+                            name="user_config.gemini_reasoning_model"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Gemini Reasoning Model</FormLabel>
+                                <FormDescription>The model for complex reasoning and analysis.</FormDescription>
+                                <FormControl>
+                                  <Input
+                                    placeholder="e.g., 'gemini-1.5-pro-latest'"
+                                    {...field}
+                                    value={field.value ?? ""}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          /> */}
+                          
+                          <FormField
+                            control={form.control}
+                            name="user_config.trends_woeid"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Trends Location</FormLabel>
+                                <FormDescription className="text-xs">
+                                  Location for trends (Yahoo! Where On Earth ID). More details <a href="https://gist.github.com/tedyblood/5bb5a9f78314cc1f478b3dd7cde790b9" target="_blank" rel="noopener noreferrer" className="text-blue-500">here</a>.
+                                </FormDescription>
+                                <Select
+                                  onValueChange={(value) =>
                                     field.onChange(
-                                      value === "" ? undefined : parseInt(value, 10)
+                                      value ? parseInt(value, 10) : undefined,
                                     )
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="user_config.max_tweets_to_retrieve"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Max Tweets to Retrieve</FormLabel>
-                              <FormDescription className="text-xs">
-                                Maximum number of tweets to retrieve for opinion analysis.
-                              </FormDescription>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="50"
-                                  {...field}
-                                  value={field.value ?? ""}
-                                  onChange={(e) => {
-                                    const value = e.target.value
-                                    field.onChange(
-                                      value === "" ? undefined : parseInt(value, 10)
-                                    )
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="user_config.tweets_language"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Tweets Language</FormLabel>
-                              <FormDescription className="text-xs">
-                                Language of the retrieved tweets.
-                              </FormDescription>
-                              <FormControl>
-                                <Input
-                                  placeholder="'English'"
-                                  {...field}
-                                  value={field.value ?? ""}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="user_config.content_language"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Content Language</FormLabel>
-                              <FormDescription className="text-xs">
-                                Language for the final content.
-                              </FormDescription>
-                              <FormControl>
-                                <Input
-                                  placeholder="'English'"
-                                  {...field}
-                                  value={field.value ?? ""}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                                  }
+                                  defaultValue={field.value?.toString()}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select a location" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {woeidLocations.map((location) => (
+                                      <SelectItem
+                                        key={location.woeid}
+                                        value={location.woeid.toString()}
+                                      >
+                                        {`${location.name}  -  ${location.woeid}`}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="user_config.trends_count"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Trends Count</FormLabel>
+                                <FormDescription className="text-xs">Number of trending topics to fetch. Default is 30. Min is 30.</FormDescription>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    placeholder="30"
+                                    {...field}
+                                    value={field.value ?? ""}
+                                    onChange={(e) => {
+                                      const value = e.target.value
+                                      field.onChange(
+                                        value === "" ? undefined : parseInt(value, 10)
+                                      )
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="user_config.max_tweets_to_retrieve"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Max Tweets to Retrieve</FormLabel>
+                                <FormDescription className="text-xs">
+                                  Maximum number of tweets to retrieve for opinion analysis.
+                                </FormDescription>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    placeholder="30"
+                                    {...field}
+                                    value={field.value ?? ""}
+                                    onChange={(e) => {
+                                      const value = e.target.value
+                                      field.onChange(
+                                        value === "" ? undefined : parseInt(value, 10)
+                                      )
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="user_config.tweets_language"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Tweets Language</FormLabel>
+                                <FormDescription className="text-xs">
+                                  Language of the retrieved tweets.
+                                </FormDescription>
+                                <FormControl>
+                                  <Input
+                                    placeholder="'English'"
+                                    {...field}
+                                    value={field.value ?? ""}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="user_config.content_language"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Content Language</FormLabel>
+                                <FormDescription className="text-xs">
+                                  Language for the final content.
+                                </FormDescription>
+                                <FormControl>
+                                  <Input
+                                    placeholder="'English'"
+                                    {...field}
+                                    value={field.value ?? ""}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
                       </AccordionContent>
                     </AccordionItem>
                   </Accordion>

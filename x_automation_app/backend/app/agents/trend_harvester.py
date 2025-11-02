@@ -1,9 +1,8 @@
-from langgraph.prebuilt import create_react_agent
-from langchain_openai import ChatOpenAI
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.agents import create_agent
+from langchain.chat_models import init_chat_model
 
 from ..utils.prompts import trend_harvester_prompt
-from typing import Dict, Any, List
+from typing import Dict, List
 from .state import OverallState
 from ..utils.schemas import Trend, TrendResponse
 from ..utils.x_utils import get_trends
@@ -24,23 +23,18 @@ def trend_harvester_node(state: OverallState) -> Dict[str, List[Trend]]:
     """
 
     try:
-        llm = ChatGoogleGenerativeAI(
-                model=settings.GEMINI_MODEL,
-                google_api_key=settings.GEMINI_API_KEY
-            )
+        llm = f"google_genai:{settings.GEMINI_RESEARCH_MODEL}"
+        model = init_chat_model(llm, api_key=settings.GEMINI_API_KEY)
     except Exception as e:
         logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
         try:
-            llm = ChatOpenAI(
-            api_key=settings.OPENROUTER_API_KEY,
-            base_url=settings.OPENROUTER_BASE_URL,
-            model=settings.OPENROUTER_MODEL
-        )
+            llm = f"openai:{settings.OPENAI_MODEL}"
+            model = init_chat_model(llm)
         except Exception as e:
             logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
 
-    trend_harvester_agent = create_react_agent(
-        model=llm,
+    trend_harvester_agent = create_agent(
+        model=model,
         tools=[get_trends],
         response_format=TrendResponse
     )

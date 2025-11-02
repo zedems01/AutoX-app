@@ -117,7 +117,6 @@ pipeline {
             }
         }
 
-
         stage('Backend: Push to AWS ECR') {
             steps {
                 withCredentials([
