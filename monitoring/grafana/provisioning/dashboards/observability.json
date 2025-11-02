@@ -1052,7 +1052,7 @@
   "preload": false,
   "refresh": "5s",
   "schemaVersion": 42,
-  "tags": [],
+  "tags": ["autox", "custom"],
   "templating": {
     "list": [
       {
@@ -1100,7 +1100,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "FastAPI Observability",
+  "title": "AutoX Observability",
   "uid": "fea3x93t76328c",
   "version": 1
 }
