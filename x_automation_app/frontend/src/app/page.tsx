@@ -67,7 +67,8 @@ const formSchema = z
     user_config: z
       .object({
         gemini_model: z.string().optional(),
-        openrouter_model: z.string().optional(),
+        // openrouter_model: z.string().optional(),
+        openai_model: z.string().optional(),
         trends_count: z.number().optional(),
         trends_woeid: z.number().optional(),
         max_tweets_to_retrieve: z.number().optional(),
@@ -131,9 +132,10 @@ function WorkflowConfig() {
       target_audience: "",
       user_config: {
         gemini_model: "",
-        openrouter_model: "",
+        // openrouter_model: "",
+        openai_model: "",
         trends_count: undefined,
-        trends_woeid: 1,
+        trends_woeid: 23424819,
         max_tweets_to_retrieve: undefined,
         tweets_language: "",
         content_language: "",
@@ -555,14 +557,16 @@ function WorkflowConfig() {
                         </p>
                         <FormField
                           control={form.control}
-                          name="user_config.openrouter_model"
+                          // name="user_config.openrouter_model"
+                          name="user_config.openai_model"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>OpenRouter Model</FormLabel>
+                              <FormLabel>OpenAI Model</FormLabel>
                               <FormDescription className="text-xs">The main model powering the agent's reasoning.</FormDescription>
                               <FormControl>
                                 <Input
-                                  placeholder="openai/gpt-5-mini"
+                                  placeholder="gpt-5-mini"
+                                  // placeholder="openai/gpt-5-mini"
                                   {...field}
                                   value={field.value ?? ""}
                                 />

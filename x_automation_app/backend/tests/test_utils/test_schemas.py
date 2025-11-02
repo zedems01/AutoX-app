@@ -160,12 +160,14 @@ class TestUserConfigSchema:
         assert config.max_tweets_to_retrieve == 50
         assert config.gemini_model is None
         assert config.openrouter_model is None
+        assert config.openai_model is None
 
     def test_user_config_with_all_fields(self):
         """Test UserConfigSchema with all fields."""
         config = UserConfigSchema(
             gemini_model="gemini-1.5-pro",
-            openrouter_model="anthropic/claude-3-opus",
+            openai_model="gpt-5-mini",
+            # openrouter_model="anthropic/claude-3-opus",
             trends_count=20,
             trends_woeid=1,
             max_tweets_to_retrieve=100,

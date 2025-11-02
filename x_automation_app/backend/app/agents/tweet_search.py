@@ -1,7 +1,8 @@
 # import json
 # from langgraph.prebuilt import create_react_agent
-from langchain_openai import ChatOpenAI
-from langchain_google_genai import ChatGoogleGenerativeAI
+# from langchain_openai import ChatOpenAI
+# from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.chat_models import init_chat_model
 
 from ..utils.prompts import tweet_search_prompt, get_current_date
 from typing import Dict, Any
@@ -30,18 +31,22 @@ def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
     """
 
     try:
-        llm = ChatOpenAI(
-            api_key=settings.OPENROUTER_API_KEY,
-            base_url=settings.OPENROUTER_BASE_URL,
-            model=settings.OPENROUTER_MODEL
-        )
+        llm = f"google_genai:{settings.GEMINI_MODEL}"
+        model = init_chat_model(llm, api_key=settings.GEMINI_API_KEY)
+        # llm = ChatOpenAI(
+        #     api_key=settings.OPENROUTER_API_KEY,
+        #     base_url=settings.OPENROUTER_BASE_URL,
+        #     model=settings.OPENROUTER_MODEL
+        # )
     except Exception as e:
         logger.error(f"Error initializing OpenRouter model, using Gemini model as fallback: {e}")
         try:
-            llm = ChatGoogleGenerativeAI(
-                model=settings.GEMINI_MODEL,
-                google_api_key=settings.GEMINI_API_KEY
-            )
+            llm = f"openai:{settings.OPENAI_MODEL}"
+            model = init_chat_model(llm)
+            # llm = ChatGoogleGenerativeAI(
+            #     model=settings.GEMINI_MODEL,
+            #     google_api_key=settings.GEMINI_API_KEY
+            # )
         except Exception as e:
             logger.error(f"Error initializing Google Generative AI model, please check your credentials: {e}")
 
@@ -68,7 +73,7 @@ def tweet_search_node(state: OverallState) -> Dict[str, List[TweetSearched]]:
 
         logger.info(ctext(f"Searching for tweets about: {topic}\n", color='white'))
 
-        structured_llm = llm.with_structured_output(TweetQuery)
+        structured_llm = model.with_structured_output(TweetQuery)
 
 
         user_config = state.get("user_config") or {}

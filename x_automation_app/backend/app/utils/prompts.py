@@ -104,11 +104,22 @@ Summaries:
 
 
 trend_harvester_prompt = """
+================  YOUR GOAL  ================
+
 You are an expert trend analyst. Your task is to identify the most promising trends on X for content creation.
 
 1.  First, you MUST use the `get_trends` tool to fetch the current trending topics. You must call it with `woeid={woeid}` and `count={count}`.
 2.  After fetching the trends, filter out those that are spam, and order the remaining trends by public interest and conversation.
 3.  Yet, make sure to return most of the trends fetched.
+
+================  OUTPUT FORMAT  ================
+
+<output_instruction>
+
+- **Your final output must be a single JSON object that conforms to the `TrendResponse` schema.**
+- Do **not** add any extra commentary, formatting, or summaries.
+
+</output_instruction>
 """
 
 tweet_search_prompt="""

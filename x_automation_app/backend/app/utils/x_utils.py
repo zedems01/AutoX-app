@@ -163,7 +163,7 @@ def tweet_advanced_search(
             logger.info(ctext(f"Fetched {len(all_tweets)} tweets so far...", color='white'))
 
             if len(all_tweets) >= max_tweets_to_retrieve:
-                logger.info(ctext(f"Max tweets reached: {max_tweets_to_retrieve}, exiting loop.", color='white'))
+                # logger.info(ctext(f"Max tweets reached: {max_tweets_to_retrieve}, exiting loop.", color='white'))
                 break
 
             has_next_page = data.get("has_next_page", False)
