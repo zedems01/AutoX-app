@@ -160,15 +160,15 @@ The workflow is composed of several specialized agents and nodes that collaborat
   <img src="./x_automation_app/images/autoX-workflow-graph.png" alt="workflow_graph" width="700" />
 </p>
 
--   **🔎 Trend Harvester**: Identifies trending topics on X for a specified location.
--   **🐦 Tweet Searcher**: Gathers relevant, recent tweets for a given topic to understand public sentiment and talking points.
--   **🤔 Opinion Analyzer**: Analyzes the collected tweets to create a summary of public opinion and sentiment.
--   **✍️ Writer**: Drafts the final content (e.g., Tweet, Thread) based on the research and analysis.
--   **✨ Quality Assurer**: Reviews and refines the drafted content, generating image prompts if necessary.
--   **🎨 Image Generator**: Creates images based on the prompts from the QA agent.
--   **📢 Publicator**: Publishes the final content and images to X.
--   **🧠 Deep Research Sub-Graph**: An embedded workflow that performs deep web searches to create a comprehensive research report on a topic.
--   **🙋‍♂️ Human Validation Nodes**: These nodes pause the graph and await user input for topic selection, content approval, and image validation.
+-   **🔎 Trend Harvester**: Identifies trending topics on X for a specified location
+-   **🐦 Tweet Searcher**: Gathers relevant, recent tweets for a given topic to understand public sentiment and talking points
+-   **🤔 Opinion Analyzer**: Analyzes the collected tweets to create a summary of public opinion and sentiment
+-   **✍️ Writer**: Drafts the final content (e.g., Tweet, Thread) based on the research and analysis
+-   **✨ Quality Assurer**: Reviews and refines the drafted content, generating image prompts if necessary
+-   **🎨 Image Generator**: Creates images based on the prompts from the QA agent
+-   **📢 Publicator**: Publishes the final content and images to X
+-   **🧠 Deep Research Sub-Graph**: An embedded workflow that performs deep web searches to create a comprehensive research report on a topic
+-   **🙋‍♂️ Human Validation Nodes**: These nodes pause the graph and await user input for topic selection, content approval, and image validation
 
 
 ## ☁️ Project Deployment
