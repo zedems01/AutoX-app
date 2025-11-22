@@ -6,13 +6,13 @@ terraform {
     }
   }
 
-  # S3 backend + DynamoDB for remote state storage
+  # S3 backend with native S3 locking
   backend "s3" {
-    bucket         = "autox-terraform-state"
-    key            = "autox.tfstate"
-    region         = "eu-west-3"
-    dynamodb_table = "autox-terraform-state-lock"
-    encrypt        = true
+    bucket       = "autox-terraform-state"
+    key          = "autox.tfstate"
+    region       = "eu-west-3"
+    use_lockfile = true
+    encrypt      = true
   }
 }
 
